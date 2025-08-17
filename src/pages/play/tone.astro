@@ -1,41 +1,35 @@
 ---
 const gamePath = "/games/Tone/index.html";
 ---
-<a href="https://play.google.com/store/apps/details?id=com.ZanyInc.ToneRemastered&hl=en_US"
-   target="_blank" rel="noopener">
-  <img src="/badges/google-play-badge.png" alt="Get it on Google Play" height="60">
-</a>
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>Play</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      html, body { margin: 0; padding: 0; }
-      .wrap {
-        min-height: 100dvh;
-        display: grid;
-        place-items: center;   /* centers the frame */
-        padding: 1rem;
-        box-sizing: border-box;
-        overflow: hidden;
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden; /* prevent page scrollbars */
       }
       .frame {
-        width: min(100%, 1200px);
-        aspect-ratio: 16 / 9;  /* adjust if your game isn’t 16:9 */
+        position: fixed;
+        inset: 0;          /* top/right/bottom/left: 0 */
+        width: 100vw;
+        height: 100dvh;    /* handles mobile browser UI better than 100vh */
         border: 0;
         display: block;
       }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <iframe
-        class="frame"
-        src={gamePath}
-        allow="fullscreen; gamepad; xr-spatial-tracking"
-        loading="eager"
-      ></iframe>
-    </div>
+    <iframe
+      class="frame"
+      src={gamePath}
+      allow="fullscreen; gamepad; xr-spatial-tracking"
+      loading="eager"
+    ></iframe>
   </body>
 </html>

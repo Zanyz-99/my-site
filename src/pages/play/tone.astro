@@ -1,33 +1,38 @@
 ---
-const pageTitle = "Tone";
-const gamePath = "/games/Tone/index.html"; // served from /public
+const gamePath = "/games/Tone/index.html";
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>{pageTitle}</title>
+    <title>Play</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
+      html, body { margin: 0; padding: 0; }
+      .wrap {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;   /* centers the frame */
+        padding: 1rem;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
       .frame {
-        width: 100%;
-        max-width: 960px;
-        aspect-ratio: 16 / 9; /* keep canvas proportional */
+        width: min(100%, 1200px);
+        aspect-ratio: 16 / 9;  /* adjust if your game isn’t 16:9 */
         border: 0;
         display: block;
-        margin: 2rem auto;
-      }
-      @media (max-width: 768px) {
-        .frame { max-width: 100%; }
       }
     </style>
   </head>
   <body>
-    <iframe
-      class="frame"
-      src={gamePath}
-      allow="fullscreen; gamepad; xr-spatial-tracking"
-      loading="eager"
-    ></iframe>
+    <div class="wrap">
+      <iframe
+        class="frame"
+        src={gamePath}
+        allow="fullscreen; gamepad; xr-spatial-tracking"
+        loading="eager"
+      ></iframe>
+    </div>
   </body>
 </html>

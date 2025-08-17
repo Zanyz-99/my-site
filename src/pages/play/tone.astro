@@ -1,41 +1,33 @@
 ---
-const gamePath = "/games/Tone/index.html"; // your build path
+const pageTitle = "My Game";
+const gamePath = "/games/Tone/index.html"; // served from /public
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Play</title>
+    <title>{pageTitle}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      .stage {
-        width: min(100vw, 1200px);   /* cap max width if you want */
-        aspect-ratio: 16 / 9;        /* keep it 16:9 */
-        margin: 2rem auto;
-        position: relative;
-      }
-      .stage > iframe {
-        position: absolute;
-        inset: 0;
+      .frame {
         width: 100%;
-        height: 100%;
+        max-width: 960px;
+        aspect-ratio: 16 / 9; /* keep canvas proportional */
         border: 0;
         display: block;
-        overflow: hidden;            /* hide inner overflow if any */
+        margin: 2rem auto;
       }
-      body {
-        margin: 0;
-        background: #0b0b0b;         /* optional backdrop */
+      @media (max-width: 768px) {
+        .frame { max-width: 100%; }
       }
     </style>
   </head>
   <body>
-    <div class="stage">
-      <iframe
-        src={gamePath}
-        allow="fullscreen; gamepad; xr-spatial-tracking"
-        scrolling="no"
-      ></iframe>
-    </div>
+    <iframe
+      class="frame"
+      src={gamePath}
+      allow="fullscreen; gamepad; xr-spatial-tracking"
+      loading="eager"
+    ></iframe>
   </body>
 </html>

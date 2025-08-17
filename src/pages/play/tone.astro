@@ -1,0 +1,33 @@
+---
+const pageTitle = "Tone";
+const gamePath = "/games/Tone/index.html"; // served from /public
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{pageTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .frame {
+        width: 100%;
+        max-width: 960px;
+        aspect-ratio: 16 / 9; /* keep canvas proportional */
+        border: 0;
+        display: block;
+        margin: 2rem auto;
+      }
+      @media (max-width: 768px) {
+        .frame { max-width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      class="frame"
+      src={gamePath}
+      allow="fullscreen; gamepad; xr-spatial-tracking"
+      loading="eager"
+    ></iframe>
+  </body>
+</html>

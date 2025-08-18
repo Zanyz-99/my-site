@@ -1,34 +1,106 @@
 ---
-// src/pages/play/Sheepshead.astro
 import Layout from "../../layouts/Layout.astro";
+
 const pageTitle = "Sheepshead — Play Online";
 const gamePath = "/games/Sheepshead/index.html";
 ---
 
 <Layout title={pageTitle} description="Play Sheepshead Remastered (portrait 9:16) — Unity WebGL.">
   <style>
-    .stage{
-      height:min(90dvh,980px);
-      aspect-ratio:9/16;
-      margin:0 auto;
-      position:relative;
-      overflow:hidden;
-      max-width:100%;
-      background:#000;
-      border-radius:12px;
-      border:1px solid var(--border);
+    .page-header{
+      display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1rem
     }
+    .crumbs{font-size:.95rem;color:var(--muted)}
+    .crumbs a{color:var(--muted)}
+    h1{margin:.25rem 0 .75rem;font-size:1.6rem}
+    .wrap{display:grid;grid-template-columns:1fr;gap:var(--gap)}
+    @media (min-width:980px){.wrap{grid-template-columns:1.1fr .9fr;align-items:start}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem}
+    .muted{color:var(--muted)}
+    .btnrow{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem .9rem;border-radius:10px;border:1px solid var(--border);background:#1a1a1a;color:var(--text);cursor:pointer}
+    .btn:hover{background:#222}
+    .btn.primary{background:#2a2a2a;border-color:#2f2f2f}
+    .stage{height:min(90dvh,980px);aspect-ratio:9/16;margin:0 auto;position:relative;overflow:hidden;max-width:100%;background:#000;border-radius:12px;border:1px solid var(--border)}
     .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-top:.75rem}
+    .meta{font-size:.9rem;color:var(--muted);margin-top:.5rem}
   </style>
 
-  <h1 style="margin:.25rem 0 .75rem">Sheepshead</h1>
-  <div class="stage">
-    <iframe
-      src={gamePath}
-      allow="fullscreen; gamepad; xr-spatial-tracking"
-      scrolling="no"
-      loading="eager"
-      title="Sheepshead game"
-    ></iframe>
+  <div class="page-header">
+    <div>
+      <div class="crumbs"><a href="/">← Home</a> / <span>Sheepshead</span></div>
+      <h1>Sheepshead</h1>
+    </div>
+    <div class="btnrow">
+      <a class="btn" href="/" aria-label="Back to Home">Back to Home</a>
+    </div>
   </div>
+
+  <div class="wrap">
+    <!-- Info / content -->
+    <section class="card">
+      <h2 style="margin-top:0">About this game</h2>
+      <p class="muted">
+        A remastered take on the classic trick-taking card game. Best in portrait (9:16).
+        Works on mobile and desktop.
+      </p>
+
+      <h3>How to play</h3>
+      <ul class="muted" style="margin-top:.25rem;line-height:1.6">
+        <li>Follow the suit/rules shown in-game.</li>
+        <li>Win tricks to score points.</li>
+        <li>Use fullscreen for focus.</li>
+      </ul>
+
+      <div class="btnrow">
+        <button class="btn primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <a class="btn" href="/#games">All Games</a>
+      </div>
+
+      <div class="meta">v1.2 • Unity WebGL • Cloudflare Pages</div>
+    </section>
+
+    <!-- Game -->
+    <aside class="card">
+      <div class="stage">
+        <iframe
+          id="gameframe"
+          src={gamePath}
+          allow="fullscreen; gamepad; xr-spatial-tracking"
+          scrolling="no"
+          loading="eager"
+          title="Sheepshead game"
+        ></iframe>
+      </div>
+      <div class="actions">
+        <span class="muted">Tip: if you see borders, try fullscreen.</span>
+        <div class="btnrow">
+          <button class="btn" id="btn-reload" type="button">Reload</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const frame = document.getElementById("gameframe");
+    const fsBtn = document.getElementById("btn-fullscreen");
+    const reloadBtn = document.getElementById("btn-reload");
+
+    fsBtn?.addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+          fsBtn.textContent = "Enter Fullscreen";
+        } else {
+          await frame.requestFullscreen();
+          fsBtn.textContent = "Exit Fullscreen";
+        }
+      } catch (e) { console.error(e); }
+    });
+
+    reloadBtn?.addEventListener("click", () => {
+      frame.src = frame.src; // hard reload
+    });
+  </script>
 </Layout>

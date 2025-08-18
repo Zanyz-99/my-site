@@ -9,18 +9,29 @@ const gamePath = "/games/Tone/index.html"; // served from /public
     <title>{pageTitle}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      .frame {
-        width: 100%;
-        max-width: 960px;
-        aspect-ratio: 16 / 9; /* keep canvas proportional */
-        border: 0;
-        display: block;
-        margin: 2rem auto;
-      }
-      @media (max-width: 768px) {
-        .frame { max-width: 100%; }
-      }
-    </style>
+  html, body { height: 100%; margin: 0; background: #0b0b0b; }
+  .stage {
+    height: 100dvh;       /* fit screen height */
+    aspect-ratio: 9 / 16; /* portrait box */
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    max-width: 100vw;
+  }
+  .stage > iframe {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: 0; display: block;
+  }
+</style>
+<div class="stage">
+  <iframe
+    src="/games/Tone/index.html"
+    allow="fullscreen; gamepad; xr-spatial-tracking"
+    scrolling="no"
+    loading="eager"
+  ></iframe>
+</div>
   </head>
   <body>
     <iframe

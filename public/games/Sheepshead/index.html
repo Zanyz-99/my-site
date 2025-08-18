@@ -1,41 +1,121 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Unity Web Player | Sheepshead Remastered</title>
+
+    <!-- No scrollbars inside the iframe; canvas fills its container -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;   /* prevent internal scrolling */
+        background: #000;
+      }
+      #unity-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+      }
+      #unity-canvas {
+        width: 100% !important;   /* fill the container (Astro controls aspect) */
+        height: 100% !important;
+        display: block;
+        background: #000;
+      }
+      #unity-loading-bar, #unity-warning { position: absolute; left: 0; right: 0; }
+      #unity-footer { display: none; }
+    </style>
   </head>
-  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=1080 height=1920 tabindex="-1" style="width: 1080px; height: 1920px; background: #231F20"></canvas>
-    <script src="Build/Sheepshead.loader.js"></script>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <!-- Width/height attrs are fine; CSS above makes it fill parent -->
+      <canvas id="unity-canvas" width="1080" height="1920" tabindex="-1"></canvas>
+
+      <div id="unity-loading-bar">
+        <div id="unity-progress-bar-empty" style="height:4px;background:#222;margin:12px">
+          <div id="unity-progress-bar-full" style="height:100%;width:0;background:#4da3ff"></div>
+        </div>
+      </div>
+      <div id="unity-warning"></div>
+      <div id="unity-footer">
+        <div id="unity-fullscreen-button"></div>
+      </div>
+    </div>
+
     <script>
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+      const canvas = document.querySelector("#unity-canvas");
 
-        var canvas = document.querySelector("#unity-canvas");
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.position = "fixed";
-
-        document.body.style.textAlign = "left";
+      function unityShowBanner(msg, type) {
+        const warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        const div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(() => { warningBanner.removeChild(div); updateBannerVisibility(); }, 5000);
+        }
+        updateBannerVisibility();
       }
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
+      const buildUrl = "Build";
+      const loaderUrl = buildUrl + "/Sheepshead.loader.js";
+      const config = {
         arguments: [],
-        dataUrl: "Build/Sheepshead.data.unityweb",
-        frameworkUrl: "Build/Sheepshead.framework.js.unityweb",
-        codeUrl: "Build/Sheepshead.wasm.unityweb",
+        dataUrl:       buildUrl + "/Sheepshead.data.unityweb",
+        frameworkUrl:  buildUrl + "/Sheepshead.framework.js.unityweb",
+        codeUrl:       buildUrl + "/Sheepshead.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "ZanyInc",
         productName: "Sheepshead Remastered",
         productVersion: "1.2",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
-      });
+        showBanner: unityShowBanner,
+        // Keep default: render target follows CSS size of the canvas
+        // matchWebGLToCanvasSize: true,
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile: fill container; let CSS control sizing/aspect
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.head.appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
+        // Optional for perf:
+        // config.devicePixelRatio = 1;
+      } else {
+        // Desktop: do NOT force fixed px that cause scrollbars
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+      }
+
+      document.querySelector("#unity-loading-bar").style.display = "block";
+
+      const script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          const bar = document.querySelector("#unity-progress-bar-full");
+          if (bar) bar.style.width = (100 * progress) + "%";
+        }).then((unityInstance) => {
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          const fsBtn = document.querySelector("#unity-fullscreen-button");
+          if (fsBtn) fsBtn.onclick = () => unityInstance.SetFullscreen(1);
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
     </script>
   </body>
 </html>

@@ -1,0 +1,68 @@
+---
+const CV_PDF = '/Zach_Scholz_Resume.pdf';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Research — Zach Scholz</title>
+    <meta name="description" content="Research projects, publications, and technical notes." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root{--bg:#0b0f14;--panel:#0f1620;--text:#e5e7eb;--muted:#9aa4b2;--brand:#79ffe1;--ring:rgba(121,255,225,.3);--card:#111827;--border:#1f2937}
+      html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+      a{color:inherit;text-decoration:none}
+      .container{max-width:1100px;margin:0 auto;padding:24px}
+      .nav{position:sticky;top:0;background:linear-gradient(180deg,rgba(11,15,20,.9),rgba(11,15,20,.6));backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--border);z-index:20}
+      .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+      .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.3px}
+      .brand-dot{width:10px;height:10px;border-radius:999px;background:var(--brand);box-shadow:0 0 18px var(--brand)}
+      .nav-links{display:flex;gap:18px;align-items:center}
+      .nav-links a{padding:8px 12px;border-radius:10px;border:1px solid transparent}
+      .nav-links a:hover{border-color:var(--border);background:rgba(255,255,255,.03)}
+      .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+      .btn:hover{transform:translateY(-1px);box-shadow:0 0 0 6px var(--ring)}
+      .btn.primary{border-color:transparent;background:linear-gradient(180deg,#93ffe9,#46ffd5);color:#041b15}
+      .section{padding:48px 0}
+      .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+      .card{border:1px solid var(--border);background:var(--card);border-radius:16px;padding:18px}
+      .muted{color:var(--muted)}
+      .is-hidden{display:none!important}
+      @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="container nav-inner">
+        <a href="/" class="brand"><span class="brand-dot"></span><span>Zach Scholz</span></a>
+        <div class="nav-links" role="navigation" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/cv">CV</a>
+          <a href="/research">Research</a>
+          <a href="/coding">Coding</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/blog" class="is-hidden" aria-hidden="true" tabindex="-1">Blog</a>
+        </div>
+        <a class="btn" href={CV_PDF} download>Download CV</a>
+      </div>
+    </nav>
+
+    <main class="container section">
+      <h1 style="margin:0 0 8px">Research</h1>
+      <p class="muted" style="margin:0 0 24px">Optimization, geospatial analytics, and decision-support.</p>
+
+      <div class="grid" role="list">
+        <article class="card" role="listitem">
+          <h3 style="margin:0 0 6px">Terrain-aware travel-time modeling</h3>
+          <p class="muted">Predictive GPX analytics for variable terrain; calibration with field traces; applications to wildfire ops.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3 style="margin:0 0 6px">Constrained shortest-path w/ pickups & drops</h3>
+          <p class="muted">Custom route optimization with revisit-allowed constraints; Pyomo + CPLEX; lazy subtour elimination.</p>
+        </article>
+      </div>
+    </main>
+  </body>
+</html>

@@ -2,143 +2,83 @@
 import Layout from "../../layouts/Layout.astro";
 
 const pageTitle = "Tone — Play Online";
-const gamePath = "/games/Tone/index.html"; // served from /public
+const gamePath = "/games/Tone/index.html";
 ---
 
-<Layout title={pageTitle}>
+<Layout title={pageTitle} description="Play Tone (portrait 9:16) — a quick ear-training game built with Unity WebGL.">
   <style>
-    :root {
-      --wrap-max: 1200px;
-      --gap: 1.25rem;
-      --card-bg: #121212;
-      --text: #e7e7e7;
-      --muted: #b8b8b8;
-      --accent: #4da3ff;
+    .page-header{
+      display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1rem
     }
-    html, body { background: #0b0b0b; }
-    .page {
-      color: var(--text);
-      padding: 1rem;
-    }
-    .page a { color: var(--accent); text-decoration: none; }
-    .page a:hover { text-decoration: underline; }
-
-    /* Header */
-    .page-header {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 0.75rem; margin: 0 auto 1rem; max-width: var(--wrap-max);
-    }
-    .crumbs { font-size: 0.95rem; color: var(--muted); }
-    .crumbs a { color: var(--muted); }
-    h1.title { margin: 0.25rem 0 0.5rem; font-size: 1.5rem; }
-
-    /* Layout */
-    .wrap {
-      margin: 0 auto; max-width: var(--wrap-max);
-      display: grid; grid-template-columns: 1fr; gap: var(--gap);
-    }
-    @media (min-width: 980px) {
-      .wrap { grid-template-columns: 1.1fr 0.9fr; align-items: start; }
-    }
-
-    /* Info column */
-    .card {
-      background: var(--card-bg);
-      border-radius: 14px; padding: 1rem 1.25rem; border: 1px solid #1b1b1b;
-    }
-    .muted { color: var(--muted); }
-
-    .btnrow { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0.75rem 0 0; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.65rem 0.9rem; border-radius: 10px; border: 1px solid #1b1b1b;
-      background: #1a1a1a; color: var(--text); cursor: pointer;
-    }
-    .btn:hover { background: #222; }
-    .btn.primary { background: #2a2a2a; border-color: #2f2f2f; }
-
-    /* Game column */
-    .game-card { padding: 0.75rem; }
-    .stage {
-      /* Portrait 9:16 box; height adapts to viewport */
-      height: min(90dvh, 980px);
-      aspect-ratio: 9 / 16;
-      margin: 0 auto;
-      position: relative;
-      overflow: hidden;
-      max-width: 100%;
-      background: #000;
-      border-radius: 12px;
-      border: 1px solid #1b1b1b;
-    }
-    .stage iframe {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      border: 0; display: block;
-    }
-    .actions {
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 0.75rem; margin-top: 0.75rem;
-    }
-
-    /* Small print */
-    .meta { font-size: 0.9rem; color: var(--muted); margin-top: 0.5rem; }
+    .crumbs{font-size:.95rem;color:var(--muted)}
+    .crumbs a{color:var(--muted)}
+    h1{margin:.25rem 0 .75rem;font-size:1.6rem}
+    .wrap{display:grid;grid-template-columns:1fr;gap:var(--gap)}
+    @media (min-width:980px){.wrap{grid-template-columns:1.1fr .9fr;align-items:start}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem}
+    .muted{color:var(--muted)}
+    .btnrow{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem .9rem;border-radius:10px;border:1px solid var(--border);background:#1a1a1a;color:var(--text);cursor:pointer}
+    .btn:hover{background:#222}
+    .btn.primary{background:#2a2a2a;border-color:#2f2f2f}
+    .stage{height:min(90dvh,980px);aspect-ratio:9/16;margin:0 auto;position:relative;overflow:hidden;max-width:100%;background:#000;border-radius:12px;border:1px solid var(--border)}
+    .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-top:.75rem}
+    .meta{font-size:.9rem;color:var(--muted);margin-top:.5rem}
   </style>
 
-  <div class="page">
-    <!-- Header / breadcrumbs -->
-    <div class="page-header">
-      <div>
-        <div class="crumbs"><a href="/">← Home</a> / <span>Tone</span></div>
-        <h1 class="title">Tone</h1>
-      </div>
-      <div class="btnrow">
-        <a class="btn" href="/" aria-label="Back to Home">Back to Home</a>
-      </div>
+  <div class="page-header">
+    <div>
+      <div class="crumbs"><a href="/">← Home</a> / <span>Tone</span></div>
+      <h1>Tone</h1>
     </div>
+    <div class="btnrow">
+      <a class="btn" href="/" aria-label="Back to Home">Back to Home</a>
+    </div>
+  </div>
 
-    <div class="wrap">
-      <!-- Info / content column -->
-      <section class="card">
-        <h2 style="margin-top:0">About this game</h2>
-        <p class="muted">
-          A quick-hit color/ear-training game, rebuilt for web. Best experienced in portrait.
-          Plays great on mobile or desktop.
-        </p>
+  <div class="wrap">
+    <!-- Info / content -->
+    <section class="card">
+      <h2 style="margin-top:0">About this game</h2>
+      <p class="muted">
+        A quick-hit ear & reaction trainer rebuilt for the web. Best in portrait (9:16). Works on mobile and desktop.
+      </p>
 
-        <h3>How to play</h3>
-        <ul class="muted" style="margin-top:0.25rem; line-height:1.6">
-          <li>Tap the correct tone before time runs out.</li>
-          <li>Streaks increase difficulty and speed.</li>
-          <li>Use fullscreen for focus (button below).</li>
-        </ul>
+      <h3>How to play</h3>
+      <ul class="muted" style="margin-top:.25rem;line-height:1.6">
+        <li>Tap the correct tone before the timer runs out.</li>
+        <li>Streaks make it faster and harder.</li>
+        <li>Use fullscreen for focus.</li>
+      </ul>
 
+      <div class="btnrow">
+        <button class="btn primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <a class="btn" href="/#games">All Games</a>
+      </div>
+
+      <div class="meta">v1.2 • Unity WebGL • Cloudflare Pages</div>
+    </section>
+
+    <!-- Game -->
+    <aside class="card">
+      <div class="stage">
+        <iframe
+          id="gameframe"
+          src={gamePath}
+          allow="fullscreen; gamepad; xr-spatial-tracking"
+          scrolling="no"
+          loading="eager"
+          title="Tone game"
+        ></iframe>
+      </div>
+      <div class="actions">
+        <span class="muted">Tip: if you see borders, try fullscreen.</span>
         <div class="btnrow">
-          <button class="btn primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
-          <a class="btn" href="/#games">All Projects</a>
-        </div>
-
-        <div class="meta">v1.2 • Built with Unity WebGL • Hosted on Cloudflare Pages</div>
-      </section>
-
-      <!-- Game column -->
-      <aside class="card game-card">
-        <div class="stage">
-          <iframe
-            id="gameframe"
-            src={gamePath}
-            allow="fullscreen; gamepad; xr-spatial-tracking"
-            scrolling="no"
-            loading="eager"
-            title="Tone game"
-          ></iframe>
-        </div>
-        <div class="actions">
-          <span class="muted">Tip: rotate your phone for portrait if needed.</span>
           <button class="btn" id="btn-reload" type="button">Reload</button>
         </div>
-      </aside>
-    </div>
+      </div>
+    </aside>
   </div>
 
   <script>
@@ -155,14 +95,11 @@ const gamePath = "/games/Tone/index.html"; // served from /public
           await frame.requestFullscreen();
           fsBtn.textContent = "Exit Fullscreen";
         }
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     });
 
     reloadBtn?.addEventListener("click", () => {
-      // simple hard reload of the iframe
-      frame.src = frame.src;
+      frame.src = frame.src; // hard reload
     });
   </script>
 </Layout>

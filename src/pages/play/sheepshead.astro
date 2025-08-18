@@ -1,0 +1,34 @@
+---
+// src/pages/play/Sheepshead.astro
+import Layout from "../../layouts/Layout.astro";
+const pageTitle = "Sheepshead — Play Online";
+const gamePath = "/games/Sheepshead/index.html";
+---
+
+<Layout title={pageTitle} description="Play Sheepshead Remastered (portrait 9:16) — Unity WebGL.">
+  <style>
+    .stage{
+      height:min(90dvh,980px);
+      aspect-ratio:9/16;
+      margin:0 auto;
+      position:relative;
+      overflow:hidden;
+      max-width:100%;
+      background:#000;
+      border-radius:12px;
+      border:1px solid var(--border);
+    }
+    .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  </style>
+
+  <h1 style="margin:.25rem 0 .75rem">Sheepshead</h1>
+  <div class="stage">
+    <iframe
+      src={gamePath}
+      allow="fullscreen; gamepad; xr-spatial-tracking"
+      scrolling="no"
+      loading="eager"
+      title="Sheepshead game"
+    ></iframe>
+  </div>
+</Layout>

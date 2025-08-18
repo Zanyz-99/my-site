@@ -1,136 +1,54 @@
-<!DOCTYPE html>
-<html lang="en-us">
+---
+const pageTitle = "Tone";
+const gamePath = "/games/Tone/index.html"; // served from /public
+---
+
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Unity Web Player | Tone</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico" />
-    <link rel="stylesheet" href="TemplateData/style.css" />
-
-    <!-- Force the page to be a non-scrolling canvas host -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>{pageTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
+      /* Fill the viewport height, compute width via 9:16 aspect ratio */
       html, body {
         height: 100%;
         margin: 0;
-        padding: 0;
-        overflow: hidden;            /* no scrollbars inside the iframe */
-        background: #000;
+        background: #0b0b0b; /* optional backdrop */
       }
-      #unity-container {
+      .stage {
+        height: 100dvh;          /* dynamic viewport height (mobile-safe) */
+        aspect-ratio: 9 / 16;    /* portrait */
+        margin: 0 auto;
         position: relative;
+        overflow: hidden;        /* no internal scrollbars */
+        max-width: 100vw;        /* avoid horizontal overflow on tiny screens */
+      }
+      .stage > iframe {
+        position: absolute;
+        inset: 0;
         width: 100%;
         height: 100%;
-        max-width: 100%;
-        max-height: 100%;
-      }
-      #unity-canvas {
-        width: 100% !important;      /* fill the container (your iframe controls 16:9) */
-        height: 100% !important;
+        border: 0;
         display: block;
-        background: #000;
       }
-      /* Keep loading UI from affecting layout */
-      #unity-loading-bar,
-      #unity-warning,
-      #unity-footer {
-        position: absolute;
-        left: 0; right: 0;
+
+      /* Optional: on very wide desktops, cap the width so it doesn't look huge */
+      @media (min-width: 1200px) {
+        .stage {
+          height: min(100dvh, 960px);
+          /* width will follow from aspect-ratio (540px when height is 960px) */
+        }
       }
-      #unity-footer { display: none; }  /* hide footer to avoid overflow */
     </style>
   </head>
   <body>
-    <div id="unity-container" class="unity-desktop">
-      <!-- width/height attributes are ignored by CSS above -->
-      <canvas id="unity-canvas" width="600" height="960" tabindex="-1"></canvas>
-
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"></div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Tone</div>
-      </div>
+    <div class="stage">
+      <iframe
+        src={gamePath}
+        allow="fullscreen; gamepad; xr-spatial-tracking"
+        scrolling="no"
+        loading="eager"
+      ></iframe>
     </div>
-
-    <script>
-      var canvas = document.querySelector("#unity-canvas");
-
-      function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function () {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
-
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Tone.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/Tone.data.unityweb",
-        frameworkUrl: buildUrl + "/Tone.framework.js.unityweb",
-        codeUrl: buildUrl + "/Tone.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "Zany Inc",
-        productName: "Tone",
-        productVersion: "1.2",
-        showBanner: unityShowBanner,
-        // Leave default true so render target matches CSS size (100% of container)
-        // matchWebGLToCanvasSize: true,
-      };
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile: full area of the container; keep our CSS doing the sizing
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
-        // Optionally lower DPR for perf:
-        // config.devicePixelRatio = 1;
-      } else {
-        // Desktop: fill container (no fixed px that cause scrollbars)
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-      }
-
-      document.querySelector("#unity-loading-bar").style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
-        }).then((unityInstance) => {
-          document.querySelector("#unity-loading-bar").style.display = "none";
-          var fsBtn = document.querySelector("#unity-fullscreen-button");
-          if (fsBtn) {
-            fsBtn.onclick = () => unityInstance.SetFullscreen(1);
-          }
-        }).catch((message) => {
-          alert(message);
-        });
-      };
-      document.body.appendChild(script);
-    </script>
   </body>
 </html>

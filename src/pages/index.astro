@@ -26,6 +26,14 @@ const projects = [
     tags: ['Mapping','GIS'],
   },
 ];
+const games = [
+  {
+    title: 'Tone',
+    desc: 'Ear/reaction trainer (Unity WebGL, portrait 9:16).',
+    href: '/games/Tone', // <-- link to your Astro page (NOT the WebGL index.html)
+    tag: 'Play now',
+  },
+];
 ---
 
 <!doctype html>
@@ -98,6 +106,7 @@ const projects = [
         <a href="#" class="brand"><span class="brand-dot" aria-hidden="true"></span> <span>Zach Scholz</span></a>
         <div class="nav-links" role="navigation" aria-label="Primary">
           <a href="#projects">Projects</a>
+          <a href="#games">Games</a>
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
           <a href="/blog">Blog</a>
@@ -123,6 +132,11 @@ const projects = [
       <div class="hero-card">
         <div class="hero-blob" aria-hidden="true"></div>
         <p class="sr-only">Abstract glassy blob with teal glow.</p>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn primary" href="#projects">See projects</a>
+        <a class="btn" href="#games">Games</a>
+        <a class="btn" href="/games/Tone">Play Tone</a> <!-- New -->
       </div>
     </header>
 
@@ -159,6 +173,24 @@ const projects = [
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               {p.tags.map((t) => <span class="tag">{t}</span>)}
             </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- GAMES -->
+    <section id="games" class="container section">
+      <h2 style="margin:0 0 12px;font-size:28px">Games</h2>
+      <p style="margin:0 0 22px;color:var(--muted)">Quick, lightweight web games.</p>
+      <div class="grid" role="list">
+        {games.map((g) => (
+          <a class="card" role="listitem" href={g.href}>
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+              <h3 style="margin:0;font-size:18px">{g.title}</h3>
+              <span aria-hidden="true">↗</span>
+            </div>
+            <p style="margin:8px 0 12px;color:var(--muted)">{g.desc}</p>
+            <span class="tag">{g.tag}</span>
           </a>
         ))}
       </div>

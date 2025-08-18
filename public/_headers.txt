@@ -12,3 +12,15 @@
   Content-Type: application/javascript
   Content-Encoding: br
   Cache-Control: public, max-age=31536000, immutable
+
+/games/Sheepshead/Build/*.data.unityweb
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/games/Sheepshead/Build/*.framework.js.unityweb
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+/games/Sheepshead/Build/*.wasm.unityweb
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable

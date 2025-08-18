@@ -1,13 +1,41 @@
 ---
 const CV_PDF = '/Zach_Scholz_Resume.pdf';
+
+// Papers (newest first). Space-safe links handled via encodeURI() in markup.
+const papers = [
+  {
+    title: 'Optimizing Prepositioning of Equipment and Personnel for Los Angeles County Fire Department to Fight Wildland Fires',
+    authors: ['Gerald Brown', 'Robert A. Koyak', 'Javier Salmerón', 'Zachary Scholz'],
+    venue: 'INFORMS Journal on Applied Analytics',
+    year: 2021,
+    summary:
+      'The paper builds a decision-support system for the Los Angeles County Fire Department to pre-position wildfire resources on “red flag” days. Using decades of RAWS weather and fire data, it first predicts each area’s daily fire-start probability with logistic regression, then estimates burned area via a linear model with a heuristic capability score. These outputs feed an integer optimization model that, under a daily budget, selects where to move on-duty assets and which off-duty resources to call up to minimize expected evacuations; LACoFD adopted and continues refining the tool.',
+    pdf: '/papers/Scholz NPS Thesis.pdf',
+    external_url: 'https://pubsonline.informs.org/doi/abs/10.1287/inte.2021.1084',
+  },
+  {
+    title: 'Evaluation of Highly Enriched Uranium (HEU) surrogate sources for use in training and modeling',
+    authors: ['Z. Scholz', 'M. Millett', 'M. Schell'],
+    venue: 'Nuclear Instruments and Methods in Physics Research Section A: Accelerators, Spectrometers, Detectors and Associated Equipment',
+    year: 2018,
+    summary:
+      'This research investigates the development of surrogate sources to replicate the gamma-ray spectrum of Highly Enriched Uranium (HEU) for training and equipment testing without special-nuclear-material handling. By leveraging thermal neutron capture in isotopes like gadolinium, dysprosium, and erbium, prototype configurations produced prompt gamma emissions near the 186 keV peak; gadolinium offered a strong spectral match, with improvements possible via isotope enrichment and moderation/shielding. Findings suggest prompt-gamma surrogates can provide safe, low-cost, high-fidelity alternatives for HEU detection training and evaluation.',
+    // User provided path as "/public/papers/..."; public files are served from root, so use "/papers/..." in href.
+    pdf: '/papers/Scholz USNA Thesis.pdf',
+    external_url: 'https://www.sciencedirect.com/science/article/abs/pii/S0168900218312002',
+  },
+];
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Research — Zach Scholz</title>
     <meta name="description" content="Research projects, publications, and technical notes." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
       :root{--bg:#0b0f14;--panel:#0f1620;--text:#e5e7eb;--muted:#9aa4b2;--brand:#79ffe1;--ring:rgba(121,255,225,.3);--card:#111827;--border:#1f2937}
@@ -17,7 +45,6 @@ const CV_PDF = '/Zach_Scholz_Resume.pdf';
       .nav{position:sticky;top:0;background:linear-gradient(180deg,rgba(11,15,20,.9),rgba(11,15,20,.6));backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--border);z-index:20}
       .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
       .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.3px}
-      .brand-dot{width:10px;height:10px;border-radius:999px;background:var(--brand);box-shadow:0 0 18px var(--brand)}
       .nav-links{display:flex;gap:18px;align-items:center}
       .nav-links a{padding:8px 12px;border-radius:10px;border:1px solid transparent}
       .nav-links a:hover{border-color:var(--border);background:rgba(255,255,255,.03)}
@@ -29,13 +56,19 @@ const CV_PDF = '/Zach_Scholz_Resume.pdf';
       .card{border:1px solid var(--border);background:var(--card);border-radius:16px;padding:18px}
       .muted{color:var(--muted)}
       .is-hidden{display:none!important}
+      .paper-meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+      .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
       @media (max-width:900px){.grid{grid-template-columns:1fr}}
+      img.logo{height:48px}
     </style>
   </head>
   <body>
     <nav class="nav">
       <div class="container nav-inner">
-        <a href="/" class="brand"><span class="brand-dot"></span><span>Zach Scholz</span></a>
+        <a href="/" class="brand">
+          <!-- Swap to your logo; ensure /public/logo.png exists -->
+          <img class="logo" src="/logo.png" alt="Zach Scholz Logo" />
+        </a>
         <div class="nav-links" role="navigation" aria-label="Primary">
           <a href="/">Home</a>
           <a href="/cv">CV</a>
@@ -51,17 +84,24 @@ const CV_PDF = '/Zach_Scholz_Resume.pdf';
 
     <main class="container section">
       <h1 style="margin:0 0 8px">Research</h1>
-      <p class="muted" style="margin:0 0 24px">Optimization, geospatial analytics, and decision-support.</p>
+      <p class="muted" style="margin:0 0 24px">Optimization, geospatial analytics, and decision-support; plus prior nuclear instrumentation work.</p>
 
       <div class="grid" role="list">
-        <article class="card" role="listitem">
-          <h3 style="margin:0 0 6px">Terrain-aware travel-time modeling</h3>
-          <p class="muted">Predictive GPX analytics for variable terrain; calibration with field traces; applications to wildfire ops.</p>
-        </article>
-        <article class="card" role="listitem">
-          <h3 style="margin:0 0 6px">Constrained shortest-path w/ pickups & drops</h3>
-          <p class="muted">Custom route optimization with revisit-allowed constraints; Pyomo + CPLEX; lazy subtour elimination.</p>
-        </article>
+        {papers.map((p) => (
+          <article class="card" role="listitem">
+            <h3 style="margin:0 0 6px">{p.title}</h3>
+            <div class="paper-meta">
+              <span>{p.authors.join(', ')}</span>
+              <span>•</span>
+              <span><em>{p.venue}</em> ({p.year})</span>
+            </div>
+            <p class="muted" style="margin:10px 0 0">{p.summary}</p>
+            <div class="actions">
+              <a class="btn primary" href={encodeURI(p.pdf)} target="_blank" rel="noopener">PDF</a>
+              <a class="btn" href={p.external_url} target="_blank" rel="noopener">Publisher ↗</a>
+            </div>
+          </article>
+        ))}
       </div>
     </main>
   </body>

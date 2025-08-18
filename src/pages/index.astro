@@ -1,80 +1,105 @@
 ---
-// src/pages/index.astro
-const socials = [
-  { name: 'GitHub', href: 'https://github.com/yourhandle' },
-  { name: 'LinkedIn', href: 'https://www.linkedin.com/in/yourhandle/' },
-  { name: 'Email', href: 'mailto:you@example.com' },
-];
-const projects = [
-  {
-    title: 'Tone — Play Online',
-    desc: 'Quick ear‑training game built with Unity WebGL (portrait 9:16).',
-    href: '/games/Tone/',
-    tags: ['Unity','WebGL','Game'],
-  },
-  {
-    title: 'Project B',
-    desc: 'Short description emphasizing results.',
-    href: '#',
-    tags: ['Python','Data'],
-  },
-  {
-    title: 'Project C',
-    desc: 'Another highlight. Keep it crisp.',
-    href: '#',
-    tags: ['Mapping','GIS'],
-  },
-];
+import Layout from "../../layouts/Layout.astro";
+
+const pageTitle = "Tone — Play Online";
+const gamePath = "/games/Tone/index.html";
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zach Scholz — Home</title>
-    <meta name="description" content="Personal site — portfolio, writing, and contact." />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-      /* [unchanged styles here] */
-    </style>
-  </head>
-  <body>
-    <!-- NAVBAR -->
-    <nav class="nav">
-      <div class="container nav-inner">
-        <a href="#" class="brand"><span class="brand-dot" aria-hidden="true"></span> <span>Zach Scholz</span></a>
-        <div class="nav-links" role="navigation" aria-label="Primary">
-          <a href="#projects">Projects</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
-          <a href="/blog">Blog</a>
-        </div>
-        <a class="btn" href="/resume.pdf">Resume</a>
-      </div>
-    </nav>
 
-    <!-- HERO -->
-    <header class="container hero">
-      <div>
-        <span class="pill" aria-label="Intro"><span class="brand-dot" aria-hidden="true"></span> Available for opportunities</span>
-        <h1>Builder, optimizer, and data‑driven problem‑solver.</h1>
-        <p>I design and ship pragmatic solutions—across optimization, data pipelines, mapping, and even games. Here’s a curated set of projects and writing.</p>
-        <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap">
-          <a class="btn primary" href="#projects">See projects</a>
-          <a class="btn" href="#contact">Get in touch</a>
-        </div>
-        <div style="margin-top:16px;display:flex;gap:14px;flex-wrap:wrap" aria-label="Social links">
-          {socials.map((s) => <a class="pill" href={s.href} rel="me noopener" target="_blank">{s.name}</a>)}
-        </div>
-      </div>
-      <div class="hero-card">
-        <div class="hero-blob" aria-hidden="true"></div>
-        <p class="sr-only">Abstract glassy blob with teal glow.</p>
-      </div>
-    </header>
+<Layout title={pageTitle} description="Play Tone (portrait 9:16) — a quick ear-training game built with Unity WebGL.">
+  <style>
+    .page-header{
+      display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1rem
+    }
+    .crumbs{font-size:.95rem;color:var(--muted)}
+    .crumbs a{color:var(--muted)}
+    h1{margin:.25rem 0 .75rem;font-size:1.6rem}
+    .wrap{display:grid;grid-template-columns:1fr;gap:var(--gap)}
+    @media (min-width:980px){.wrap{grid-template-columns:1.1fr .9fr;align-items:start}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem}
+    .muted{color:var(--muted)}
+    .btnrow{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem .9rem;border-radius:10px;border:1px solid var(--border);background:#1a1a1a;color:var(--text);cursor:pointer}
+    .btn:hover{background:#222}
+    .btn.primary{background:#2a2a2a;border-color:#2f2f2f}
+    .stage{height:min(90dvh,980px);aspect-ratio:9/16;margin:0 auto;position:relative;overflow:hidden;max-width:100%;background:#000;border-radius:12px;border:1px solid var(--border)}
+    .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-top:.75rem}
+    .meta{font-size:.9rem;color:var(--muted);margin-top:.5rem}
+  </style>
 
-    <!-- rest unchanged -->
-  </body>
-</html>
+  <div class="page-header">
+    <div>
+      <div class="crumbs"><a href="/">← Home</a> / <span>Tone</span></div>
+      <h1>Tone</h1>
+    </div>
+    <div class="btnrow">
+      <a class="btn" href="/" aria-label="Back to Home">Back to Home</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- Info / content -->
+    <section class="card">
+      <h2 style="margin-top:0">About this game</h2>
+      <p class="muted">
+        A quick-hit ear & reaction trainer rebuilt for the web. Best in portrait (9:16). Works on mobile and desktop.
+      </p>
+
+      <h3>How to play</h3>
+      <ul class="muted" style="margin-top:.25rem;line-height:1.6">
+        <li>Tap the correct tone before the timer runs out.</li>
+        <li>Streaks make it faster and harder.</li>
+        <li>Use fullscreen for focus.</li>
+      </ul>
+
+      <div class="btnrow">
+        <button class="btn primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <a class="btn" href="/#games">All Games</a>
+      </div>
+
+      <div class="meta">v1.2 • Unity WebGL • Cloudflare Pages</div>
+    </section>
+
+    <!-- Game -->
+    <aside class="card">
+      <div class="stage">
+        <iframe
+          id="gameframe"
+          src={gamePath}
+          allow="fullscreen; gamepad; xr-spatial-tracking"
+          scrolling="no"
+          loading="eager"
+          title="Tone game"
+        ></iframe>
+      </div>
+      <div class="actions">
+        <span class="muted">Tip: if you see borders, try fullscreen.</span>
+        <div class="btnrow">
+          <button class="btn" id="btn-reload" type="button">Reload</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const frame = document.getElementById("gameframe");
+    const fsBtn = document.getElementById("btn-fullscreen");
+    const reloadBtn = document.getElementById("btn-reload");
+
+    fsBtn?.addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+          fsBtn.textContent = "Enter Fullscreen";
+        } else {
+          await frame.requestFullscreen();
+          fsBtn.textContent = "Exit Fullscreen";
+        }
+      } catch (e) { console.error(e); }
+    });
+
+    reloadBtn?.addEventListener("click", () => {
+      frame.src = frame.src; // hard reload
+    });
+  </script>
+</Layout>

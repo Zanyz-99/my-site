@@ -26,7 +26,6 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     label{font-size:12px;color:var(--muted)}
     input, select, button{background:#0e0f14;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px}
     input[type="number"]{width:120px}
-    input[type="text"]{width:260px}
     button{cursor:pointer}
     button.primary{background:var(--accent);color:#05121f;border-color:transparent;font-weight:600}
     button:disabled{opacity:.5;cursor:not-allowed}
@@ -43,36 +42,31 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     .linkrow{display:flex;align-items:center;gap:10px;margin-top:10px}
     a.buttonlike{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);text-decoration:none}
     a.buttonlike:hover{border-color:#3aa1ff}
+    /* Make geocoder boxes full width & tidy */
+    #geocoder-start .mapboxgl-ctrl-geocoder, #geocoder-end .mapboxgl-ctrl-geocoder { width:100%; max-width:unset; }
   </style>
 
   <div class="page-header">
     <div>
       <div class="crumbs"><a href="/coding">Coding</a> · <span>Random Route Generator</span></div>
       <h1>Random Route Generator</h1>
-      <p class="muted small">Vanilla Mapbox GL + Turf. Paste-and-go page for your site.</p>
+      <p class="muted small">Type an address/place below (autocomplete), or click the map. Clear works even if you haven’t generated a loop yet.</p>
     </div>
   </div>
 
   <div class="wrap">
     <section class="card">
       <div class="geos">
-        <!-- Typeable start -->
+        <!-- Start / End with live suggestions -->
         <div class="flex">
-          <input id="start-text" type="text" placeholder="Start: address/place (e.g., 1 Apple Park Way)" class="grow" />
-          <button id="set-start">Set Start</button>
+          <div id="geocoder-start" class="grow"></div>
           <button id="clear-start" title="Clear start">Clear Start</button>
         </div>
-        <!-- (Optional) typeable end -->
         <div class="flex">
-          <input id="end-text" type="text" placeholder="End (optional): address/place" class="grow" />
-          <button id="set-end">Set End</button>
+          <div id="geocoder-end" class="grow"></div>
           <button id="clear-end" title="Clear end">Clear End</button>
         </div>
-
-        <!-- Mapbox geocoder widgets (still available if you want the dropdown UX) -->
-        <div id="geocoder-start"></div>
-        <div id="geocoder-end"></div>
-        <div class="muted small">Tip: click the map to set start/end too.</div>
+        <div class="muted small">Tip: First map click sets <b>start</b> (red), second click sets <b>end</b> (blue).</div>
       </div>
 
       <hr style="border:none;border-top:1px solid var(--border);margin:14px 0" />
@@ -120,16 +114,18 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
 
   <script is:inline>
     // ----- CONFIG -----
-    // Prefer environment var: PUBLIC_MAPBOX_TOKEN
     const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiemFjaHNjaG9seiIsImEiOiJjbWVpZ3BsOWwwMmRlMnBuMThuZmpvdDliIn0.tIhpggDUSt0obHDUyILwhg";
     const ISOCHRONE_BASE = "https://api.mapbox.com/isochrone/v1/mapbox/";
-    const GEOCODE_BASE = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
     const MAX_RETRIES = 25;
 
     // ----- STATE -----
     let map, startLoc = null, endLoc = null;
     let startMarker = null, endMarker = null;
     const routeSourceId = "route-src", routeLineId = "route-line", routeArrowId = "route-arrows";
+    let geocoderStart, geocoderEnd;
+
+    const profileForDirections = (p) => (p === 'running' ? 'walking' : p);
+    const profileForGoogle = (p) => (p === 'cycling' ? 'bicycling' : (p === 'running' ? 'walking' : 'driving'));
 
     function ready(fn){
       if(document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn);
@@ -145,18 +141,19 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
       });
       map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-      // Optional Mapbox dropdown geocoders
-      const geocoderStart = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"Start: search or click map" });
-      const geocoderEnd   = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"End (optional): search or click map" });
+      // Geocoder widgets (type-ahead + dropdown)
+      geocoderStart = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"Start address/place" });
+      geocoderEnd   = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"End address/place (optional)" });
       document.getElementById('geocoder-start').appendChild(geocoderStart.onAdd(map));
       document.getElementById('geocoder-end').appendChild(geocoderEnd.onAdd(map));
-      geocoderStart.on('result', (e) => setStart(e.result.center));
-      geocoderEnd.on('result', (e) => setEnd(e.result.center));
 
-      // Click map to set start/end
+      geocoderStart.on('result', (e) => setStart(e.result.center));
+      geocoderEnd.on('result',   (e) => setEnd(e.result.center));
+
+      // Map click: first sets start, second sets end
       map.on('click', (e) => {
-        if(!startLoc){ setStart([e.lngLat.lng, e.lngLat.lat]); }
-        else { setEnd([e.lngLat.lng, e.lngLat.lat]); }
+        const pt = [e.lngLat.lng, e.lngLat.lat];
+        if(!startLoc) setStart(pt); else setEnd(pt);
       });
 
       // Geolocate initial
@@ -168,54 +165,20 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
         }
       });
 
-      // Text geocoding
-      document.getElementById('set-start').onclick = async () => {
-        const q = document.getElementById('start-text').value.trim();
-        if(!q) return setStatus('Type a start location', 'bad');
-        try{
-          const pt = await geocodeText(q);
-          setStart(pt);
-        }catch(e){ showError('Could not geocode start'); setStatus('Start error','bad'); }
-      };
-      document.getElementById('set-end').onclick = async () => {
-        const q = document.getElementById('end-text').value.trim();
-        if(!q) return setStatus('Type an end location', 'bad');
-        try{
-          const pt = await geocodeText(q);
-          setEnd(pt);
-        }catch(e){ showError('Could not geocode end'); setStatus('End error','bad'); }
-      };
-
       // Clear buttons
-      document.getElementById('clear-start').onclick = () => clearStart();
-      document.getElementById('clear-end').onclick = () => clearEnd();
+      document.getElementById('clear-start').onclick = clearStart;
+      document.getElementById('clear-end').onclick   = clearEnd;
 
       // Actions
       document.getElementById('btn-loop').onclick = onGenerateLoop;
-      document.getElementById('btn-a2b').onclick = onRouteA2B;
+      document.getElementById('btn-a2b').onclick  = onRouteA2B;
     });
 
     // ----- UI helpers -----
-    function setStatus(text, cls){
-      const el = document.getElementById('status');
-      el.textContent = text;
-      el.className = 'pill ' + (cls||'muted');
-    }
-    function setAchieved(distKm){
-      const unit = document.getElementById('unit').value;
-      const val = unit==='mi' ? (distKm/1.60934) : distKm;
-      document.getElementById('achieved').textContent = val.toFixed(2);
-      document.getElementById('achieved-unit').textContent = unit;
-    }
-    function showError(msg){
-      const el = document.getElementById('error');
-      el.innerHTML = msg ? ` · <span class="bad">${msg}</span>` : '';
-    }
-    function hideGmaps(){
-      document.getElementById('gmaps-link').style.display = 'none';
-      document.getElementById('gmaps-link').href = '#';
-      document.getElementById('gmaps-note').textContent = '';
-    }
+    function setStatus(text, cls){ const el = document.getElementById('status'); el.textContent = text; el.className = 'pill ' + (cls||'muted'); }
+    function setAchieved(distKm){ const unit = document.getElementById('unit').value; const val = unit==='mi' ? (distKm/1.60934) : distKm; document.getElementById('achieved').textContent = val.toFixed(2); document.getElementById('achieved-unit').textContent = unit; }
+    function showError(msg){ const el = document.getElementById('error'); el.innerHTML = msg ? ` · <span class="bad">${msg}</span>` : ''; }
+    function hideGmaps(){ const a = document.getElementById('gmaps-link'); a.style.display = 'none'; a.href = '#'; document.getElementById('gmaps-note').textContent = ''; }
 
     // ----- Map helpers -----
     function setStart(lngLat){
@@ -237,15 +200,18 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     function clearStart(){
       if(startMarker) startMarker.remove();
       startMarker=null; startLoc=null;
+      try{ geocoderStart?.clear(); }catch{}
       clearRoute(); hideGmaps();
       setStatus('Start cleared');
     }
     function clearEnd(){
       if(endMarker) endMarker.remove();
       endMarker=null; endLoc=null;
+      try{ geocoderEnd?.clear(); }catch{}
       clearRoute(); hideGmaps();
       setStatus('End cleared');
     }
+
     function clearRoute(){
       showError('');
       if(map?.getLayer(routeLineId)) map.removeLayer(routeLineId);
@@ -253,21 +219,33 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
       if(map?.getSource(routeSourceId)) map.removeSource(routeSourceId);
     }
 
-    // ----- API helpers -----
-    async function geocodeText(q){
-      const url = `${GEOCODE_BASE}${encodeURIComponent(q)}.json?access_token=${mapboxgl.accessToken}&limit=1`;
-      const res = await fetch(url);
-      if(!res.ok) throw new Error('geocode error');
-      const json = await res.json();
-      const feat = json.features?.[0];
-      if(!feat) throw new Error('no result');
-      return feat.center; // [lng,lat]
+    // Ensure style is ready before adding layers
+    function whenStyleReady(){
+      return new Promise((resolve)=> {
+        if (map.isStyleLoaded()) resolve();
+        else map.once('styledata', resolve);
+      });
     }
 
+    async function drawRoute(routeCoords){
+      await whenStyleReady();
+      const data = { type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: routeCoords } };
+      if(!map.getSource(routeSourceId)){
+        map.addSource(routeSourceId, { type:'geojson', data });
+        map.addLayer({ id:routeLineId, type:'line', source:routeSourceId, layout:{ 'line-join':'round','line-cap':'round' }, paint:{ 'line-color':'#3aa1ff', 'line-width':5, 'line-opacity':0.85 } });
+        map.addLayer({ id:routeArrowId, type:'symbol', source:routeSourceId, layout:{ 'symbol-placement':'line', 'symbol-spacing':100, 'icon-allow-overlap':true, 'icon-image':'triangle-11', 'icon-size':0.8 } });
+      } else {
+        map.getSource(routeSourceId).setData(data);
+      }
+      const b = turf.bbox(data);
+      map.fitBounds([[b[0],b[1]],[b[2],b[3]]], { padding: 50 });
+    }
+
+    // ----- API helpers -----
     async function getIso(coords, distance, profile, unit){
       const d = parseFloat(distance);
       const meters = unit==='mi' ? d*1609.34 : d*1000;
-      const url = `${ISOCHRONE_BASE}${profile==='running'?'walking':profile}/${coords[0]},${coords[1]}?contours_meters=${Math.floor(meters/3)}&polygons=true&access_token=${mapboxgl.accessToken}`;
+      const url = `${ISOCHRONE_BASE}${profileForDirections(profile)}/${coords[0]},${coords[1]}?contours_meters=${Math.floor(meters/3)}&polygons=true&access_token=${mapboxgl.accessToken}`;
       const res = await fetch(url);
       if(!res.ok) throw new Error('Isochrone fetch failed');
       return res.json();
@@ -275,55 +253,38 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
 
     async function getRoute(points, profile){
       const coordsStr = points.map(p => `${p[0]},${p[1]}`).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/${profile==='running'?'walking':profile}/${coordsStr}?continue_straight=true&alternatives=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/${profileForDirections(profile)}/${coordsStr}?continue_straight=true&alternatives=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
       const res = await fetch(url);
       if(!res.ok) throw new Error('Directions fetch failed');
       const json = await res.json();
+      if(!json.routes?.[0]) throw new Error('No route');
       return json.routes[0];
     }
 
-    function drawRoute(routeCoords){
-      const geojson = { type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: routeCoords } };
-      map.addSource(routeSourceId, { type:'geojson', data: geojson });
-      map.addLayer({ id:routeLineId, type:'line', source:routeSourceId, layout:{ 'line-join':'round','line-cap':'round' }, paint:{ 'line-color':'#3aa1ff', 'line-width':5, 'line-opacity':0.8 } });
-      map.addLayer({ id:routeArrowId, type:'symbol', source:routeSourceId, layout:{ 'symbol-placement':'line', 'symbol-spacing':100, 'icon-allow-overlap':true, 'icon-image':'triangle-11', 'icon-size':0.8 } });
-      const b = turf.bbox(geojson);
-      map.fitBounds([[b[0],b[1]],[b[2],b[3]]], { padding: 50 });
-    }
-
-    function travelModeForGoogle(profile){
-      if(profile === 'cycling') return 'bicycling';
-      if(profile === 'running') return 'walking';
-      // driving default
-      return 'driving';
-    }
-
     function setGmapsLinkForLoop(start, way1, way2, profile){
-      const mode = travelModeForGoogle(profile);
+      const mode = profileForGoogle(profile);
       const origin = `${start[1]},${start[0]}`;
-      const destination = origin; // loop back
+      const destination = origin;
       const waypoints = `${way1[1]},${way1[0]}|${way2[1]},${way2[0]}`;
       const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&waypoints=${encodeURIComponent(waypoints)}&travelmode=${mode}`;
       const a = document.getElementById('gmaps-link');
-      a.href = url;
-      a.style.display = 'inline-flex';
-      document.getElementById('gmaps-note').textContent = 'Uses start → waypoint1 → waypoint2 → start.';
+      a.href = url; a.style.display = 'inline-flex';
+      document.getElementById('gmaps-note').textContent = 'Start → waypoint1 → waypoint2 → Start.';
     }
 
     function setGmapsLinkForA2B(start, end, profile){
-      const mode = travelModeForGoogle(profile);
+      const mode = profileForGoogle(profile);
       const origin = `${start[1]},${start[0]}`;
       const destination = `${end[1]},${end[0]}`;
       const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=${mode}`;
       const a = document.getElementById('gmaps-link');
-      a.href = url;
-      a.style.display = 'inline-flex';
+      a.href = url; a.style.display = 'inline-flex';
       document.getElementById('gmaps-note').textContent = 'Open this route in Google Maps.';
     }
 
     // ----- Actions -----
     async function onGenerateLoop(){
-      if(!startLoc){ setStatus('Pick or type a start first', 'bad'); return; }
+      if(!startLoc){ setStatus('Pick/type a start first', 'bad'); return; }
       const distance = document.getElementById('distance').value;
       const unit = document.getElementById('unit').value;
       const mode = document.getElementById('mode').value;
@@ -333,37 +294,32 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
       let retries = 0;
       while(retries <= MAX_RETRIES){
         try{
-          // 1) Isochrone around start
+          // Isochrone around start
           const firstIso = await getIso(startLoc, distance, mode, unit);
           const poly1 = firstIso.features?.[0];
-          if(!poly1) throw new Error('Bad isochrone response (start)');
+          if(!poly1) throw new Error('Bad isochrone (start)');
           const ring1 = poly1.geometry?.coordinates?.[0];
           if(!ring1?.length) throw new Error('No ring points');
-
-          // random candidate on ring
           const firstStop = ring1[Math.floor(Math.random()*ring1.length)];
 
-          // 2) Isochrone around firstStop
+          // Isochrone around firstStop & intersections
           const secondIso = await getIso(firstStop, distance, mode, unit);
           const poly2 = secondIso.features?.[0];
-          if(!poly2) throw new Error('Bad isochrone response (stop)');
+          if(!poly2) throw new Error('Bad isochrone (stop)');
 
-          // Convert polygons to lines before intersecting
           const line1 = turf.polygonToLine(poly1);
           const line2 = turf.polygonToLine(poly2);
           const intersections = turf.lineIntersect(line1, line2);
+          if(!intersections.features.length) throw new Error('No intersections');
 
-          if(!intersections.features.length) throw new Error('No intersections from isochrones');
-
-          // pick secondStop ~ one third of requested distance away from firstStop
           const target = (parseFloat(distance) / 3);
+          const turfUnits = unit==='mi' ? 'miles' : 'kilometers';
           const secondStop = intersections.features.reduce((best, cur) => {
-            const dCur = turf.distance(firstStop, cur, {units: unit==='mi'?'miles':'kilometers'});
-            const dBest = turf.distance(firstStop, best, {units: unit==='mi'?'miles':'kilometers'});
+            const dCur = turf.distance(firstStop, cur, {units: turfUnits});
+            const dBest = turf.distance(firstStop, best, {units: turfUnits});
             return Math.abs(dCur - target) < Math.abs(dBest - target) ? cur : best;
           }).geometry.coordinates;
 
-          // 3) Route start -> firstStop -> secondStop -> start
           const route = await getRoute([startLoc, firstStop, secondStop, startLoc], mode);
           const achievedKm = route.distance / 1000;
           const desiredKm = unit==='mi' ? parseFloat(distance)*1.60934 : parseFloat(distance);
@@ -371,10 +327,8 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
           setAchieved(achievedKm);
 
           if(err < 0.8){ // ~0.5 mi tolerance
-            drawRoute(route.geometry.coordinates);
+            await drawRoute(route.geometry.coordinates);
             setStatus('Loop ready', 'good');
-
-            // Google Maps link
             setGmapsLinkForLoop(startLoc, firstStop, secondStop, mode);
             return;
           } else {
@@ -395,7 +349,7 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
       try{
         const route = await getRoute([startLoc, endLoc], mode);
         setAchieved(route.distance/1000);
-        drawRoute(route.geometry.coordinates);
+        await drawRoute(route.geometry.coordinates);
         setStatus('Route ready', 'good');
         setGmapsLinkForA2B(startLoc, endLoc, mode);
       }catch(e){

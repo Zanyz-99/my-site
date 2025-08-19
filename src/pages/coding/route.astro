@@ -32,6 +32,9 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
     .muted{color:var(--muted)}
     .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--border);border-radius:999px;font-size:12px}
     .small{font-size:12px}
+    .linkrow{display:flex;align-items:center;gap:10px;margin-top:10px}
+    a.buttonlike{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);text-decoration:none}
+    a.buttonlike:hover{border-color:#3aa1ff}
     #geocoder-start .mapboxgl-ctrl-geocoder, #geocoder-end .mapboxgl-ctrl-geocoder { width:100%; max-width:unset; }
   </style>
 
@@ -64,6 +67,11 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
         <label for="unit">Unit</label><br />
         <select id="unit"><option value="mi">mi</option><option value="km">km</option></select>
       </div>
+      <div>
+        <label>Avoid</label><br />
+        <label class="pill"><input id="avoid-tolls" type="checkbox" /> Tolls</label>
+        <label class="pill"><input id="avoid-highways" type="checkbox" /> Highways</label>
+      </div>
     </div>
 
     <div class="row" style="margin-top:10px">
@@ -76,6 +84,11 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
       Route distance: <b id="achieved">0.0</b> <span id="achieved-unit">mi</span>
       · Straight‑line A→B: <b id="straight">0.0</b> <span id="straight-unit">mi</span>
       <span id="error" class="muted"></span>
+    </div>
+
+    <div class="linkrow">
+      <a id="gmaps-link" class="buttonlike" href="#" target="_blank" rel="noopener" style="display:none">Open in Google Maps →</a>
+      <span id="gmaps-note" class="muted small"></span>
     </div>
   </section>
 
@@ -91,6 +104,7 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
 
     // ====== STATE ======
     let map, startLoc=null, endLoc=null, startMarker=null, endMarker=null;
+    let lastWp1=null, lastWp2=null; // for Google link on random A→B
     const SRC_ID="route-src", LINE_ID="route-line", ARROW_ID="route-arrows";
 
     // ====== BOOT ======
@@ -157,7 +171,6 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
     }
     function setStraightlineMeters(){
       if(!startLoc || !endLoc) { document.getElementById('straight').textContent='0.0'; return; }
-      // Turf expects [lng,lat] Features or arrays; units in kilometers
       const km = turf.distance(startLoc, endLoc, {units:'kilometers'});
       const unit = document.getElementById('unit').value;
       const val = unit==='mi' ? km*0.621371 : km;
@@ -165,10 +178,36 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
       document.getElementById('straight-unit').textContent = unit;
       return km*1000; // meters
     }
+    function hideGmaps(){
+      const a = document.getElementById('gmaps-link');
+      a.style.display = 'none'; a.href = '#';
+      document.getElementById('gmaps-note').textContent = '';
+    }
+    function gmapsMode(){
+      const m = document.getElementById('mode').value;
+      if (m === 'cycling') return 'bicycling';
+      if (m === 'running') return 'walking';
+      return 'driving';
+    }
+    function setGmapsLinkA2B(start, end, wp1=null, wp2=null){
+      const origin = `${start[1]},${start[0]}`;
+      const destination = `${end[1]},${end[0]}`;
+      const mode = gmapsMode();
+      let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=${mode}`;
+      if (wp1 && wp2) {
+        const waypoints = `${wp1[1]},${wp1[0]}|${wp2[1]},${wp2[0]}`;
+        url += `&waypoints=${encodeURIComponent(waypoints)}`;
+        document.getElementById('gmaps-note').textContent = 'Start → WP1 → WP2 → End.';
+      } else {
+        document.getElementById('gmaps-note').textContent = 'Open this route in Google Maps.';
+      }
+      const a = document.getElementById('gmaps-link');
+      a.href = url; a.style.display = 'inline-flex';
+    }
 
     // ====== Map helpers ======
     function setStart(lngLat){
-      clearRoute();
+      clearRoute(); hideGmaps();
       startLoc = lngLat;
       if(startMarker) startMarker.remove();
       startMarker = new mapboxgl.Marker({ color:'red' }).setLngLat(lngLat).addTo(map);
@@ -176,7 +215,7 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
       setStatus('Start set','good'); setStraightlineMeters();
     }
     function setEnd(lngLat){
-      clearRoute();
+      clearRoute(); hideGmaps();
       endLoc = lngLat;
       if(endMarker) endMarker.remove();
       endMarker = new mapboxgl.Marker({ color:'blue' }).setLngLat(lngLat).addTo(map);
@@ -185,21 +224,30 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
     }
     function clearStart(){
       if(startMarker) startMarker.remove(); startMarker=null; startLoc=null;
-      clearRoute(); setStatus('Start cleared'); setStraightlineMeters();
+      clearRoute(); hideGmaps(); setStatus('Start cleared'); setStraightlineMeters();
     }
     function clearEnd(){
       if(endMarker) endMarker.remove(); endMarker=null; endLoc=null;
-      clearRoute(); setStatus('End cleared'); setStraightlineMeters();
+      clearRoute(); hideGmaps(); setStatus('End cleared'); setStraightlineMeters();
     }
     function clearRoute(){
       showError('');
       if(map?.getLayer(LINE_ID)) map.removeLayer(LINE_ID);
       if(map?.getLayer(ARROW_ID)) map.removeLayer(ARROW_ID);
       if(map?.getSource(SRC_ID)) map.removeSource(SRC_ID);
+      lastWp1 = null; lastWp2 = null;
     }
     function profileForDirections(){
       const m = document.getElementById('mode').value;
       return (m === 'running') ? 'walking' : m; // driving|cycling|walking
+    }
+    function excludeParam(){
+      // Mapbox Directions supports exclude=toll,motorway (driving profile)
+      if (profileForDirections() !== 'driving') return '';
+      const ex = [];
+      if (document.getElementById('avoid-tolls').checked) ex.push('toll');
+      if (document.getElementById('avoid-highways').checked) ex.push('motorway');
+      return ex.length ? `&exclude=${ex.join(',')}` : '';
     }
     async function drawRoute(routeCoords){
       if(!map.isStyleLoaded()){ await new Promise(res=>map.once('styledata',res)); }
@@ -217,7 +265,6 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
 
     // ====== APIs ======
     async function getIso(centerLngLat, meters){
-      // centerLngLat is [lng,lat]
       const url = `${ISOCHRONE_BASE}${profileForDirections()}/${centerLngLat[0]},${centerLngLat[1]}?contours_meters=${Math.floor(meters)}&polygons=true&access_token=${mapboxgl.accessToken}`;
       const res = await fetch(url);
       if(!res.ok) throw new Error('Isochrone fetch failed');
@@ -226,15 +273,29 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
       if(!poly) throw new Error('No isochrone polygon');
       return poly; // GeoJSON Polygon
     }
-    function pickRandomVertex(poly){
+    function pickVertexToward(poly, originLngLat, targetLngLat){
+      // Keep vertices whose bearing from origin is within ±90° of the bearing to target (i.e., "toward" target)
       const ring = poly?.geometry?.coordinates?.[0];
       if(!ring?.length) throw new Error('Bad isochrone ring');
-      const idx = Math.floor(Math.random()*ring.length);
-      return ring[idx]; // [lng,lat]
+
+      const bRef = turf.bearing(turf.point(originLngLat), turf.point(targetLngLat)); // -180..180
+      const keep = [];
+      for (const v of ring){
+        const bCand = turf.bearing(turf.point(originLngLat), turf.point(v));
+        const diff = angleDiff(bRef, bCand);
+        if (diff <= 90) keep.push(v);
+      }
+      const pool = keep.length ? keep : ring; // fallback to full ring if nothing in sector
+      return pool[Math.floor(Math.random()*pool.length)];
+    }
+    function angleDiff(a,b){
+      // smallest absolute difference between two bearings (degrees)
+      let d = Math.abs(a-b) % 360;
+      return d > 180 ? 360 - d : d;
     }
     async function getRoute(points){
       const coordsStr = points.map(p => `${p[0]},${p[1]}`).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/${profileForDirections()}/${coordsStr}?continue_straight=true&alternatives=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/${profileForDirections()}/${coordsStr}?continue_straight=true&alternatives=true&geometries=geojson${excludeParam()}&access_token=${mapboxgl.accessToken}`;
       const res = await fetch(url);
       if(!res.ok) throw new Error('Directions fetch failed');
       const json = await res.json();
@@ -245,47 +306,43 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
     // ====== Actions ======
     async function onRouteA2B(){
       if(!startLoc || !endLoc){ setStatus('Pick start and end', 'bad'); return; }
-      setStatus('Routing…'); clearRoute();
+      setStatus('Routing…'); clearRoute(); hideGmaps();
       try{
         const r = await getRoute([startLoc, endLoc]);
         setAchieved(r.distance);
         await drawRoute(r.geometry.coordinates);
+        setGmapsLinkA2B(startLoc, endLoc); // export link
         setStatus('Route ready','good');
       }catch(e){ console.error(e); setStatus('Routing failed','bad'); showError('Directions API error'); }
     }
 
-    // Random A→B via Isochrones (both centered at START):
-    //  - r1 ~ U(0.2d, 0.4d), r2 ~ U(0.6d, 0.8d), where d = straight-line A→B
-    //  - WP1 random point on Iso(start, r1), WP2 random point on Iso(start, r2)
+    // Random A→B via Isochrones with directional constraint:
+    //  - r1 ~ U(0.2d, 0.4d) around START; pick WP1 toward END (±90°)
+    //  - r2 ~ U(0.6d, 0.8d) around END;   pick WP2 toward START (±90°)
     //  - Route: start → WP1 → WP2 → end
-    // If you prefer WP2 to be sampled around END instead, change "const iso2Center = startLoc;" to "endLoc;".
     async function onRandomA2B_Iso(){
       if(!startLoc || !endLoc){ setStatus('Pick start and end', 'bad'); return; }
-      setStatus('Sampling isochrones…'); clearRoute(); showError('');
+      setStatus('Sampling isochrones…'); clearRoute(); showError(''); hideGmaps();
 
-      // straight-line meters
       const d_m = setStraightlineMeters();
       if(!d_m || d_m <= 0){ setStatus('Bad A→B distance','bad'); return; }
 
-      // draw target %s in meters
       const r1 = randBetween(0.20*d_m, 0.40*d_m);
       const r2 = randBetween(0.60*d_m, 0.80*d_m);
-
-      // choose centers
-      const iso1Center = startLoc;
-      const iso2Center = endLoc; // <-- set to endLoc if you want WP2 near the end
 
       let attempts = 0;
       while(attempts <= MAX_RETRIES){
         try{
-          const [iso1, iso2] = await Promise.all([ getIso(iso1Center, r1), getIso(iso2Center, r2) ]);
-          const wp1 = pickRandomVertex(iso1); // [lng,lat]
-          const wp2 = pickRandomVertex(iso2);
+          const [iso1, iso2] = await Promise.all([ getIso(startLoc, r1), getIso(endLoc, r2) ]);
+          const wp1 = pickVertexToward(iso1, startLoc, endLoc); // toward end
+          const wp2 = pickVertexToward(iso2, endLoc, startLoc); // toward start
 
           setStatus('Routing…');
           const route = await getRoute([ startLoc, wp1, wp2, endLoc ]);
           setAchieved(route.distance);
           await drawRoute(route.geometry.coordinates);
+          lastWp1 = wp1; lastWp2 = wp2;
+          setGmapsLinkA2B(startLoc, endLoc, wp1, wp2); // export link with waypoints
           setStatus('Random A→B ready','good');
           return;
         }catch(err){

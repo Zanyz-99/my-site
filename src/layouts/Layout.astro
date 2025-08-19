@@ -8,15 +8,13 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
   <head>
     <meta charset="UTF-8" /><meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <link rel="stylesheet" href="/src/styles/global.css" />
     <script>
-      // Set initial theme (persisted or system)
-      (function(){
+      (function () {
         const saved = localStorage.getItem('theme');
-        const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
         document.documentElement.setAttribute('data-theme', saved || (systemDark ? 'dark' : 'light'));
       })();
     </script>
@@ -26,7 +24,7 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
       <Navbar />
     </header>
 
-    <main class="site-main centered">
+    <main class="site-main">
       <slot />
     </main>
 

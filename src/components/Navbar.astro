@@ -1,24 +1,21 @@
 ---
-const logoLight = "/icons/logo%20light.png"; // in /public/icons/
+const logoLight = "/icons/logo%20light.png";
 const logoDark  = "/icons/logo%20dark.png";
 const { pathname } = Astro.url;
 const active = (p: string) => (pathname === p ? "active" : "");
 ---
 <nav class="topbar" aria-label="Primary">
   <div class="inner">
-    <!-- Left: Logo -->
     <a href="/" class="logo-link" aria-label="Home">
       <img id="logoImg" class="logo" src={logoDark} alt="Logo" />
     </a>
 
-    <!-- Center: Links -->
     <ul class="menu" role="menubar">
       <li role="none"><a role="menuitem" class={`link ${active('/')}`} href="/">Home</a></li>
       <li role="none"><a role="menuitem" class={`link ${active('/about')}`} href="/about">About</a></li>
       <li role="none"><a role="menuitem" class={`link ${active('/research')}`} href="/research">Research</a></li>
     </ul>
 
-    <!-- Right: Theme toggle -->
     <button class="toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
       <span id="themeIcon" aria-hidden="true"></span>
     </button>
@@ -32,16 +29,11 @@ const active = (p: string) => (pathname === p ? "active" : "");
     const icon = document.getElementById('themeIcon');
     const logo = document.getElementById('logoImg');
 
-    const logos = {
-      light: { src: {logoLight} },
-      dark:  { src: {logoDark}  }
-    };
+    const logos = { light: { src: {logoLight} }, dark: { src: {logoDark} } };
 
     function setIcon(theme){
       icon.innerHTML = theme === 'dark'
-        // Moon
         ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21.75 14.5A9.75 9.75 0 1111.5 2.25a8 8 0 0010.25 12.25z"/></svg>'
-        // Sun
         : '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6.76 4.84l-1.8-1.79L3.17 4.84l1.79 1.79 1.8-1.79zM1 13h3v-2H1v2zm10 10h2v-3h-2v3zm9.83-18.16l-1.79-1.79-1.8 1.79 1.8 1.79 1.79-1.79zM20 13h3v-2h-3v2zM6.76 19.16l-1.8 1.79 1.41 1.41 1.79-1.79-1.4-1.41zM17.24 19.16l1.79 1.79 1.41-1.41-1.79-1.79-1.41 1.41zM12 6a6 6 0 100 12 6 6 0 000-12z"/></svg>';
     }
 
@@ -52,38 +44,20 @@ const active = (p: string) => (pathname === p ? "active" : "");
       if (logo) logo.src = theme === 'light' ? logos.light.src : logos.dark.src;
     }
 
-    // Initialize from saved/system
-    const saved = localStorage.getItem('theme');
-    const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    apply(saved || (systemDark ? 'dark' : 'light'));
+    // Initialize icon/logo to the theme set by Layout
+    apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
 
     btn.addEventListener('click', () => {
-      apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+      const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      apply(next);
     });
   })();
 </script>
 
 <style>
-  /* ---------- Local theme tokens (no external CSS needed) ---------- */
-  :root{
-    --bg:#ffffff; --text:#0b0b0b; --muted:#6b6b6b;
-    --card:#f6f7f8; --border:#e8e8ee;
-    --bar-bg: color-mix(in oklab, var(--bg) 92%, #000 8%);
-    --hover: rgba(0,0,0,.06);
-  }
-  html[data-theme="dark"]{
-    --bg:#131313; --text:#e7e7e7; --muted:#b3b3b3;
-    --card:#1c1c1f; --border:#2a2a2f;
-    --bar-bg: color-mix(in oklab, var(--bg) 92%, #000 8%);
-    --hover: rgba(255,255,255,.08);
-  }
-
-  /* ---------- Bar ---------- */
   .topbar{
-    position:sticky; top:0; z-index:1000;
-    width:100%;
-    background:var(--bar-bg);
-    border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:1000; width:100%;
+    background:var(--bar-bg); border-bottom:1px solid var(--border);
     backdrop-filter:saturate(150%) blur(6px);
   }
   .inner{
@@ -91,9 +65,9 @@ const active = (p: string) => (pathname === p ? "active" : "");
     display:flex; align-items:center; gap:1rem;
   }
 
-  /* inline layout: logo | links | toggle */
-  .logo{ height:32px; width:32px; border-radius:999px; display:block; }
+  /* Logo: keep natural aspect ratio, no crop */
   .logo-link{ display:inline-flex; align-items:center; }
+  .logo{ height:32px; width:auto; display:block; }
 
   .menu{
     list-style:none; margin:0; padding:0;
@@ -101,8 +75,7 @@ const active = (p: string) => (pathname === p ? "active" : "");
   }
   .link{
     font-weight:700; color:var(--muted);
-    padding:.5rem 1rem; border-radius:999px; border:1px solid transparent;
-    text-decoration:none;
+    padding:.5rem 1rem; border-radius:999px; border:1px solid transparent; text-decoration:none;
   }
   .link:hover{ background:var(--hover); color:var(--text); }
   .link.active{
@@ -111,11 +84,10 @@ const active = (p: string) => (pathname === p ? "active" : "");
   }
 
   .toggle{
-    margin-left:auto; /* pushes toggle to the right end */
+    margin-left:auto;
     display:inline-flex; align-items:center; justify-content:center;
     border:1px solid var(--border); background:var(--card);
-    border-radius:999px; padding:.45rem .6rem; cursor:pointer;
-    color:var(--text);
+    border-radius:999px; padding:.45rem .6rem; cursor:pointer; color:var(--text);
   }
   .toggle:hover{ background:var(--hover); }
 </style>

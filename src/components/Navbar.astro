@@ -1,13 +1,11 @@
 ---
-const logoLight = "/icons/logo%20light.png";
-const logoDark  = "/icons/logo%20dark.png";
 const { pathname } = Astro.url;
 const active = (p: string) => (pathname === p ? "active" : "");
 ---
 <nav class="topbar" aria-label="Primary">
   <div class="inner">
     <a href="/" class="logo-link" aria-label="Home">
-      <img id="logoImg" class="logo" src={logoDark} alt="Logo" />
+      <img id="logoImg" class="logo" src="/icons/logo dark.png" alt="Logo" />
     </a>
 
     <ul class="menu" role="menubar">
@@ -29,7 +27,10 @@ const active = (p: string) => (pathname === p ? "active" : "");
     const icon = document.getElementById('themeIcon');
     const logo = document.getElementById('logoImg');
 
-    const logos = { light: { src: {logoLight} }, dark: { src: {logoDark} } };
+    const logos = {
+      light: "/icons/logo light.png",
+      dark:  "/icons/logo dark.png"
+    };
 
     function setIcon(theme){
       icon.innerHTML = theme === 'dark'
@@ -41,10 +42,10 @@ const active = (p: string) => (pathname === p ? "active" : "");
       root.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
       setIcon(theme);
-      if (logo) logo.src = theme === 'light' ? logos.light.src : logos.dark.src;
+      if (logo) logo.src = logos[theme];
     }
 
-    // Initialize icon/logo to the theme set by Layout
+    // Init from html[data-theme] (set in Layout.astro)
     apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
 
     btn.addEventListener('click', () => {
@@ -65,14 +66,10 @@ const active = (p: string) => (pathname === p ? "active" : "");
     display:flex; align-items:center; gap:1rem;
   }
 
-  /* Logo: keep natural aspect ratio, no crop */
   .logo-link{ display:inline-flex; align-items:center; }
   .logo{ height:32px; width:auto; display:block; }
 
-  .menu{
-    list-style:none; margin:0; padding:0;
-    display:flex; align-items:center; gap:.4rem;
-  }
+  .menu{ list-style:none; margin:0; padding:0; display:flex; align-items:center; gap:.4rem; }
   .link{
     font-weight:700; color:var(--muted);
     padding:.5rem 1rem; border-radius:999px; border:1px solid transparent; text-decoration:none;

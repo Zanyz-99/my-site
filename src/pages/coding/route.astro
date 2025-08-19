@@ -8,14 +8,14 @@ const pageDesc = "Pure Mapbox: GL JS + Geocoder + Isochrone + Directions (no Rea
 <Layout title={pageTitle} description={pageDesc}>
   <!-- Mapbox GL -->
   <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" />
-  <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 
-  <!-- Mapbox Geocoder (load NON-deferred so the global exists before our inline script) -->
+  <!-- Mapbox Geocoder (must load BEFORE our inline script, no defer!) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mapbox/mapbox-gl-geocoder@5.1.2/dist/mapbox-gl-geocoder.css" />
   <script src="https://cdn.jsdelivr.net/npm/@mapbox/mapbox-gl-geocoder@5.1.2/dist/mapbox-gl-geocoder.min.js"></script>
 
   <!-- Turf -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js" defer></script>
 
   <style>
     :root{ --card:#121217; --border:#23242b; --muted:#a5a7ae; --text:#e9eaf0; --accent:#3aa1ff; }

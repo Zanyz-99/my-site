@@ -1,0 +1,222 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const pageTitle = "Random Route Generator";
+const pageDesc = "Generate random loop routes or A→B directions with Mapbox (no React).";
+---
+
+<Layout title={pageTitle} description={pageDesc}>
+  <!-- Mapbox + Geocoder styles/scripts -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.2/mapbox-gl-geocoder.css" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.2/mapbox-gl-geocoder.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+  <style>
+    :root{ --bg:#0b0b0e; --card:#121217; --muted:#a5a7ae; --text:#e9eaf0; --accent:#3aa1ff; --border:#23242b; }
+    .page-header{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1rem}
+    .crumbs{font-size:.95rem;color:var(--muted)}
+    .crumbs a{color:var(--muted)}
+    h1{margin:.25rem 0 .75rem;font-size:1.6rem}
+    .wrap{display:grid;grid-template-columns:1fr;gap:var(--gap,16px)}
+    @media (min-width:980px){.wrap{grid-template-columns:1.1fr .9fr;align-items:start}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    label{font-size:12px;color:var(--muted)}
+    input, select, button{background:#0e0f14;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px}
+    input[type="number"]{width:120px}
+    button{cursor:pointer}
+    button.primary{background:var(--accent);color:#05121f;border-color:transparent;font-weight:600}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .muted{color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--border);border-radius:999px;font-size:12px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+    .map{height:70vh;min-height:420px;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
+    .bad{color:#ff6b6b}
+    .good{color:#40d58b}
+    .geos{display:grid;gap:10px}
+    .flex{display:flex;gap:10px;align-items:center}
+    .small{font-size:12px}
+  </style>
+
+  <div class="page-header">
+    <div>
+      <div class="crumbs"><a href="/coding">Coding</a> · <span>Random Route Generator</span></div>
+      <h1>Random Route Generator</h1>
+      <p class="muted small">Vanilla Mapbox GL + Turf. Paste-and-go page for your site.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="card">
+      <div class="geos">
+        <div id="geocoder-start"></div>
+        <div class="flex"><button id="clear-start" title="Clear start">Clear start</button><span class="muted small">Pick a <b>start</b> point (red).</span></div>
+        <div id="geocoder-end"></div>
+        <div class="flex"><button id="clear-end" title="Clear end">Clear end</button><span class="muted small">Optional <b>end</b> point (blue) for A→B.</span></div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:14px 0" />
+
+      <div class="row">
+        <div>
+          <label for="distance">Distance</label><br />
+          <input id="distance" type="number" min="0.5" step="0.1" value="3" />
+        </div>
+        <div>
+          <label for="unit">Unit</label><br />
+          <select id="unit"><option value="mi">mi</option><option value="km">km</option></select>
+        </div>
+        <div>
+          <label for="mode">Mode</label><br />
+          <select id="mode"><option value="driving">Driving</option><option value="cycling">Cycling</option><option value="running">Walking / Running</option></select>
+        </div>
+      </div>
+
+      <div class="toolbar" style="margin-top:10px">
+        <button id="btn-loop" class="primary">Generate Random Loop</button>
+        <button id="btn-a2b">Route A → B</button>
+        <span id="status" class="pill muted">Idle</span>
+      </div>
+
+      <div style="margin-top:10px" class="small">
+        Distance achieved: <b id="achieved">0.0</b> <span id="achieved-unit">mi</span>
+        <span id="error" class="muted"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div id="map" class="map"></div>
+    </section>
+  </div>
+
+  <script is:inline>
+    // ----- CONFIG -----
+    // Prefer environment var: define PUBLIC_MAPBOX_TOKEN in your .env and inject here if using Astro variables.
+    // Example: const MAPBOX_ACCESS_TOKEN = import.meta.env.PUBLIC_MAPBOX_TOKEN;
+    const MAPBOX_ACCESS_TOKEN = "YOUR_MAPBOX_ACCESS_TOKEN_HERE"; // <- replace or wire to env
+    const ISOCHRONE_BASE = "https://api.mapbox.com/isochrone/v1/mapbox/";
+    const MAX_RETRIES = 25;
+
+    // ----- STATE -----
+    let map, startLoc = null, endLoc = null;
+    let startMarker = null, endMarker = null;
+    let routeSourceId = "route-src", routeLineId = "route-line", routeArrowId = "route-arrows";
+    let visitedPoints = new Set();
+
+    function ready(fn){
+      if(document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn);
+    }
+
+    ready(() => {
+      mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+      map = new mapboxgl.Map({ container: 'map', style: 'mapbox://styles/mapbox/streets-v12', center: [-84.5, 39.1], zoom: 12 });
+      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+      const geocoderStart = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"Start: search or click map" });
+      const geocoderEnd   = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"End (optional): search or click map" });
+      document.getElementById('geocoder-start').appendChild(geocoderStart.onAdd(map));
+      document.getElementById('geocoder-end').appendChild(geocoderEnd.onAdd(map));
+
+      map.on('click', (e) => { if(!startLoc){ setStart([e.lngLat.lng, e.lngLat.lat]); } else { setEnd([e.lngLat.lng, e.lngLat.lat]); } });
+      geocoderStart.on('result', (e) => setStart(e.result.center));
+      geocoderEnd.on('result', (e) => setEnd(e.result.center));
+
+      document.getElementById('clear-start').onclick = () => clearStart();
+      document.getElementById('clear-end').onclick = () => clearEnd();
+
+      map.on('load', () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(pos => {
+            map.flyTo({ center:[pos.coords.longitude, pos.coords.latitude], zoom:14, speed:1 });
+          });
+        }
+      });
+
+      document.getElementById('btn-loop').onclick = onGenerateLoop;
+      document.getElementById('btn-a2b').onclick = onRouteA2B;
+    });
+
+    function setStart(lngLat){ clearRoute(); startLoc = lngLat; if(startMarker) startMarker.remove(); startMarker = new mapboxgl.Marker({ color: 'red' }).setLngLat(lngLat).addTo(map); map.flyTo({ center: lngLat, zoom: 14, speed: 1 }); setStatus('Start set'); }
+    function setEnd(lngLat){ clearRoute(); endLoc = lngLat; if(endMarker) endMarker.remove(); endMarker = new mapboxgl.Marker({ color: 'blue' }).setLngLat(lngLat).addTo(map); map.flyTo({ center: lngLat, zoom: 14, speed: 1 }); setStatus('End set'); }
+    function clearStart(){ visitedPoints.clear(); if(startMarker) startMarker.remove(); startMarker=null; startLoc=null; clearRoute(); setStatus('Start cleared'); }
+    function clearEnd(){ visitedPoints.clear(); if(endMarker) endMarker.remove(); endMarker=null; endLoc=null; clearRoute(); setStatus('End cleared'); }
+
+    function setStatus(text, cls){ const el = document.getElementById('status'); el.textContent = text; el.className = 'pill ' + (cls||'muted'); }
+    function setAchieved(distKm){ const unit = document.getElementById('unit').value; const val = unit==='mi' ? (distKm/1.60934) : distKm; document.getElementById('achieved').textContent = val.toFixed(2); document.getElementById('achieved-unit').textContent = unit; }
+    function showError(msg){ const el = document.getElementById('error'); el.innerHTML = msg ? ` · <span class="bad">${msg}</span>` : ''; }
+
+    function clearRoute(){ showError(''); if(map?.getLayer(routeLineId)) map.removeLayer(routeLineId); if(map?.getLayer(routeArrowId)) map.removeLayer(routeArrowId); if(map?.getSource(routeSourceId)) map.removeSource(routeSourceId); }
+
+    async function getIso(coords, distance, profile, unit){
+      const d = parseFloat(distance); const meters = unit==='mi' ? d*1609.34 : d*1000;
+      const url = `${ISOCHRONE_BASE}${profile==='running'?'walking':profile}/${coords[0]},${coords[1]}?contours_meters=${Math.floor(meters/3)}&polygons=true&access_token=${mapboxgl.accessToken}`;
+      const res = await fetch(url); if(!res.ok) throw new Error('Isochrone fetch failed'); return res.json();
+    }
+
+    async function getRoute(points, profile){
+      const coordsStr = points.map(p => `${p[0]},${p[1]}`).join(';');
+      const url = `https://api.mapbox.com/directions/v5/mapbox/${profile==='running'?'walking':profile}/${coordsStr}?continue_straight=true&alternatives=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+      const res = await fetch(url); if(!res.ok) throw new Error('Directions fetch failed');
+      const json = await res.json(); return json.routes[0];
+    }
+
+    function drawRoute(routeCoords){
+      const geojson = { type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: routeCoords } };
+      map.addSource(routeSourceId, { type:'geojson', data: geojson });
+      map.addLayer({ id:routeLineId, type:'line', source:routeSourceId, layout:{ 'line-join':'round','line-cap':'round' }, paint:{ 'line-color':'#3aa1ff', 'line-width':5, 'line-opacity':0.8 } });
+      map.addLayer({ id:routeArrowId, type:'symbol', source:routeSourceId, layout:{ 'symbol-placement':'line', 'symbol-spacing':100, 'icon-allow-overlap':true, 'icon-image':'triangle-11', 'icon-size':0.8 } });
+      const b = turf.bbox(geojson); map.fitBounds([[b[0],b[1]],[b[2],b[3]]], { padding: 50 });
+    }
+
+    async function onGenerateLoop(){
+      if(!startLoc){ setStatus('Pick a start first', 'bad'); return; }
+      const distance = document.getElementById('distance').value; const unit = document.getElementById('unit').value; const mode = document.getElementById('mode').value;
+      setStatus('Generating…'); showError(''); clearRoute(); visitedPoints.clear();
+      let retries = 0;
+      while(retries <= MAX_RETRIES){
+        try{
+          const firstIso = await getIso(startLoc, distance, mode, unit);
+          const ring = firstIso.features?.[0]?.geometry?.coordinates?.[0];
+          if(!ring?.length) throw new Error('Bad isochrone response');
+          let candidate = ring[Math.floor(Math.random()*ring.length)];
+          let guard = 0; while(visitedPoints.has(candidate[0]) && guard < ring.length){ candidate = ring[Math.floor(Math.random()*ring.length)]; guard++; }
+          if(guard>=ring.length){ visitedPoints.clear(); }
+          visitedPoints.add(candidate[0]);
+          const firstStop = candidate;
+
+          const secondIso = await getIso(firstStop, distance, mode, unit);
+          const intersections = turf.lineIntersect(firstIso, secondIso);
+          if(!intersections.features.length) throw new Error('No intersections from isochrones');
+
+          const target = (parseFloat(distance) / 3);
+          const secondStop = intersections.features.reduce((best, cur) => {
+            const dCur = turf.distance(firstStop, cur, {units:'miles'});
+            const dBest = turf.distance(firstStop, best, {units:'miles'});
+            return Math.abs(dCur - target) < Math.abs(dBest - target) ? cur : best;
+          }).geometry.coordinates;
+
+          const route = await getRoute([startLoc, firstStop, secondStop, startLoc], mode);
+          const achievedKm = route.distance / 1000; // meters->km
+          const desiredKm = unit==='mi' ? parseFloat(distance)*1.60934 : parseFloat(distance);
+          const err = Math.abs(desiredKm - achievedKm);
+          setAchieved(achievedKm);
+          if(err < 0.8){ // ~0.5 mi tolerance
+            drawRoute(route.geometry.coordinates);
+            setStatus('Loop ready', 'good');
+            return;
+          } else { retries++; }
+        }catch(e){ console.warn(e); retries++; }
+      }
+      setStatus('Gave up after retries', 'bad'); showError('Try a different distance or mode.');
+    }
+
+    async function onRouteA2B(){
+      if(!startLoc || !endLoc){ setStatus('Pick start and end', 'bad'); return; }
+      const mode = document.getElementById('mode').value; setStatus('Routing…'); showError(''); clearRoute();
+      try{ const route = await getRoute([startLoc, endLoc], mode); setAchieved(route.distance/1000); drawRoute(route.geometry.coordinates); setStatus('Route ready', 'good'); }
+      catch(e){ console.error(e); setStatus('Routing failed', 'bad'); showError('Directions API error'); }
+    }
+  </script>
+</Layout>

@@ -1,8 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 
-const pageTitle = "Random Route Generator (Leaflet + OSM + Isochrone option)";
-const pageDesc = "No React, no Mapbox token required (except optional isochrones).";
+const pageTitle = "Random Route Generator (Leaflet + OSM + Isochrones)";
+const pageDesc = "Random A→B via isochrones at 33% / 66% of Start–End distance. No React.";
 ---
 
 <Layout title={pageTitle} description={pageDesc}>
@@ -40,7 +40,7 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
     src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"
   ></script>
 
-  <!-- Turf (for bbox & geometry helpers) -->
+  <!-- Turf (geometry helpers) -->
   <script defer src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
   <style>
@@ -77,7 +77,7 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
 
     <div class="row">
       <div>
-        <label for="distance">Distance</label><br />
+        <label for="distance">Desired Loop Distance</label><br />
         <input id="distance" type="number" min="0.5" step="0.1" value="3" />
       </div>
       <div>
@@ -123,8 +123,8 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
 
   <script is:inline>
     // ====== CONFIG ======
-    // Optional Mapbox token *only* for Isochrone sampling. Leave blank to disable iso features.
-    const MAPBOX_ISO_TOKEN = "pk.eyJ1IjoiemFjaHNjaG9seiIsImEiOiJjbWVpZ3BsOWwwMmRlMnBuMThuZmpvdDliIn0.tIhpggDUSt0obHDUyILwhg"; // <-- set your Mapbox token if you want isochrones
+    // Mapbox token ONLY for Isochrone sampling. Leave blank to disable iso features.
+    const MAPBOX_ISO_TOKEN = "pk.eyJ1IjoiemFjaHNjaG9seiIsImEiOiJjbWVpZ3BsOWwwMmRlMnBuMThuZmpvdDliIn0.tIhpggDUSt0obHDUyILwhg"; // <- put your Mapbox token here to enable isochrones
     const ISO_ENDPOINT = "https://api.mapbox.com/isochrone/v1/mapbox/";
     const MAX_RETRIES = 20;
 
@@ -146,20 +146,17 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
         });
       }
 
-      // Click to set start / end
       map.on('click', (e) => {
         if (!startLatLng) setStart(e.latlng);
         else if (!endLatLng) setEnd(e.latlng);
         else { setStart(e.latlng); clearEnd(); }
       });
 
-      // Geocoder controls
       const gcStart = L.Control.geocoder({ defaultMarkGeocode:false, placeholder:'Start: address/place' }).addTo(map);
       gcStart.on('markgeocode', (e) => setStart(e.geocode.center));
       const gcEnd = L.Control.geocoder({ defaultMarkGeocode:false, placeholder:'End: address/place' }).addTo(map);
       gcEnd.on('markgeocode', (e) => setEnd(e.geocode.center));
 
-      // Buttons
       document.getElementById('clear-start').onclick = clearStart;
       document.getElementById('clear-end').onclick = clearEnd;
       document.getElementById('btn-a2b').onclick = routeA2B;
@@ -175,9 +172,7 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
     function showError(msg){ document.getElementById('error').innerHTML = msg ? ' · <span class="bad">'+msg+'</span>' : ''; }
     function setAchieved(meters){
       const unit = document.getElementById('unit').value;
-      let val = meters;
-      if (unit === 'mi') { val = meters / 1609.34; }
-      else { val = meters / 1000; }
+      const val = unit === 'mi' ? meters/1609.34 : meters/1000;
       document.getElementById('achieved').textContent = val.toFixed(2);
       document.getElementById('achieved-unit').textContent = unit;
     }
@@ -267,7 +262,7 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
       catch (e){ console.error(e); setStatus('Routing failed', 'bad'); showError('OSRM error'); }
     }
 
-    // ====== RANDOM LOOP (no isochrones) ======
+    // ====== LOOP (non-iso) ======
     function destPoint(latlng, distanceMeters, bearingDeg){
       const R = 6371000;
       const φ1 = latlng.lat * Math.PI/180;
@@ -307,7 +302,7 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
           const wp2 = destPoint(startLatLng, leg, (base+120 + (Math.random()*40-20))%360);
           const r = await routeWithWaypoints([ L.latLng(startLatLng), wp1, wp2, L.latLng(startLatLng) ]);
           const err = Math.abs(r.summary.totalDistance - desired);
-          if (err < 800) { // ~0.5 mi or ~0.8 km
+          if (err < 800) {
             setStatus('Loop ready', 'good');
             setGmapsLoopLink(startLatLng, wp1, wp2);
             return;
@@ -317,7 +312,7 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
       setStatus('Gave up after retries', 'bad'); showError('Try a different distance or mode.');
     }
 
-    // ====== ISOCHRONES (optional Mapbox) ======
+    // ====== ISO HELPERS ======
     function mapboxProfile(){
       const m = document.getElementById('mode').value;
       if (m === 'foot') return 'walking';
@@ -334,33 +329,51 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
       if (!poly) throw new Error('Isochrone has no polygon');
       return poly; // GeoJSON Polygon
     }
-    function randomOnIso(poly) {
-      const ring = poly?.geometry?.coordinates?.[0];
-      if (!ring?.length) throw new Error('Bad isochrone ring');
-      const idx = Math.floor(Math.random()*ring.length);
-      return L.latLng(ring[idx][1], ring[idx][0]);
+    function nearestOnIso(poly, targetPt){
+      // Snap target to the polygon boundary using polygonToLine + nearestPointOnLine
+      const line = turf.polygonToLine(poly); // LineString or MultiLineString
+      const snapped = turf.nearestPointOnLine(line, targetPt);
+      const [lng, lat] = snapped.geometry.coordinates;
+      return L.latLng(lat, lng);
     }
 
+    // ====== RANDOM A → B (ISOCHRONES @ 33% / 66%) ======
     async function randomA2B_Iso(){
       if (!document.getElementById('use-iso').checked) { setStatus('Isochrone toggle is off', 'bad'); return; }
       if (!MAPBOX_ISO_TOKEN){ setStatus('Add Mapbox token for isochrones', 'bad'); return; }
       if (!startLatLng || !endLatLng){ setStatus('Pick start and end', 'bad'); return; }
 
-      setStatus('Fetching isochrones…'); showError(''); hideGmaps();
-      const desired = metersDesired();
-      const leg = desired/3;
+      setStatus('Computing targets…'); showError(''); hideGmaps();
 
+      // Build a Turf LineString start→end and measure great-circle distance D
+      const startPt = turf.point([startLatLng.lng, startLatLng.lat]);
+      const endPt   = turf.point([endLatLng.lng, endLatLng.lat]);
+      const seg     = turf.lineString([startPt.geometry.coordinates, endPt.geometry.coordinates]);
+      const D_km    = turf.length(seg, { units: 'kilometers' });        // great-circle distance in km
+      const D_m     = D_km * 1000;
+
+      // Targets at 33% and 66% along the segment (in km)
+      const t33 = turf.along(seg, D_km * 0.33, { units: 'kilometers' });
+      const t66 = turf.along(seg, D_km * 0.66, { units: 'kilometers' });
+
+      // Isochrone radii: 33% around start, 34% around end (complement of 66%)
+      const rStart = 0.33 * D_m;
+      const rEnd   = 0.34 * D_m;
+
+      setStatus('Fetching isochrones…');
       try {
         const [isoStart, isoEnd] = await Promise.all([
-          fetchIsochrone(startLatLng, leg),
-          fetchIsochrone(endLatLng, leg)
+          fetchIsochrone(startLatLng, rStart),
+          fetchIsochrone(endLatLng,   rEnd)
         ]);
-        const wp1 = randomOnIso(isoStart);
-        const wp2 = randomOnIso(isoEnd);
+
+        // Snap the target points to their respective isochrone rims
+        const wp1 = nearestOnIso(isoStart, t33);
+        const wp2 = nearestOnIso(isoEnd,   t66);
 
         setStatus('Routing…');
         await routeWithWaypoints([ L.latLng(startLatLng), wp1, wp2, L.latLng(endLatLng) ]);
-        setStatus('Random A→B ready', 'good');
+        setStatus('Random A→B (iso 33/66) ready', 'good');
       } catch (e){
         console.error(e);
         setStatus('Iso A→B failed', 'bad');
@@ -368,6 +381,7 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
       }
     }
 
+    // ====== LOOP (ISO option: sample two points on start isochrone near 33%/66% along a radial) ======
     async function generateLoopIso(){
       if (!document.getElementById('use-iso').checked) { setStatus('Isochrone toggle is off', 'bad'); return; }
       if (!MAPBOX_ISO_TOKEN){ setStatus('Add Mapbox token for isochrones', 'bad'); return; }
@@ -375,12 +389,23 @@ const pageDesc = "No React, no Mapbox token required (except optional isochrones
 
       setStatus('Generating (iso)…'); showError(''); hideGmaps();
       const desired = metersDesired();
-      const leg = desired/3;
+      const leg     = desired/3;
 
       try{
+        // Use leg length for the ring and choose two bearings roughly 0° and 120° away from a random axis,
+        // but snap each "ideal" target to the isochrone rim to keep them reachable.
         const iso = await fetchIsochrone(startLatLng, leg);
-        const wp1 = randomOnIso(iso);
-        const wp2 = randomOnIso(iso);
+
+        const base = Math.random()*360;
+        const ideal1 = destPoint(startLatLng, leg, base);
+        const ideal2 = destPoint(startLatLng, leg, (base+120 + (Math.random()*40-20))%360);
+
+        const t1 = turf.point([ideal1.lng, ideal1.lat]);
+        const t2 = turf.point([ideal2.lng, ideal2.lat]);
+
+        const wp1 = nearestOnIso(iso, t1);
+        const wp2 = nearestOnIso(iso, t2);
+
         const r = await routeWithWaypoints([ L.latLng(startLatLng), wp1, wp2, L.latLng(startLatLng) ]);
         setStatus('Loop (iso) ready', 'good');
         setGmapsLoopLink(startLatLng, wp1, wp2);

@@ -1,63 +1,33 @@
 ---
-interface Props {
-  title?: string;
-  description?: string;
-}
+import Navbar from "../components/Navbar.astro";
+interface Props { title?: string; description?: string; }
 const { title = "ZachScholz.com", description = "" } = Astro.props;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    <style>
-      :root{
-        --bg: #0b0b0b; --card: #121212; --text:#e7e7e7; --muted:#b8b8b8; --accent:#4da3ff;
-        --wrap: 1200px; --gap: 1.25rem; --border: #1b1b1b;
-      }
-      *{box-sizing:border-box}
-      html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif}
-      a{color:var(--accent);text-decoration:none}
-      a:hover{text-decoration:underline}
-      header.site-header{
-        border-bottom:1px solid var(--border);
-        position:sticky; top:0; backdrop-filter:saturate(160%) blur(6px);
-        background: color-mix(in oklab, var(--bg) 88%, #000 12%);
-      }
-      .nav{
-        max-width:var(--wrap); margin:0 auto; padding:0.75rem 1rem;
-        display:flex; align-items:center; justify-content:space-between; gap:1rem;
-      }
-      .brand{display:flex; align-items:center; gap:.6rem; font-weight:600}
-      .brand svg{width:20px;height:20px}
-      main.site-main{max-width:var(--wrap); margin:1rem auto; padding:0 1rem 2rem}
-      footer.site-footer{border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}
-      .foot-wrap{max-width:var(--wrap); margin:0 auto; padding:1rem}
-    </style>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+    <script>
+      // Respect system on first visit; persist afterwards
+      (function(){
+        const saved = localStorage.getItem('theme');
+        const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', saved || (systemDark ? 'dark' : 'light'));
+      })();
+    </script>
   </head>
   <body>
     <header class="site-header">
-      <nav class="nav" aria-label="Primary">
-        <a class="brand" href="/" aria-label="Home">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 7-1.2 1.6L19 10.7V20h-5v-5H10v5H5v-9.3L4.2 11.6 3 10l9-7z"/></svg>
-          <span>ZachScholz.com</span>
-        </a>
-        <div style="display:flex;gap:.75rem">
-          <a href="/#projects">Projects</a>
-          <a href="/#games">Games</a>
-          <a href="/#contact">Contact</a>
-        </div>
-      </nav>
+      <Navbar />
     </header>
-
     <main class="site-main">
       <slot />
     </main>
-
     <footer class="site-footer">
       <div class="foot-wrap">© {new Date().getFullYear()} Zach Scholz • Hosted on Cloudflare Pages</div>
     </footer>

@@ -4,35 +4,55 @@ interface Props { title?: string; description?: string; }
 const { title = "ZachScholz.com", description = "" } = Astro.props;
 ---
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" /><meta name="viewport" content="width=device-width" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+
     <style>
-      /* tiny baseline so pages look sane even without any global.css */
-      html,body{margin:0;height:100%;background:var(--bg, #131313);color:var(--text, #e7e7e7);
-        font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;}
-      main{max-width:1200px;margin:0 auto;padding:2rem 1rem}
-      footer{border-top:1px solid var(--border, #2a2a2f);color:var(--muted, #b3b3b3);font-size:.9rem}
+      /* GLOBAL THEME TOKENS (affect whole page) */
+      :root{
+        --bg:#ffffff; --text:#0b0b0b; --muted:#6b6b6b;
+        --card:#f6f7f8; --border:#e8e8ee;
+        --bar-bg: color-mix(in oklab, var(--bg) 92%, #000 8%);
+        --hover: rgba(0,0,0,.06);
+      }
+      html[data-theme="dark"]{
+        --bg:#131313; --text:#e7e7e7; --muted:#b3b3b3;
+        --card:#1c1c1f; --border:#2a2a2f;
+        --bar-bg: color-mix(in oklab, var(--bg) 92%, #000 8%);
+        --hover: rgba(255,255,255,.08);
+      }
+
+      html,body{
+        margin:0;height:100%;
+        background:var(--bg); color:var(--text);
+        font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+      }
+      main{max-width:1200px;margin:0 auto;padding:2rem 1rem;display:grid;place-items:center;min-height:70vh}
+      footer{border-top:1px solid var(--border);color:var(--muted);font-size:.9rem}
       .foot-wrap{max-width:1200px;margin:0 auto;padding:1rem}
     </style>
+
     <script>
-      // First-paint theme (no FOUC)
+      // Initial theme by TIME OF DAY (local): dark 19:00–06:00, else light.
       (function(){
         const saved = localStorage.getItem('theme');
-        const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-theme', saved || (systemDark ? 'dark' : 'light'));
+        let theme = 'light';
+        if (saved === 'light' || saved === 'dark') {
+          theme = saved;
+        } else {
+          const h = new Date().getHours();
+          theme = (h >= 19 || h < 6) ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
   </head>
   <body>
     <Navbar />
-    <main>
-      <slot />
-    </main>
-    <footer>
-      <div class="foot-wrap">© {new Date().getFullYear()} Zach Scholz • Hosted on Cloudflare Pages</div>
-    </footer>
+    <main><slot /></main>
+    <footer><div class="foot-wrap">© {new Date().getFullYear()} Zach Scholz • Hosted on Cloudflare Pages</div></footer>
   </body>
 </html>

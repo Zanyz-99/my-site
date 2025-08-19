@@ -8,9 +8,9 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
 <Layout title={pageTitle} description={pageDesc}>
   <!-- Mapbox + Geocoder styles/scripts -->
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js" defer></script>
   <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.2/mapbox-gl-geocoder.css" />
-  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.2/mapbox-gl-geocoder.min.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.2/mapbox-gl-geocoder.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
   <style>
@@ -118,31 +118,51 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
   const ISOCHRONE_BASE = "https://api.mapbox.com/isochrone/v1/mapbox/";
   const MAX_RETRIES = 25;
 
-  // ----- STATE -----
+  // CDN URLs (same versions you’re using)
+  const MAPBOX_GL_JS = "https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js";
+  const GEOCODER_JS  = "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.2/mapbox-gl-geocoder.min.js";
+
+  // ----- UTIL: dom + dynamic script loader -----
+  function domReady() {
+    return new Promise(res => {
+      if (document.readyState === "complete" || document.readyState === "interactive") res();
+      else document.addEventListener("DOMContentLoaded", res, { once: true });
+    });
+  }
+  function loadScriptOnce(src) {
+    // If a <script src=...> already exists, wait for it; else inject one.
+    const existing = Array.from(document.scripts).find(s => s.src === src);
+    if (existing) {
+      return existing.dataset.loaded
+        ? Promise.resolve()
+        : new Promise((res, rej) => {
+            existing.addEventListener("load", () => { existing.dataset.loaded = "1"; res(); }, { once:true });
+            existing.addEventListener("error", () => rej(new Error(`Failed to load ${src}`)), { once:true });
+          });
+    }
+    return new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.addEventListener("load", () => { s.dataset.loaded = "1"; res(); }, { once:true });
+      s.addEventListener("error", () => rej(new Error(`Failed to load ${src}`)), { once:true });
+      document.head.appendChild(s);
+    });
+  }
+  async function ensureLibs() {
+    // Load Mapbox GL first, then Geocoder (which depends on GL)
+    if (!window.mapboxgl) await loadScriptOnce(MAPBOX_GL_JS);
+    if (!window.MapboxGeocoder) await loadScriptOnce(GEOCODER_JS);
+  }
+
+  // ----- STATE / HELPERS (unchanged from your version) -----
   let map, startLoc = null, endLoc = null;
   let startMarker = null, endMarker = null;
   const routeSourceId = "route-src", routeLineId = "route-line", routeArrowId = "route-arrows";
   let geocoderStart, geocoderEnd;
 
   const profileForDirections = (p) => (p === 'running' ? 'walking' : p);
-  const profileForGoogle = (p) => (p === 'cycling' ? 'bicycling' : (p === 'running' ? 'walking' : 'driving'));
-
-  // --- Robust DOM ready (after deferred CDNs are actually available)
-  function domReady() {
-    return new Promise((resolve) => {
-      if (document.readyState === 'complete' || document.readyState === 'interactive') resolve();
-      else document.addEventListener('DOMContentLoaded', resolve, { once: true });
-    });
-  }
-  function libsReady() {
-    // wait until both globals exist (covers slow CDN or bundler timing)
-    return new Promise((resolve) => {
-      const t = setInterval(() => {
-        if (window.mapboxgl && window.MapboxGeocoder) { clearInterval(t); resolve(); }
-      }, 25);
-      setTimeout(() => { /* hard stop after 10s */ clearInterval(t); resolve(); }, 10000);
-    });
-  }
+  const profileForGoogle     = (p) => (p === 'cycling' ? 'bicycling' : (p === 'running' ? 'walking' : 'driving'));
 
   function setStatus(text, cls){ const el = document.getElementById('status'); el.textContent = text; el.className = 'pill ' + (cls||'muted'); }
   function setAchieved(distKm){
@@ -152,13 +172,8 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     document.getElementById('achieved-unit').textContent = unit;
   }
   function showError(msg){ const el = document.getElementById('error'); el.innerHTML = msg ? ` · <span class="bad">${msg}</span>` : ''; }
-  function hideGmaps(){
-    const a = document.getElementById('gmaps-link');
-    a.style.display = 'none'; a.href = '#';
-    document.getElementById('gmaps-note').textContent = '';
-  }
+  function hideGmaps(){ const a = document.getElementById('gmaps-link'); a.style.display = 'none'; a.href = '#'; document.getElementById('gmaps-note').textContent = ''; }
 
-  // ---- Map helpers
   function setStart(lngLat){
     clearRoute(); hideGmaps();
     startLoc = lngLat;
@@ -189,40 +204,25 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     clearRoute(); hideGmaps();
     setStatus('End cleared');
   }
-
   function clearRoute(){
     showError('');
     if(map?.getLayer(routeLineId)) map.removeLayer(routeLineId);
     if(map?.getLayer(routeArrowId)) map.removeLayer(routeArrowId);
     if(map?.getSource(routeSourceId)) map.removeSource(routeSourceId);
   }
-
-  // Ensure style truly idle before adding/updating sources
   function whenStyleIdle(){
     return new Promise((resolve) => {
-      if (map && map.isStyleLoaded()) {
-        // sometimes 'isStyleLoaded' is true but tiles still updating → wait for 'idle'
-        map.once('idle', resolve);
-      } else {
-        map.once('load', () => map.once('idle', resolve));
-      }
+      if (map && map.isStyleLoaded()) map.once('idle', resolve);
+      else map.once('load', () => map.once('idle', resolve));
     });
   }
-
   async function drawRoute(routeCoords){
     await whenStyleIdle();
     const data = { type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: routeCoords } };
     if(!map.getSource(routeSourceId)){
       map.addSource(routeSourceId, { type:'geojson', data });
-      map.addLayer({
-        id:routeLineId, type:'line', source:routeSourceId,
-        layout:{ 'line-join':'round','line-cap':'round' },
-        paint:{ 'line-color':'#3aa1ff', 'line-width':5, 'line-opacity':0.85 }
-      });
-      map.addLayer({
-        id:routeArrowId, type:'symbol', source:routeSourceId,
-        layout:{ 'symbol-placement':'line', 'symbol-spacing':100, 'icon-allow-overlap':true, 'icon-image':'triangle-11', 'icon-size':0.8 }
-      });
+      map.addLayer({ id:routeLineId, type:'line', source:routeSourceId, layout:{ 'line-join':'round','line-cap':'round' }, paint:{ 'line-color':'#3aa1ff', 'line-width':5, 'line-opacity':0.85 } });
+      map.addLayer({ id:routeArrowId, type:'symbol', source:routeSourceId, layout:{ 'symbol-placement':'line', 'symbol-spacing':100, 'icon-allow-overlap':true, 'icon-image':'triangle-11', 'icon-size':0.8 } });
     } else {
       map.getSource(routeSourceId).setData(data);
     }
@@ -230,7 +230,6 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     map.fitBounds([[b[0],b[1]],[b[2],b[3]]], { padding: 50 });
   }
 
-  // ----- API helpers -----
   async function getIso(coords, distance, profile, unit){
     const d = parseFloat(distance);
     const meters = unit==='mi' ? d*1609.34 : d*1000;
@@ -248,7 +247,6 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     if(!json.routes?.[0]) throw new Error('No route');
     return json.routes[0];
   }
-
   function setGmapsLinkForLoop(start, way1, way2, profile){
     const mode = profileForGoogle(profile);
     const origin = `${start[1]},${start[0]}`;
@@ -269,7 +267,6 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     document.getElementById('gmaps-note').textContent = 'Open this route in Google Maps.';
   }
 
-  // ----- Actions -----
   async function onGenerateLoop(){
     if(!startLoc){ setStatus('Pick/type a start first', 'bad'); return; }
     const distance = document.getElementById('distance').value;
@@ -311,7 +308,7 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
         const err = Math.abs(desiredKm - achievedKm);
         setAchieved(achievedKm);
 
-        if(err < 0.8){ // ~0.5 mi tolerance
+        if(err < 0.8){
           await drawRoute(route.geometry.coordinates);
           setStatus('Loop ready', 'good');
           setGmapsLinkForLoop(startLoc, firstStop, secondStop, mode);
@@ -344,10 +341,10 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     }
   }
 
-  // ----- Boot -----
+  // ----- BOOT -----
   (async () => {
     await domReady();
-    await libsReady();
+    await ensureLibs(); // <— guarantees window.mapboxgl and window.MapboxGeocoder exist
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
     map = new mapboxgl.Map({
@@ -358,35 +355,29 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     });
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-    // Geocoder widgets (type-ahead + dropdown)
-    geocoderStart = new MapboxGeocoder({
-      accessToken: mapboxgl.accessToken, mapboxgl,
-      marker:false, placeholder:"Start address/place"
-    });
-    geocoderEnd = new MapboxGeocoder({
-      accessToken: mapboxgl.accessToken, mapboxgl,
-      marker:false, placeholder:"End address/place (optional)"
-    });
-    document.getElementById('geocoder-start').appendChild(geocoderStart.onAdd(map));
-    document.getElementById('geocoder-end').appendChild(geocoderEnd.onAdd(map));
+    // Geocoder widgets
+    const geocoderStartContainer = document.getElementById('geocoder-start');
+    const geocoderEndContainer   = document.getElementById('geocoder-end');
 
-    // Bind both 'result' and 'select' for robustness (varies by user action)
+    geocoderStart = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"Start address/place" });
+    geocoderEnd   = new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl, marker:false, placeholder:"End address/place (optional)" });
+
+    geocoderStartContainer.appendChild(geocoderStart.onAdd(map));
+    geocoderEndContainer.appendChild(geocoderEnd.onAdd(map));
+
     geocoderStart.on('result', (e) => e?.result?.center && setStart(e.result.center));
     geocoderStart.on('select', (e) => e?.feature?.center && setStart(e.feature.center));
+    geocoderStart.on('clear',  clearStart);
+
     geocoderEnd.on('result',   (e) => e?.result?.center && setEnd(e.result.center));
     geocoderEnd.on('select',   (e) => e?.feature?.center && setEnd(e.feature.center));
+    geocoderEnd.on('clear',    clearEnd);
 
-    // Also handle manual clear from the X in the input
-    geocoderStart.on('clear', clearStart);
-    geocoderEnd.on('clear', clearEnd);
-
-    // Map click: first sets start, second sets end
     map.on('click', (e) => {
       const pt = [e.lngLat.lng, e.lngLat.lat];
       if(!startLoc) setStart(pt); else setEnd(pt);
     });
 
-    // Geolocate initial (note: requires HTTPS to succeed)
     map.on('load', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
@@ -395,7 +386,6 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
       }
     });
 
-    // Buttons
     document.getElementById('clear-start').onclick = clearStart;
     document.getElementById('clear-end').onclick   = clearEnd;
     document.getElementById('btn-loop').onclick    = onGenerateLoop;
@@ -404,5 +394,3 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
     setStatus('Idle');
   })();
 </script>
-
-  

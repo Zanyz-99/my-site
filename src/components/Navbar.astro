@@ -1,6 +1,12 @@
 ---
-const { pathname } = Astro.url;
-const active = (p: string) => (pathname === p ? "active" : "");
+const raw = Astro.url.pathname || '/';
+const normalize = (p: string) => {
+  if (!p) return '/';
+  // keep root as "/", strip trailing slashes elsewhere
+  return p === '/' ? '/' : p.replace(/\/+$/, '');
+};
+const pathname = normalize(raw);
+const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
 ---
 <nav class="topbar" aria-label="Primary">
   <div class="row">

@@ -47,117 +47,119 @@ const pageDesc = "Minimal Mapbox GL + Geocoder + Directions fetch.";
     </section>
   </div>
 
+  <style>
+  /* Ensure the map element can actually receive clicks */
+  #map { position: relative; z-index: 0; }
+  /* Make geocoder boxes full width (optional) */
+  #geocoder-start .mapboxgl-ctrl-geocoder, #geocoder-end .mapboxgl-ctrl-geocoder { width:100%; max-width:unset; }
+</style>
+  
   <script is:inline>
-    // ---------- CONFIG ----------
-    const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiemFjaHNjaG9seiIsImEiOiJjbWVpZ3BsOWwwMmRlMnBuMThuZmpvdDliIn0.tIhpggDUSt0obHDUyILwhg";
+  const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiemFjaHNjaG9seiIsImEiOiJjbWVpZ3BsOWwwMmRlMnBuMThuZmpvdDliIn0.tIhpggDUSt0obHDUyILwhg";
 
-    // ---------- STATE ----------
-    let map, startLoc = null, endLoc = null;
-    let startMarker = null, endMarker = null;
-    const SRC_ID = "route-src", LINE_ID = "route-line";
+  let map, startLoc=null, endLoc=null;
+  let startMarker=null, endMarker=null;
+  const SRC_ID="route-src", LINE_ID="route-line";
 
-    // ---------- BOOTSTRAP ----------
-    window.addEventListener('load', () => {
-      mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
-
-      map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [-73.9851, 40.7589], // Times Sq default
-        zoom: 12
+  function setStatus(msg){ const s=document.getElementById('status'); if(s) s.textContent=msg; }
+  function clearRoute(){
+    if(map?.getLayer(LINE_ID)) map.removeLayer(LINE_ID);
+    if(map?.getSource(SRC_ID)) map.removeSource(SRC_ID);
+  }
+  async function drawLine(coords){
+    // wait for style readiness
+    if(!map.isStyleLoaded()){
+      await new Promise(res=>map.once('styledata', res));
+    }
+    const data={type:'Feature',geometry:{type:'LineString',coordinates:coords},properties:{}};
+    if(!map.getSource(SRC_ID)){
+      map.addSource(SRC_ID,{type:'geojson',data});
+      map.addLayer({
+        id:LINE_ID,type:'line',source:SRC_ID,
+        layout:{'line-join':'round','line-cap':'round'},
+        paint:{'line-color':'#3aa1ff','line-width':5,'line-opacity':0.9}
       });
-      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    }else{
+      map.getSource(SRC_ID).setData(data);
+    }
+    const b=turf.bbox(data);
+    map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:50});
+  }
 
-      // Geocoder controls (live type-ahead)
-      const geocoderStart = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl, marker: false,
-        placeholder: "Start: address/place"
-      });
-      const geocoderEnd = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl, marker: false,
-        placeholder: "End: address/place"
-      });
+  function setStart(lngLat){
+    startLoc=lngLat;
+    if(startMarker) startMarker.remove();
+    startMarker=new mapboxgl.Marker({color:'red'}).setLngLat(lngLat).addTo(map);
+    setStatus('Start set');
+  }
+  function setEnd(lngLat){
+    endLoc=lngLat;
+    if(endMarker) endMarker.remove();
+    endMarker=new mapboxgl.Marker({color:'blue'}).setLngLat(lngLat).addTo(map);
+    setStatus('End set');
+  }
 
-      document.getElementById('geocoder-start').appendChild(geocoderStart.onAdd(map));
-      document.getElementById('geocoder-end').appendChild(geocoderEnd.onAdd(map));
-
-      geocoderStart.on('result', (e) => setStart(e.result.center));
-      geocoderEnd.on('result',   (e) => setEnd(e.result.center));
-
-      // Map clicks: first = start, second = end, then alternate
-      map.on('click', (e) => {
-        const pt = [e.lngLat.lng, e.lngLat.lat];
-        if(!startLoc || (startLoc && endLoc)) { setStart(pt); endLoc = null; if(endMarker){ endMarker.remove(); endMarker=null; } }
-        else { setEnd(pt); }
-      });
-
-      document.getElementById('btn-a2b').addEventListener('click', onRouteA2B);
-
-      map.once('load', () => setStatus('Map ready'));
+  window.addEventListener('load', () => {
+    mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+    map = new mapboxgl.Map({
+      container:'map',
+      style:'mapbox://styles/mapbox/streets-v12',
+      center:[-73.9851,40.7589],
+      zoom:12
     });
+    map.addControl(new mapboxgl.NavigationControl(),'top-right');
 
-    // ---------- HELPERS ----------
-    function setStatus(msg){ document.getElementById('status').textContent = msg; }
+    // Bind everything AFTER the style is loaded
+    map.on('load', () => {
+      // make sure canvas receives pointer events & looks clickable
+      map.getCanvas().style.cursor='crosshair';
+      map.resize(); // guard against invisible/incorrect size map
 
-    function setStart(lngLat){
-      startLoc = lngLat;
-      if(startMarker) startMarker.remove();
-      startMarker = new mapboxgl.Marker({ color: 'red' }).setLngLat(lngLat).addTo(map);
-      setStatus('Start set');
-    }
-    function setEnd(lngLat){
-      endLoc = lngLat;
-      if(endMarker) endMarker.remove();
-      endMarker = new mapboxgl.Marker({ color: 'blue' }).setLngLat(lngLat).addTo(map);
-      setStatus('End set');
-    }
+      // Geocoder widgets
+      const geocoderStart = new MapboxGeocoder({accessToken:mapboxgl.accessToken,mapboxgl,marker:false,placeholder:'Start: address/place'});
+      const geocoderEnd   = new MapboxGeocoder({accessToken:mapboxgl.accessToken,mapboxgl,marker:false,placeholder:'End: address/place'});
+      document.getElementById('geocoder-start')?.appendChild(geocoderStart.onAdd(map));
+      document.getElementById('geocoder-end')?.appendChild(geocoderEnd.onAdd(map));
+      geocoderStart.on('result', (e)=> setStart(e.result.center));
+      geocoderEnd.on('result',   (e)=> setEnd(e.result.center));
 
-    function clearRoute(){
-      if(map?.getLayer(LINE_ID)) map.removeLayer(LINE_ID);
-      if(map?.getSource(SRC_ID)) map.removeSource(SRC_ID);
-    }
+      // CLICK TO DROP MARKERS (this is the bit that wasn’t firing for you)
+      map.on('click', (e) => {
+        console.log('map click', e.lngLat);
+        setStatus('Map click received');
+        const pt=[e.lngLat.lng, e.lngLat.lat];
+        if(!startLoc || (startLoc && endLoc)){ // first or reset
+          setStart(pt);
+          // reset end if we’re starting over
+          endLoc=null; if(endMarker){ endMarker.remove(); endMarker=null; }
+          clearRoute();
+        }else{
+          setEnd(pt);
+        }
+      });
 
-    async function drawLineString(coords){
-      // Ensure style is ready before adding sources/layers
-      if (!map.isStyleLoaded()) {
-        await new Promise(res => map.once('styledata', res));
-      }
-      const data = { type:'Feature', geometry:{ type:'LineString', coordinates: coords }, properties:{} };
-      if(!map.getSource(SRC_ID)){
-        map.addSource(SRC_ID, { type:'geojson', data });
-        map.addLayer({
-          id: LINE_ID, type:'line', source: SRC_ID,
-          layout:{ 'line-join':'round','line-cap':'round' },
-          paint:{ 'line-color':'#3aa1ff','line-width':5,'line-opacity':0.9 }
-        });
-      } else {
-        map.getSource(SRC_ID).setData(data);
-      }
-      const b = turf.bbox(data);
-      map.fitBounds([[b[0],b[1]],[b[2],b[3]]], { padding: 50 });
-    }
+      // Simple A→B route (driving) to validate end-to-end
+      document.getElementById('btn-a2b')?.addEventListener('click', async () => {
+        if(!startLoc || !endLoc){ setStatus('Pick start and end'); return; }
+        setStatus('Routing…'); clearRoute();
+        try{
+          const coordsStr=`${startLoc[0]},${startLoc[1]};${endLoc[0]},${endLoc[1]}`;
+          const url=`https://api.mapbox.com/directions/v5/mapbox/driving/${coordsStr}?geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`;
+          const res=await fetch(url);
+          if(!res.ok) throw new Error('Directions fetch failed');
+          const json=await res.json();
+          const route=json.routes?.[0];
+          if(!route) throw new Error('No route');
+          await drawLine(route.geometry.coordinates);
+          setStatus('Route ready');
+        }catch(err){
+          console.error(err);
+          setStatus('Routing failed');
+        }
+      });
 
-    // ---------- DIRECTIONS ----------
-    async function onRouteA2B(){
-      if(!startLoc || !endLoc){ setStatus('Pick start and end'); return; }
-      setStatus('Routing…');
-      clearRoute();
-      try{
-        const coordsStr = `${startLoc[0]},${startLoc[1]};${endLoc[0]},${endLoc[1]}`;
-        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsStr}?geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`;
-        const res = await fetch(url);
-        if(!res.ok) throw new Error('Directions fetch failed');
-        const json = await res.json();
-        const route = json.routes?.[0];
-        if(!route) throw new Error('No route');
-        await drawLineString(route.geometry.coordinates);
-        setStatus('Route ready');
-      } catch (err){
-        console.error(err);
-        setStatus('Routing failed');
-      }
-    }
-  </script>
+      setStatus('Map ready');
+    });
+  });
+</script>
 </Layout>

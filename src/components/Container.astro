@@ -1,1 +1,19 @@
 
+---
+// Simple max‑width wrapper with optional "as" prop (div/section/main)
+interface Props {
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+}
+const { as = 'div', class: cls = '' } = Astro.props;
+const Tag = as as any;
+---
+<Tag class={`mx-auto px-4 w-full max-w-[1200px] ${cls}`}><slot /></Tag>
+
+<style>
+  :global(html), :global(body){margin:0}
+  .mx-auto{margin-left:auto;margin-right:auto}
+  .px-4{padding-left:1rem;padding-right:1rem}
+  .w-full{width:100%}
+  .max-w-\[1200px\]{max-width:1200px}
+</style>

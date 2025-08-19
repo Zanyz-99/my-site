@@ -119,18 +119,16 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
   const MAX_RETRIES = 25;
 
   // CDN URLs (same versions you’re using)
-  const MAPBOX_GL_JS = "https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js";
-  const GEOCODER_JS  = "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.2/mapbox-gl-geocoder.min.js";
+    const MAPBOX_GL_JS = "https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js";
+  const GEOCODER_SOURCES = [
+    // Mapbox CDN (latest known hosted builds)
+    "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.1.0/mapbox-gl-geocoder.min.js",
+    "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.min.js",
+    // npm CDN fallback
+    "https://unpkg.com/@mapbox/mapbox-gl-geocoder@5.0.1/dist/mapbox-gl-geocoder.min.js"
+  ];
 
-  // ----- UTIL: dom + dynamic script loader -----
-  function domReady() {
-    return new Promise(res => {
-      if (document.readyState === "complete" || document.readyState === "interactive") res();
-      else document.addEventListener("DOMContentLoaded", res, { once: true });
-    });
-  }
   function loadScriptOnce(src) {
-    // If a <script src=...> already exists, wait for it; else inject one.
     const existing = Array.from(document.scripts).find(s => s.src === src);
     if (existing) {
       return existing.dataset.loaded
@@ -149,10 +147,17 @@ const pageDesc = "Generate random loop routes or A→B directions with Mapbox (n
       document.head.appendChild(s);
     });
   }
+
   async function ensureLibs() {
-    // Load Mapbox GL first, then Geocoder (which depends on GL)
     if (!window.mapboxgl) await loadScriptOnce(MAPBOX_GL_JS);
-    if (!window.MapboxGeocoder) await loadScriptOnce(GEOCODER_JS);
+    if (!window.MapboxGeocoder) {
+      let lastErr;
+      for (const src of GEOCODER_SOURCES) {
+        try { await loadScriptOnce(src); return; }
+        catch (e) { lastErr = e; }
+      }
+      throw lastErr ?? new Error("Failed to load Mapbox Geocoder from all sources");
+    }
   }
 
   // ----- STATE / HELPERS (unchanged from your version) -----

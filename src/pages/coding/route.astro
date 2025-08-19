@@ -1,8 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 
-const pageTitle = "Random Route Generator (Leaflet + OSM)";
-const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
+const pageTitle = "Random Route Generator (Leaflet + OSM + Isochrone option)";
+const pageDesc = "No React, no Mapbox token required (except optional isochrones).";
 ---
 
 <Layout title={pageTitle} description={pageDesc}>
@@ -39,6 +39,9 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
     defer
     src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"
   ></script>
+
+  <!-- Turf (for bbox & geometry helpers) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
   <style>
     :root{ --card:#121217; --border:#23242b; --muted:#a5a7ae; --text:#e9eaf0; --accent:#3aa1ff; }
@@ -94,6 +97,12 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
     <div class="row" style="margin-top:10px">
       <button id="btn-a2b">Route A → B</button>
       <button id="btn-loop" class="primary">Generate Random Loop</button>
+      <button id="btn-iso-a2b">Random A → B (Isochrones)</button>
+      <button id="btn-iso-loop">Loop (Isochrones)</button>
+      <label class="pill" style="gap:8px;margin-left:6px">
+        <input type="checkbox" id="use-iso" checked />
+        Use Isochrones (Mapbox)
+      </label>
       <span id="status" class="pill muted">Idle</span>
     </div>
 
@@ -113,60 +122,56 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
   </section>
 
   <script is:inline>
-    // --- STATE ---
-    let map, startMarker=null, endMarker=null, startLatLng=null, endLatLng=null, routingControl=null;
+    // ====== CONFIG ======
+    // Optional Mapbox token *only* for Isochrone sampling. Leave blank to disable iso features.
+    const MAPBOX_ISO_TOKEN = ""; // <-- set your Mapbox token if you want isochrones
+    const ISO_ENDPOINT = "https://api.mapbox.com/isochrone/v1/mapbox/";
     const MAX_RETRIES = 20;
 
-    // --- INIT MAP ---
+    // ====== STATE ======
+    let map, startMarker=null, endMarker=null, startLatLng=null, endLatLng=null, routingControl=null;
+
+    // ====== INIT MAP ======
     window.addEventListener('load', () => {
       map = L.map('map');
-      const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
       }).addTo(map);
 
-      // Default center
       map.setView([40.7589, -73.9851], 13);
 
-      // Try geolocate
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
           map.setView([pos.coords.latitude, pos.coords.longitude], 14);
         });
       }
 
-      // Click to set start/end
+      // Click to set start / end
       map.on('click', (e) => {
-        if (!startLatLng) {
-          setStart(e.latlng);
-        } else if (!endLatLng) {
-          setEnd(e.latlng);
-        } else {
-          // alternate: reset end
-          setStart(e.latlng);
-          clearEnd();
-        }
+        if (!startLatLng) setStart(e.latlng);
+        else if (!endLatLng) setEnd(e.latlng);
+        else { setStart(e.latlng); clearEnd(); }
       });
 
       // Geocoder controls
       const gcStart = L.Control.geocoder({ defaultMarkGeocode:false, placeholder:'Start: address/place' }).addTo(map);
       gcStart.on('markgeocode', (e) => setStart(e.geocode.center));
-
       const gcEnd = L.Control.geocoder({ defaultMarkGeocode:false, placeholder:'End: address/place' }).addTo(map);
       gcEnd.on('markgeocode', (e) => setEnd(e.geocode.center));
 
+      // Buttons
       document.getElementById('clear-start').onclick = clearStart;
       document.getElementById('clear-end').onclick = clearEnd;
-
       document.getElementById('btn-a2b').onclick = routeA2B;
-      document.getElementById('btn-loop').onclick = generateLoop;
+      document.getElementById('btn-loop').onclick = () => {
+        if (document.getElementById('use-iso').checked) generateLoopIso(); else generateLoop();
+      };
+      document.getElementById('btn-iso-a2b').onclick = randomA2B_Iso;
+      document.getElementById('btn-iso-loop').onclick = generateLoopIso;
     });
 
-    // --- UI helpers ---
-    function setStatus(text, cls){
-      const el = document.getElementById('status');
-      el.textContent = text;
-      el.className = 'pill ' + (cls||'muted');
-    }
+    // ====== UI HELPERS ======
+    function setStatus(text, cls){ const el = document.getElementById('status'); el.textContent = text; el.className = 'pill ' + (cls||'muted'); }
     function showError(msg){ document.getElementById('error').innerHTML = msg ? ' · <span class="bad">'+msg+'</span>' : ''; }
     function setAchieved(meters){
       const unit = document.getElementById('unit').value;
@@ -181,20 +186,25 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
       a.style.display = 'none'; a.href = '#';
       document.getElementById('gmaps-note').textContent = '';
     }
+    function metersDesired() {
+      const distance = parseFloat(document.getElementById('distance').value);
+      const unit = document.getElementById('unit').value;
+      return unit === 'mi' ? distance * 1609.34 : distance * 1000;
+    }
 
-    // --- Markers ---
+    // ====== MARKERS ======
     function setStart(latlng){
       clearRoute(); hideGmaps();
       startLatLng = latlng;
       if (startMarker) startMarker.remove();
-      startMarker = L.marker(latlng, { draggable:false, title:'Start' , alt:'Start'}).addTo(map);
+      startMarker = L.marker(latlng, { title:'Start' }).addTo(map);
       setStatus('Start set', 'good');
     }
     function setEnd(latlng){
       clearRoute(); hideGmaps();
       endLatLng = latlng;
       if (endMarker) endMarker.remove();
-      endMarker = L.marker(latlng, { draggable:false, title:'End', alt:'End' }).addTo(map);
+      endMarker = L.marker(latlng, { title:'End' }).addTo(map);
       setStatus('End set', 'good');
     }
     function clearStart(){
@@ -210,7 +220,7 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
       setStatus('End cleared');
     }
 
-    // --- Routing (OSRM demo) ---
+    // ====== ROUTING (OSRM demo) ======
     function clearRoute(){
       showError('');
       if (routingControl) {
@@ -218,16 +228,12 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
         routingControl = null;
       }
     }
-
     function osrmProfile(){
       const m = document.getElementById('mode').value;
-      // OSRM supports: car, bike, foot as profiles via different backends.
-      // The public demo server URL uses `/route/v1/{profile}` where profile is driving, cycling, walking
       if (m === 'foot') return 'walking';
       if (m === 'bicycle') return 'cycling';
       return 'driving';
     }
-
     function routeWithWaypoints(waypoints){
       return new Promise((resolve, reject) => {
         clearRoute();
@@ -235,7 +241,7 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
           waypoints,
           router: L.Routing.osrmv1({
             serviceUrl: 'https://router.project-osrm.org/route/v1',
-            profile: osrmProfile(), // driving | cycling | walking
+            profile: osrmProfile(),
           }),
           show: false,
           addWaypoints: false,
@@ -246,7 +252,6 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
         .on('routesfound', (e) => {
           const r = e.routes?.[0];
           if (!r) { reject(new Error('No route')); return; }
-          // r.summary.totalDistance in meters
           setAchieved(r.summary.totalDistance);
           resolve(r);
         })
@@ -257,16 +262,12 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
 
     async function routeA2B(){
       if (!startLatLng || !endLatLng){ setStatus('Pick start and end', 'bad'); return; }
-      setStatus('Routing…');
-      hideGmaps();
-      try {
-        await routeWithWaypoints([ L.latLng(startLatLng), L.latLng(endLatLng) ]);
-        setStatus('Route ready', 'good');
-      } catch (e){ console.error(e); setStatus('Routing failed', 'bad'); showError('OSRM error'); }
+      setStatus('Routing…'); hideGmaps();
+      try { await routeWithWaypoints([ L.latLng(startLatLng), L.latLng(endLatLng) ]); setStatus('Route ready', 'good'); }
+      catch (e){ console.error(e); setStatus('Routing failed', 'bad'); showError('OSRM error'); }
     }
 
-    // --- Random loop (no isochrones) ---
-    // We pick two bearings on a circle around start; OSRM snaps to roads.
+    // ====== RANDOM LOOP (no isochrones) ======
     function destPoint(latlng, distanceMeters, bearingDeg){
       const R = 6371000;
       const φ1 = latlng.lat * Math.PI/180;
@@ -277,14 +278,12 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
       const λ2 = λ1 + Math.atan2(Math.sin(θ)*Math.sin(δ)*Math.cos(φ1), Math.cos(δ)-Math.sin(φ1)*Math.sin(φ2));
       return L.latLng(φ2*180/Math.PI, λ2*180/Math.PI);
     }
-
     function gmapsMode(){
       const m = document.getElementById('mode').value;
       if (m === 'bicycle') return 'bicycling';
       if (m === 'foot') return 'walking';
       return 'driving';
     }
-
     function setGmapsLoopLink(start, wp1, wp2){
       const origin = `${start.lat},${start.lng}`;
       const destination = origin;
@@ -294,42 +293,102 @@ const pageDesc = "No React, no Mapbox. OpenStreetMap + Nominatim + OSRM.";
       a.href = url; a.style.display = 'inline-flex';
       document.getElementById('gmaps-note').textContent = 'Start → waypoint1 → waypoint2 → Start.';
     }
-
     async function generateLoop(){
       if (!startLatLng){ setStatus('Pick or geocode a start first', 'bad'); return; }
       setStatus('Generating…'); showError(''); hideGmaps();
-
-      const distance = parseFloat(document.getElementById('distance').value);
-      const unit = document.getElementById('unit').value;
-      const desiredMeters = unit === 'mi' ? distance*1609.34 : distance*1000;
-
-      // target each leg ≈ desired/3
-      const legMeters = desiredMeters/3;
+      const desired = metersDesired();
+      const leg = desired/3;
 
       let retries = 0;
       while (retries <= MAX_RETRIES){
         try {
-          // choose two bearings (separated by ~120°) with a little randomness
           const base = Math.random()*360;
-          const wp1 = destPoint(startLatLng, legMeters, base);
-          const wp2 = destPoint(startLatLng, legMeters, (base+120+ (Math.random()*40-20))%360);
-
+          const wp1 = destPoint(startLatLng, leg, base);
+          const wp2 = destPoint(startLatLng, leg, (base+120 + (Math.random()*40-20))%360);
           const r = await routeWithWaypoints([ L.latLng(startLatLng), wp1, wp2, L.latLng(startLatLng) ]);
-          const err = Math.abs(r.summary.totalDistance - desiredMeters);
-
-          if (err < (unit==='mi' ? 800 : 800)) { // ~0.5 mi or ~0.8 km tolerance
+          const err = Math.abs(r.summary.totalDistance - desired);
+          if (err < 800) { // ~0.5 mi or ~0.8 km
             setStatus('Loop ready', 'good');
             setGmapsLoopLink(startLatLng, wp1, wp2);
             return;
-          } else {
-            retries++;
-          }
-        } catch(e){
-          console.warn(e);
-          retries++;
-        }
+          } else { retries++; }
+        } catch(e){ console.warn(e); retries++; }
       }
       setStatus('Gave up after retries', 'bad'); showError('Try a different distance or mode.');
+    }
+
+    // ====== ISOCHRONES (optional Mapbox) ======
+    function mapboxProfile(){
+      const m = document.getElementById('mode').value;
+      if (m === 'foot') return 'walking';
+      if (m === 'bicycle') return 'cycling';
+      return 'driving';
+    }
+    async function fetchIsochrone(latlng, meters) {
+      if (!MAPBOX_ISO_TOKEN) throw new Error('No Mapbox token for isochrones');
+      const url = `${ISO_ENDPOINT}${mapboxProfile()}/${latlng.lng},${latlng.lat}?contours_meters=${Math.floor(meters)}&polygons=true&access_token=${MAPBOX_ISO_TOKEN}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Isochrone fetch failed');
+      const json = await res.json();
+      const poly = json.features?.[0];
+      if (!poly) throw new Error('Isochrone has no polygon');
+      return poly; // GeoJSON Polygon
+    }
+    function randomOnIso(poly) {
+      const ring = poly?.geometry?.coordinates?.[0];
+      if (!ring?.length) throw new Error('Bad isochrone ring');
+      const idx = Math.floor(Math.random()*ring.length);
+      return L.latLng(ring[idx][1], ring[idx][0]);
+    }
+
+    async function randomA2B_Iso(){
+      if (!document.getElementById('use-iso').checked) { setStatus('Isochrone toggle is off', 'bad'); return; }
+      if (!MAPBOX_ISO_TOKEN){ setStatus('Add Mapbox token for isochrones', 'bad'); return; }
+      if (!startLatLng || !endLatLng){ setStatus('Pick start and end', 'bad'); return; }
+
+      setStatus('Fetching isochrones…'); showError(''); hideGmaps();
+      const desired = metersDesired();
+      const leg = desired/3;
+
+      try {
+        const [isoStart, isoEnd] = await Promise.all([
+          fetchIsochrone(startLatLng, leg),
+          fetchIsochrone(endLatLng, leg)
+        ]);
+        const wp1 = randomOnIso(isoStart);
+        const wp2 = randomOnIso(isoEnd);
+
+        setStatus('Routing…');
+        await routeWithWaypoints([ L.latLng(startLatLng), wp1, wp2, L.latLng(endLatLng) ]);
+        setStatus('Random A→B ready', 'good');
+      } catch (e){
+        console.error(e);
+        setStatus('Iso A→B failed', 'bad');
+        showError('Isochrone or OSRM error');
+      }
+    }
+
+    async function generateLoopIso(){
+      if (!document.getElementById('use-iso').checked) { setStatus('Isochrone toggle is off', 'bad'); return; }
+      if (!MAPBOX_ISO_TOKEN){ setStatus('Add Mapbox token for isochrones', 'bad'); return; }
+      if (!startLatLng){ setStatus('Pick or geocode a start first', 'bad'); return; }
+
+      setStatus('Generating (iso)…'); showError(''); hideGmaps();
+      const desired = metersDesired();
+      const leg = desired/3;
+
+      try{
+        const iso = await fetchIsochrone(startLatLng, leg);
+        const wp1 = randomOnIso(iso);
+        const wp2 = randomOnIso(iso);
+        const r = await routeWithWaypoints([ L.latLng(startLatLng), wp1, wp2, L.latLng(startLatLng) ]);
+        setStatus('Loop (iso) ready', 'good');
+        setGmapsLoopLink(startLatLng, wp1, wp2);
+      }catch(e){
+        console.error(e);
+        setStatus('Loop (iso) failed', 'bad');
+        showError('Isochrone or OSRM error');
+      }
     }
   </script>
 </Layout>

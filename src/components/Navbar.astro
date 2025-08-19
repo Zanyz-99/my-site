@@ -3,17 +3,20 @@ const { pathname } = Astro.url;
 const active = (p: string) => (pathname === p ? "active" : "");
 ---
 <nav class="topbar" aria-label="Primary">
-  <div class="inner">
+  <div class="row">
+    <!-- Left: Logo (no crop) -->
     <a href="/" class="logo-link" aria-label="Home">
       <img id="logoImg" class="logo" src="/icons/logo dark.png" alt="Logo" />
     </a>
 
-    <ul class="menu" role="menubar">
+    <!-- Center: Menu (perfectly centered) -->
+    <ul class="menu" role="menubar" aria-label="Main">
       <li role="none"><a role="menuitem" class={`link ${active('/')}`} href="/">Home</a></li>
       <li role="none"><a role="menuitem" class={`link ${active('/about')}`} href="/about">About</a></li>
       <li role="none"><a role="menuitem" class={`link ${active('/research')}`} href="/research">Research</a></li>
     </ul>
 
+    <!-- Right: Theme toggle -->
     <button class="toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
       <span id="themeIcon" aria-hidden="true"></span>
     </button>
@@ -45,7 +48,7 @@ const active = (p: string) => (pathname === p ? "active" : "");
       if (logo) logo.src = logos[theme];
     }
 
-    // Init from html[data-theme] (set in Layout.astro)
+    // Initialize from html[data-theme] set in Layout
     apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
 
     btn.addEventListener('click', () => {
@@ -56,32 +59,51 @@ const active = (p: string) => (pathname === p ? "active" : "");
 </script>
 
 <style>
+  /* Pill colors by theme (adds to your global tokens) */
+  :root{
+    --pill-bg:#eceef2;
+    --pill-border:#d9dbe3;
+    --pill-text:#0b0b0b;
+  }
+  html[data-theme="dark"]{
+    --pill-bg:#23232a;
+    --pill-border:#2f2f36;
+    --pill-text:#e7e7e7;
+  }
+
   .topbar{
     position:sticky; top:0; z-index:1000; width:100%;
     background:var(--bar-bg); border-bottom:1px solid var(--border);
     backdrop-filter:saturate(150%) blur(6px);
   }
-  .inner{
+  /* Three-column grid = logo | centered menu | toggle */
+  .row{
     max-width:1200px; margin:0 auto; padding:.6rem 1rem;
-    display:flex; align-items:center; gap:1rem;
+    display:grid; align-items:center; column-gap:1rem;
+    grid-template-columns: 1fr auto 1fr;
   }
 
   .logo-link{ display:inline-flex; align-items:center; }
   .logo{ height:32px; width:auto; display:block; }
 
-  .menu{ list-style:none; margin:0; padding:0; display:flex; align-items:center; gap:.4rem; }
+  .menu{
+    list-style:none; margin:0; padding:.2rem;
+    display:flex; gap:.5rem; align-items:center; justify-self:center;
+  }
   .link{
     font-weight:700; color:var(--muted);
-    padding:.5rem 1rem; border-radius:999px; border:1px solid transparent; text-decoration:none;
+    padding:.5rem 1rem; border-radius:999px; border:1px solid transparent;
+    text-decoration:none;
   }
   .link:hover{ background:var(--hover); color:var(--text); }
   .link.active{
-    background: color-mix(in oklab, var(--bg) 70%, #000 30%);
-    border:1px solid var(--border); color:var(--text);
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    color: var(--pill-text);
   }
 
   .toggle{
-    margin-left:auto;
+    justify-self:end;
     display:inline-flex; align-items:center; justify-content:center;
     border:1px solid var(--border); background:var(--card);
     border-radius:999px; padding:.45rem .6rem; cursor:pointer; color:var(--text);

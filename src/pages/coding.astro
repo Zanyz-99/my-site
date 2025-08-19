@@ -1,7 +1,28 @@
 ---
 const CV_PDF = '/Zach_Scholz_Resume.pdf';
 
+// Helper to label the primary CTA based on the link type
+const primaryLabel = (href) => {
+  if (!href) return 'Open';
+  if (href.startsWith('/')) return 'Open App';
+  if (href.includes('play.google')) return 'Google Play ↗';
+  if (href.includes('apps.apple.com')) return 'App Store ↗';
+  return 'Open ↗';
+};
+
 const apps = [
+  {
+    id: 'routes',
+    title: 'Random Route Generator',
+    year: 2025,
+    stack: 'JS · Mapbox GL · Turf',
+    store: '/coding/routes', // open the internal routes page/app
+    details: '/coding/routes',
+    summary:
+      'Generate random loop routes from a start point using Mapbox Isochrones + Directions, or do simple A→B. No React required.',
+    description: `A React‑free, drop‑in Mapbox GL + Turf app. Pick a start (and optional end), choose mode (drive/bike/walk), and generate a loop that roughly matches your target distance using overlapping isochrones and a retry strategy. Also supports straight A→B directions.`,
+    logo: null,
+  },
   {
     id: 'tone',
     title: 'Tone — A Color Puzzle',
@@ -16,7 +37,7 @@ const apps = [
 In Tone, you are presented with a color block and must guess the percentages of cyan, magenta, yellow, and black that make up the color. You have an unlimited number of guesses to get the correct answer. However, the lower number of guesses it takes you to get the answer the better!
 
 Tone is a challenging puzzle game that will test your knowledge of color mixing. It is also a great way to learn about how CMYK works and its history. If you are a fan of color theory, puzzles, or history, then you will definitely enjoy Tone.`,
-    logo: null, // placeholder slot below; replace with <img src="/images/logos/tone.svg" alt="Tone logo" /> later
+    logo: null,
   },
   {
     id: 'sheepshead',
@@ -28,7 +49,7 @@ Tone is a challenging puzzle game that will test your knowledge of color mixing.
     summary:
       'A single-player, trick-taking card game of German origin with AI-driven opponents and rules faithful to the 24-card variant.',
     description: `Sheepshead is trick-taking card game of German origin. This is a single player version with computer controlled opponents allowing you to play at any time! There are no winners in Sheepshead - only losers, and they get a "Buck."`,
-    logo: null, // placeholder slot below; replace with <img src="/images/logos/sheepshead.svg" alt="Sheepshead logo" /> later
+    logo: null,
   },
   {
     id: 'foc',
@@ -49,7 +70,7 @@ Navigate the expanding circles and get the ball to the other side of the screen 
 ◉ Compare your high score with players from all over the world.
 
 I developed this game independently and will be constantly updating the mechanics and graphics. Feel free to contact me if you find any bugs while playing, and I will be sure to fix them in the next version. Thank you for your support and I hope you enjoy the game!`,
-    logo: null, // placeholder slot below; replace with <img src="/images/logos/foc.svg" alt="Furthest on Circle logo" /> later
+    logo: null,
   },
 ];
 ---
@@ -97,7 +118,6 @@ I developed this game independently and will be constantly updating the mechanic
     <nav class="nav">
       <div class="container nav-inner">
         <a href="/" class="brand">
-          <!-- Logo: drop /public/logo.png later -->
           <img class="logo" src="/logo.png" alt="Zach Scholz Logo" />
         </a>
         <div class="nav-links" role="navigation" aria-label="Primary">
@@ -118,27 +138,30 @@ I developed this game independently and will be constantly updating the mechanic
       <p class="muted" style="margin:0 0 22px">Apps and mini‑games built with Unity and friends.</p>
 
       <div class="grid" role="list">
-        {apps.map((app) => (
-          <article id={app.id} class="card app" role="listitem">
-            <div class="logo-slot">
-              <!-- Logo placeholder → replace with: <img src="/images/logos/{app.id}.svg" alt={`${app.title} logo`}> -->
-              Logo
-            </div>
-            <div>
-              <h3 style="margin:0">{app.title}</h3>
-              <div class="meta">{app.year} · {app.stack}</div>
-              <p class="muted" style="margin:8px 0">{app.summary}</p>
-              <div class="actions">
-                <a class="btn primary" href={app.store} target="_blank" rel="noopener">Google Play ↗</a>
-                <a class="btn" href={app.details}>Details</a>
+        {apps.map((app) => {
+          const isInternal = app.store?.startsWith('/');
+          const label = primaryLabel(app.store);
+          return (
+            <article id={app.id} class="card app" role="listitem">
+              <div class="logo-slot">Logo</div>
+              <div>
+                <h3 style="margin:0">{app.title}</h3>
+                <div class="meta">{app.year} · {app.stack}</div>
+                <p class="muted" style="margin:8px 0">{app.summary}</p>
+                <div class="actions">
+                  <a class="btn primary" href={app.store} target={isInternal ? undefined : '_blank'} rel={isInternal ? undefined : 'noopener'}>{label}</a>
+                  {app.details && app.details !== app.store && (
+                    <a class="btn" href={app.details}>Details</a>
+                  )}
+                </div>
+                <details>
+                  <summary>Read more</summary>
+                  <p class="muted" style="white-space:pre-wrap">{app.description}</p>
+                </details>
               </div>
-              <details>
-                <summary>Read more</summary>
-                <p class="muted" style="white-space:pre-wrap">{app.description}</p>
-              </details>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </main>
   </body>

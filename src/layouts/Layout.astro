@@ -1,18 +1,20 @@
 ---
 import Navbar from "../components/Navbar.astro";
+/* ✅ this actually loads CSS bundled from src/ */
+import "../styles/global.css";
+
 interface Props { title?: string; description?: string; }
 const { title = "ZachScholz.com", description = "" } = Astro.props;
 ---
 <!doctype html>
 <html lang="en" data-theme="dark">
   <head>
-    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="stylesheet" href="/src/styles/global.css" />
     <script>
-      (function () {
+      (function(){
         const saved = localStorage.getItem('theme');
         const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
         document.documentElement.setAttribute('data-theme', saved || (systemDark ? 'dark' : 'light'));
@@ -20,14 +22,8 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     </script>
   </head>
   <body>
-    <header class="site-header">
-      <Navbar />
-    </header>
-
-    <main class="site-main">
-      <slot />
-    </main>
-
+    <header class="site-header"><Navbar /></header>
+    <main class="site-main"><slot /></main>
     <footer class="site-footer">
       <div class="foot-wrap">© {new Date().getFullYear()} Zach Scholz • Hosted on Cloudflare Pages</div>
     </footer>

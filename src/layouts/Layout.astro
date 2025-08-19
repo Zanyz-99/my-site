@@ -13,7 +13,7 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     {description && <meta name="description" content={description} />}
     <link rel="stylesheet" href="/src/styles/global.css" />
     <script>
-      // Respect system on first visit; persist afterwards
+      // Set initial theme (persisted or system)
       (function(){
         const saved = localStorage.getItem('theme');
         const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -25,9 +25,11 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     <header class="site-header">
       <Navbar />
     </header>
-    <main class="site-main">
+
+    <main class="site-main centered">
       <slot />
     </main>
+
     <footer class="site-footer">
       <div class="foot-wrap">© {new Date().getFullYear()} Zach Scholz • Hosted on Cloudflare Pages</div>
     </footer>

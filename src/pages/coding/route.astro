@@ -76,4 +76,88 @@ const pageDesc = "Minimal Mapbox GL + Geocoder + Directions fetch.";
       });
       const geocoderEnd = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
-        mapboxgl,
+        mapboxgl, marker: false,
+        placeholder: "End: address/place"
+      });
+
+      document.getElementById('geocoder-start').appendChild(geocoderStart.onAdd(map));
+      document.getElementById('geocoder-end').appendChild(geocoderEnd.onAdd(map));
+
+      geocoderStart.on('result', (e) => setStart(e.result.center));
+      geocoderEnd.on('result',   (e) => setEnd(e.result.center));
+
+      // Map clicks: first = start, second = end, then alternate
+      map.on('click', (e) => {
+        const pt = [e.lngLat.lng, e.lngLat.lat];
+        if(!startLoc || (startLoc && endLoc)) { setStart(pt); endLoc = null; if(endMarker){ endMarker.remove(); endMarker=null; } }
+        else { setEnd(pt); }
+      });
+
+      document.getElementById('btn-a2b').addEventListener('click', onRouteA2B);
+
+      map.once('load', () => setStatus('Map ready'));
+    });
+
+    // ---------- HELPERS ----------
+    function setStatus(msg){ document.getElementById('status').textContent = msg; }
+
+    function setStart(lngLat){
+      startLoc = lngLat;
+      if(startMarker) startMarker.remove();
+      startMarker = new mapboxgl.Marker({ color: 'red' }).setLngLat(lngLat).addTo(map);
+      setStatus('Start set');
+    }
+    function setEnd(lngLat){
+      endLoc = lngLat;
+      if(endMarker) endMarker.remove();
+      endMarker = new mapboxgl.Marker({ color: 'blue' }).setLngLat(lngLat).addTo(map);
+      setStatus('End set');
+    }
+
+    function clearRoute(){
+      if(map?.getLayer(LINE_ID)) map.removeLayer(LINE_ID);
+      if(map?.getSource(SRC_ID)) map.removeSource(SRC_ID);
+    }
+
+    async function drawLineString(coords){
+      // Ensure style is ready before adding sources/layers
+      if (!map.isStyleLoaded()) {
+        await new Promise(res => map.once('styledata', res));
+      }
+      const data = { type:'Feature', geometry:{ type:'LineString', coordinates: coords }, properties:{} };
+      if(!map.getSource(SRC_ID)){
+        map.addSource(SRC_ID, { type:'geojson', data });
+        map.addLayer({
+          id: LINE_ID, type:'line', source: SRC_ID,
+          layout:{ 'line-join':'round','line-cap':'round' },
+          paint:{ 'line-color':'#3aa1ff','line-width':5,'line-opacity':0.9 }
+        });
+      } else {
+        map.getSource(SRC_ID).setData(data);
+      }
+      const b = turf.bbox(data);
+      map.fitBounds([[b[0],b[1]],[b[2],b[3]]], { padding: 50 });
+    }
+
+    // ---------- DIRECTIONS ----------
+    async function onRouteA2B(){
+      if(!startLoc || !endLoc){ setStatus('Pick start and end'); return; }
+      setStatus('Routing…');
+      clearRoute();
+      try{
+        const coordsStr = `${startLoc[0]},${startLoc[1]};${endLoc[0]},${endLoc[1]}`;
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsStr}?geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`;
+        const res = await fetch(url);
+        if(!res.ok) throw new Error('Directions fetch failed');
+        const json = await res.json();
+        const route = json.routes?.[0];
+        if(!route) throw new Error('No route');
+        await drawLineString(route.geometry.coordinates);
+        setStatus('Route ready');
+      } catch (err){
+        console.error(err);
+        setStatus('Routing failed');
+      }
+    }
+  </script>
+</Layout>

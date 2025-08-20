@@ -16,12 +16,16 @@ import Container from "../components/Container.astro";
       </div>
     </section>
 
-    <!-- Connect (4×1) -->
-    <section class="tbl t4" role="table" aria-label="Connect">
+    <!-- Connect (2×1) -->
+    <section class="tbl t2 connect" role="table" aria-label="Connect">
       <div class="cell head first" role="rowheader">Connect</div>
-      <a class="cell first link" href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a>
-      <a class="cell first link" href="mailto:ztscholz86@gmail.com">Email</a>
-      <a class="cell first link" href="https://www.strava.com/athletes/11644136" target="_blank" rel="noopener">Strava</a>
+      <div class="cell first" role="cell">
+        <div class="links">
+          <a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener"><strong><u>LinkedIn</u></strong></a>
+          <a href="mailto:ztscholz86@gmail.com"><strong><u>Email</u></strong></a>
+          <a href="https://www.strava.com/athletes/11644136" target="_blank" rel="noopener"><strong><u>Strava</u></strong></a>
+        </div>
+      </div>
     </section>
 
     <!-- Work (2×N, left label spans all rows) -->
@@ -112,8 +116,8 @@ import Container from "../components/Container.astro";
     .about-tables{display:grid;gap:1.25rem;justify-items:center}
 
     /* Base “table” */
-    .tbl{width:min(960px,92vw);display:grid;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
-    .tbl .cell{padding:14px 16px;border-top:1px solid var(--border)}
+    .tbl{width:min(960px,92vw);display:grid;background:transparent;border:none;border-radius:0;overflow:visible}
+    .tbl .cell{padding:14px 16px;border-top:none}
     .tbl .cell.first{border-top:none}
 
     /* Column templates */
@@ -121,7 +125,7 @@ import Container from "../components/Container.astro";
     .tbl.t4{grid-template-columns:180px repeat(3, 1fr)}
 
     /* Left header column */
-    .tbl .head{font-weight:600;background:color-mix(in oklab, var(--card) 85%, var(--border) 15%)}
+    .tbl .head{font-weight:600;background:transparent;text-align:right}
 
     /* Span the left label across all subsequent rows in these sections */
     .tbl .head{grid-column:1}
@@ -151,5 +155,7 @@ import Container from "../components/Container.astro";
       .tbl .dates{margin-left:0}
       .tbl .item .line{align-items:flex-start}
     }
+    .connect .links{display:flex;gap:1.25rem;flex-wrap:wrap}
+    .connect .links a{font-weight:700;text-decoration:underline}
   </style>
 </Layout>

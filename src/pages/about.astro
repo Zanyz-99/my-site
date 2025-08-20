@@ -163,5 +163,12 @@ import Container from "../components/Container.astro";
     .about-tables strong, .about-tables b{font-weight:inherit}
 
     /* (existing fridge rules remain) */
+    /* Row hover: dim siblings like Connect links (no bg change) */
+    .tbl.work:hover .item, .tbl.work:focus-within .item{opacity:.45;transition:opacity .15s ease}
+    .tbl.projects:hover .item, .tbl.projects:focus-within .item{opacity:.45;transition:opacity .15s ease}
+    .tbl.work .item:hover, .tbl.work .item:focus-within{opacity:1}
+    .tbl.projects .item:hover, .tbl.projects .item:focus-within{opacity:1}
+    .tbl .item:hover, .tbl .linkrow:hover{background:transparent}
+    .tbl .linkrow{cursor:pointer;text-decoration:none}
   </style>
 </Layout>

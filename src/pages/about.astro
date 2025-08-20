@@ -5,12 +5,14 @@ import Container from "../components/Container.astro";
 <Layout title="About — Zach Scholz" description="Background, focus areas, and interests.">
   <Container class="about-tables">
     <!-- Fridge collage (desktop only) -->
-    <div class="fridge-strip" aria-hidden="true">
-      <figure class="polaroid p1"><img src="/photos/about-1.jpg" alt="" loading="lazy"/></figure>
-      <figure class="polaroid p2"><img src="/photos/about-2.jpg" alt="" loading="lazy"/></figure>
-      <figure class="polaroid p3"><img src="/photos/about-3.jpg" alt="" loading="lazy"/></figure>
-      <figure class="polaroid p4"><img src="/photos/about-4.jpg" alt="" loading="lazy"/></figure>
-    </div>
+    <section class="collage-section" aria-hidden="true">
+      <div class="fridge-strip">
+        <figure class="polaroid p1"><img src="/photos/about-1.jpg" alt="" loading="lazy"/></figure>
+        <figure class="polaroid p2"><img src="/photos/about-2.jpg" alt="" loading="lazy"/></figure>
+        <figure class="polaroid p3"><img src="/photos/about-3.jpg" alt="" loading="lazy"/></figure>
+        <figure class="polaroid p4"><img src="/photos/about-4.jpg" alt="" loading="lazy"/></figure>
+      </div>
+    </section>
     <!-- About Me (2×1) -->
     <section class="tbl t2" role="table" aria-label="About Me">
       <div class="cell head first" role="rowheader">About Me</div>
@@ -28,9 +30,9 @@ import Container from "../components/Container.astro";
       <div class="cell head first" role="rowheader">Connect</div>
       <div class="cell first" role="cell">
         <div class="links">
-          <a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener"><strong><u>LinkedIn</u></strong></a>
-          <a href="mailto:ztscholz86@gmail.com"><strong><u>Email</u></strong></a>
-          <a href="https://www.strava.com/athletes/11644136" target="_blank" rel="noopener"><strong><u>Strava</u></strong></a>
+          <a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">$1</a>
+          <a href="mailto:ztscholz86@gmail.com">$1</a>
+          <a href="https://www.strava.com/athletes/11644136" target="_blank" rel="noopener">$1</a>
         </div>
       </div>
     </section>
@@ -44,7 +46,7 @@ import Container from "../components/Container.astro";
         <div class="line">
           <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
           <div class="meta">
-            <div class="title"><strong>Reactor Control Assistant; Ops & Decommissioning Lead</strong></div>
+            <div class="title">$1</div>
             <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
           </div>
           <div class="dates">2018–2021</div>
@@ -55,7 +57,7 @@ import Container from "../components/Container.astro";
         <div class="line">
           <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
           <div class="meta">
-            <div class="title"><strong>Staff Officer — Analytics & Planning</strong></div>
+            <div class="title">$1</div>
             <div class="sub">Allied & Fleet HQ · Naples, Italy</div>
           </div>
           <div class="dates">2023–Present</div>
@@ -70,31 +72,11 @@ import Container from "../components/Container.astro";
       <div class="cell note" role="cell">A few things I’ve built — click to view details.</div>
 
       <!-- Project rows (row is clickable) -->
-      <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/FOC/">
-        <div class="line">
-          <div class="logo ph" aria-hidden="true"></div>
-          <div class="meta">
-            <div class="title"><strong>FOC</strong></div>
-            <div class="sub">Unity WebGL tactical sim</div>
-          </div>
-        </div>
-      </a>
-
-      <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/tone/">
-        <div class="line">
-          <div class="logo ph" aria-hidden="true"></div>
-          <div class="meta">
-            <div class="title"><strong>Tone</strong></div>
-            <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
-          </div>
-        </div>
-      </a>
-
       <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/sheepshead/">
         <div class="line">
-          <div class="logo ph" src="/icons/Sheepshead.png" alt="Sheepshead logo"></div>
+          <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
           <div class="meta">
-            <div class="title"><strong>Sheepshead</strong></div>
+            <div class="title">$1</div>
             <div class="sub">Trick‑taking card game (Unity WebGL)</div>
           </div>
         </div>
@@ -162,7 +144,7 @@ import Container from "../components/Container.astro";
     .about-tables strong, .about-tables b{font-weight:inherit}
 
     /* Fridge collage */
-    .fridge-strip{position:relative;width:min(960px,92vw);height:clamp(240px,30vw,300px);margin-inline:auto}
+    .fridge-strip{position:relative;width:min(960px,92vw);height:clamp(320px,36vw,420px);margin-inline:auto}
     .fridge-strip .polaroid{position:absolute;top:0;width:clamp(160px,22vw,220px);aspect-ratio:3/4;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.2);padding:8px 8px 24px;border-radius:8px;opacity:0;transform:translateY(-16px) rotate(var(--rot,0deg));animation:dropIn .35s ease-out forwards}
     .fridge-strip .polaroid img{width:100%;height:100%;object-fit:cover;border-radius:4px;display:block}
     .fridge-strip .p1{left:0%;--rot:-3.5deg;z-index:3;animation-delay:.05s}
@@ -171,5 +153,15 @@ import Container from "../components/Container.astro";
     .fridge-strip .p4{left:calc(75% - 60px);--rot:3deg;z-index:1;animation-delay:.26s}
     @keyframes dropIn{to{opacity:1;transform:translateY(0) rotate(var(--rot,0deg))}}
     @media (max-width:800px){.fridge-strip{display:none}}
+    /* Collage section separates layout so it never overlaps tables */
+    .collage-section{width:100%;display:flex;justify-content:center;isolation:isolate}
+
+    /* Keep note rows same color as body text */
+    .tbl .note{color:inherit}
+
+    /* Remove all bolding explicitly */
+    .about-tables strong, .about-tables b{font-weight:inherit}
+
+    /* (existing fridge rules remain) */
   </style>
 </Layout>

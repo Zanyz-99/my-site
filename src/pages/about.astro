@@ -124,7 +124,10 @@ import Container from "../components/Container.astro";
     .tbl .head{font-weight:600;background:color-mix(in oklab, var(--card) 85%, var(--border) 15%)}
 
     /* Span the left label across all subsequent rows in these sections */
+    .tbl .head{grid-column:1}
+    .tbl .head.span-all{grid-row:1 / -1}
     .tbl.work .head, .tbl.projects .head{grid-row:1 / -1}
+    .tbl.work .cell:not(.head), .tbl.projects .cell:not(.head){grid-column:2}
 
     /* Rows on the right side */
     .tbl .note{color:var(--muted)}

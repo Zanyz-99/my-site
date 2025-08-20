@@ -79,7 +79,8 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
 
   .topbar{
     position:sticky; top:0; z-index:1000; width:100%;
-    background:var(--bar-bg); border-bottom:1px solid var(--border);
+    background:var(--bar-bg); 
+    border-bottom:none;
     backdrop-filter:saturate(150%) blur(6px);
   }
   /* Three-column grid = logo | centered menu | toggle */

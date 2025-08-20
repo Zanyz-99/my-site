@@ -31,13 +31,11 @@ import Container from "../components/Container.astro";
     <!-- Work (2×N, left label spans all rows) -->
     <section class="tbl t2 work" role="table" aria-label="Work">
       <div class="cell head span-all" role="rowheader">Work</div>
-      <!-- Short description (row 1) -->
       <div class="cell note" role="cell">Selected roles and highlights.</div>
 
-      <!-- Experience rows (add/remove freely) -->
       <div class="cell item" role="cell">
         <div class="line">
-          <div class="logo ph" aria-hidden="true"></div>
+          <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
           <div class="meta">
             <div class="title"><strong>Reactor Control Assistant; Ops & Decommissioning Lead</strong></div>
             <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
@@ -48,7 +46,7 @@ import Container from "../components/Container.astro";
 
       <div class="cell item" role="cell">
         <div class="line">
-          <div class="logo ph" aria-hidden="true"></div>
+          <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
           <div class="meta">
             <div class="title"><strong>Staff Officer — Analytics & Planning</strong></div>
             <div class="sub">Allied & Fleet HQ · Naples, Italy</div>
@@ -56,20 +54,6 @@ import Container from "../components/Container.astro";
           <div class="dates">2023–Present</div>
         </div>
       </div>
-
-      <!-- Example extra row (comment or remove) -->
-      <!--
-      <div class="cell item" role="cell">
-        <div class="line">
-          <img class="logo" src="/logos/example.svg" alt="Example logo" />
-          <div class="meta">
-            <div class="title"><strong>Role Title</strong></div>
-            <div class="sub">Company or Command</div>
-          </div>
-          <div class="dates">YYYY–YYYY</div>
-        </div>
-      </div>
-      -->
     </section>
 
     <!-- Side Projects (2×N, left label spans all rows) -->
@@ -113,10 +97,10 @@ import Container from "../components/Container.astro";
 
   <style>
     /* Center the whole page content */
-    .about-tables{display:grid;gap:1.25rem;justify-items:center}
+    .about-tables{display:grid;gap:1.25rem;justify-items:center;align-items:start;margin-inline:auto}
 
     /* Base “table” */
-    .tbl{width:min(960px,92vw);display:grid;background:transparent;border:none;border-radius:0;overflow:visible}
+    .tbl{width:min(960px,92vw);display:grid;background:transparent;border:none;border-radius:0;overflow:visible;margin-inline:auto;justify-self:center}
     .tbl .cell{padding:14px 16px;border-top:none}
     .tbl .cell.first{border-top:none}
 
@@ -157,5 +141,15 @@ import Container from "../components/Container.astro";
     }
     .connect .links{display:flex;gap:1.25rem;flex-wrap:wrap}
     .connect .links a{font-weight:700;text-decoration:underline}
+    /* Keep section labels a touch different */
+    .tbl .head{font-weight:600;background:transparent;text-align:right;color:var(--muted)}
+
+    /* Connect link behavior */
+    .connect .links{display:flex;gap:1.25rem;flex-wrap:wrap}
+    .connect .links a{font-weight:700;text-decoration:underline}
+    .connect .links a:link, .connect .links a:visited{color:inherit}
+    .connect .links:hover a{opacity:.45;transition:opacity .15s ease}
+    .connect .links a:hover{opacity:1}
+    .connect .links a:focus-visible{outline:2px solid var(--border);outline-offset:2px}
   </style>
 </Layout>

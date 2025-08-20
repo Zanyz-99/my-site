@@ -1,25 +1,59 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";
+
+const ATHLETE_ID = Number(import.meta.env.STRAVA_ATHLETE_ID) || 35369206;
+const STRAVA_PROFILE = `https://www.strava.com/athletes/${ATHLETE_ID}`;
 ---
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
   <Container class="about-tables">
-    <!-- Fridge collage (desktop only) -->
-    <section class="collage-section" aria-hidden="true">
+    <!-- Fridge collage -->
+    <section class="collage-section">
       <div class="fridge-strip">
-        <figure class="polaroid p1"><img src="/photos/about-1.jpg" alt="" loading="lazy"/></figure>
-        <figure class="polaroid p2"><img src="/photos/about-2.jpg" alt="" loading="lazy"/></figure>
-        <figure class="polaroid p3"><img src="/photos/about-3.jpg" alt="" loading="lazy"/></figure>
-        <figure class="polaroid p4"><img src="/photos/about-4.jpg" alt="" loading="lazy"/></figure>
+        <!-- 1 -->
+        <figure class="polaroid p1">
+          <div class="card">
+            <div class="face front"><img src="/photos/about-1.jpg" alt="" loading="lazy" /></div>
+            <div class="face back" aria-hidden="true"><span>Hi 👋</span></div>
+          </div>
+        </figure>
+
+        <!-- 2 -->
+        <figure class="polaroid p2">
+          <div class="card">
+            <div class="face front"><img src="/photos/about-2.jpg" alt="" loading="lazy" /></div>
+            <div class="face back" aria-hidden="true"><span>Trails ≫ roads</span></div>
+          </div>
+        </figure>
+
+        <!-- 3 -->
+        <figure class="polaroid p3">
+          <div class="card">
+            <div class="face front"><img src="/photos/about-3.jpg" alt="" loading="lazy" /></div>
+            <div class="face back" aria-hidden="true"><span>Build. Ship. Iterate.</span></div>
+          </div>
+        </figure>
+
+        <!-- 4: dynamic Strava -->
+        <a class="polaroid p4" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
+          <div class="card">
+            <div class="face front">
+              <img id="strava-img" src="/photos/about-4.jpg" alt="Latest Strava activity" loading="lazy" />
+              <div class="stats" id="strava-stats" hidden></div>
+            </div>
+            <div class="face back"><span>View on Strava ↗</span></div>
+          </div>
+        </a>
       </div>
     </section>
+
     <!-- About Me (2×1) -->
     <section class="tbl t2" role="table" aria-label="About Me">
       <div class="cell head first" role="rowheader">About Me</div>
       <div class="cell first" role="cell">
         <p>
           Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
-          outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain‑aware travel‑time, and lean automations for
+          outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain-aware travel-time, and lean automations for
           finance ops. Outside of work, I’m usually running or exploring trails.
         </p>
       </div>
@@ -32,12 +66,12 @@ import Container from "../components/Container.astro";
         <div class="links">
           <a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a>
           <a href="mailto:ztscholz86@gmail.com">Email</a>
-          <a href="https://www.strava.com/athletes/11644136" target="_blank" rel="noopener">Strava</a>
+          <a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a>
         </div>
       </div>
     </section>
 
-    <!-- Work (2×N, left label spans all rows) -->
+    <!-- Work -->
     <section class="tbl t2 work" role="table" aria-label="Work">
       <div class="cell head span-all" role="rowheader">Work</div>
       <div class="cell note" role="cell">Selected roles and highlights.</div>
@@ -47,7 +81,7 @@ import Container from "../components/Container.astro";
           <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
           <div class="meta">
             <div class="title">Reactor Control Assistant; Ops & Decommissioning Lead</div>
-            <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+            <div class="sub">USS Chicago (SSN-721) · U.S. Navy</div>
           </div>
           <div class="dates">2018–2021</div>
         </div>
@@ -65,7 +99,7 @@ import Container from "../components/Container.astro";
       </div>
     </section>
 
-    <!-- Side Projects (2×N, left label spans all rows) -->
+    <!-- Side Projects -->
     <section class="tbl t2 projects" role="table" aria-label="Side Projects">
       <div class="cell head span-all" role="rowheader">Side Projects</div>
       <div class="cell note" role="cell">A few things I’ve built — click to view details.</div>
@@ -95,12 +129,45 @@ import Container from "../components/Container.astro";
           <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
           <div class="meta">
             <div class="title">Sheepshead</div>
-            <div class="sub">Trick‑taking card game (Unity WebGL)</div>
+            <div class="sub">Trick-taking card game (Unity WebGL)</div>
           </div>
         </div>
       </a>
     </section>
   </Container>
+
+  <!-- Tiny client script to hydrate the Strava photo/stats -->
+  <script type="module">
+    (async () => {
+      try {
+        const r = await fetch('/api/strava-latest', { cache: 'no-store' });
+        if (!r.ok) return;
+        const data = await r.json();
+        const img = document.getElementById('strava-img');
+        const statsEl = document.getElementById('strava-stats');
+        const link = document.getElementById('strava-card');
+
+        if (data.photoUrl && img) img.src = data.photoUrl;
+        if (data.activityUrl && link) link.href = data.activityUrl;
+
+        const s = data.stats;
+        if (statsEl && s) {
+          if (s.isRun && s.distance && s.pace && s.duration) {
+            statsEl.innerHTML = `
+              <span class="metric">${s.distance}</span>
+              <span class="dot">•</span>
+              <span class="metric">${s.pace}</span>
+              <span class="dot">•</span>
+              <span class="metric">${s.duration}</span>
+            `;
+          } else if (s.duration) {
+            statsEl.textContent = s.duration;
+          }
+          statsEl.hidden = false;
+        }
+      } catch {}
+    })();
+  </script>
 
   <style>
     /* Center the whole page content */
@@ -118,7 +185,7 @@ import Container from "../components/Container.astro";
     /* Left header column */
     .tbl .head{font-weight:inherit;background:transparent;text-align:right;color:inherit}
 
-    /* Span the left label across all subsequent rows in these sections */
+    /* Span label across rows in these sections */
     .tbl .head{grid-column:1}
     .tbl .head.span-all{grid-row:1 / -1}
     .tbl.work .head, .tbl.projects .head{grid-row:1 / -1}
@@ -138,7 +205,7 @@ import Container from "../components/Container.astro";
     .tbl .link, .tbl .linkrow{color:inherit;text-decoration:none}
     .tbl .link:hover, .tbl .linkrow:hover{background:var(--hover)}
 
-    /* Responsive: stack label on top on narrow screens */
+    /* Responsive */
     @media (max-width:640px){
       .tbl.t2{grid-template-columns:1fr}
       .tbl.t4{grid-template-columns:1fr 1fr}
@@ -146,9 +213,9 @@ import Container from "../components/Container.astro";
       .tbl .dates{margin-left:0}
       .tbl .item .line{align-items:flex-start}
     }
+
     .connect .links{display:flex;gap:1.25rem;flex-wrap:wrap}
     .connect .links a{text-decoration:underline;font-weight:inherit}
-    /* Keep section labels a touch different */
     .tbl .head{font-weight:600;background:transparent;text-align:right;color:var(--muted)}
 
     /* Connect link behavior */
@@ -158,35 +225,49 @@ import Container from "../components/Container.astro";
     .connect .links:hover a{opacity:.45;transition:opacity .15s ease}
     .connect .links a:hover{opacity:1}
     .connect .links a:focus-visible{outline:2px solid var(--border);outline-offset:2px}
-    /* Remove bolding inside this page */
+
+    /* Remove bolding explicitly on this page */
     .about-tables strong, .about-tables b{font-weight:inherit}
 
-    /* Fridge collage */
+    /* Fridge collage (no frame; rounded; flip on hover) */
     .fridge-strip{position:relative;width:min(960px,92vw);height:clamp(320px,36vw,420px);margin-inline:auto}
-    .fridge-strip .polaroid{position:absolute;top:0;width:clamp(160px,22vw,220px);aspect-ratio:3/4;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.2);padding:8px 8px 24px;border-radius:8px;opacity:0;transform:translateY(-16px) rotate(var(--rot,0deg));animation:dropIn .35s ease-out forwards}
-    .fridge-strip .polaroid img{width:100%;height:100%;object-fit:cover;border-radius:4px;display:block}
-    .fridge-strip .p1{left:0%;--rot:-3.5deg;z-index:3;animation-delay:.05s}
-    .fridge-strip .p2{left:calc(25% - 20px);--rot:2.5deg;z-index:2;animation-delay:.12s}
-    .fridge-strip .p3{left:calc(50% - 40px);--rot:-1.5deg;z-index:4;animation-delay:.19s}
-    .fridge-strip .p4{left:calc(75% - 60px);--rot:3deg;z-index:1;animation-delay:.26s}
-    @keyframes dropIn{to{opacity:1;transform:translateY(0) rotate(var(--rot,0deg))}}
+    .fridge-strip .polaroid{position:absolute;top:0;width:clamp(160px,22vw,220px);aspect-ratio:3/4;display:block;text-decoration:none}
+    .fridge-strip .polaroid .card{position:relative;width:100%;height:100%;border-radius:14px;transform-style:preserve-3d;transition:transform .6s ease;box-shadow:0 8px 24px rgba(0,0,0,.18);overflow:hidden}
+    .fridge-strip .polaroid .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:inherit;display:block}
+    .fridge-strip .polaroid .front img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+    .fridge-strip .polaroid .back{display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--text);transform:rotateY(180deg);font-weight:600}
+    .fridge-strip .polaroid:hover .card{transform:rotateY(180deg)}
+    .fridge-strip .polaroid:focus-visible .card{outline:2px solid var(--border);outline-offset:2px}
+
+    /* Positions/rotation */
+    .fridge-strip .p1{left:0%;transform:rotate(-3.5deg);z-index:3}
+    .fridge-strip .p2{left:calc(25% - 20px);transform:rotate(2.5deg);z-index:2}
+    .fridge-strip .p3{left:calc(50% - 40px);transform:rotate(-1.5deg);z-index:4}
+    .fridge-strip .p4{left:calc(75% - 60px);transform:rotate(3deg);z-index:1}
+
+    /* Drop-in animation */
+    .fridge-strip .polaroid{opacity:0;animation:dropIn .35s ease-out forwards}
+    .fridge-strip .p1{animation-delay:.05s}
+    .fridge-strip .p2{animation-delay:.12s}
+    .fridge-strip .p3{animation-delay:.19s}
+    .fridge-strip .p4{animation-delay:.26s}
+    @keyframes dropIn{to{opacity:1}}
+
+    /* Hide collage on narrow screens */
     @media (max-width:800px){.fridge-strip{display:none}}
-    /* Collage section separates layout so it never overlaps tables */
     .collage-section{width:100%;display:flex;justify-content:center;isolation:isolate}
 
-    /* Keep note rows same color as body text */
-    .tbl .note{color:inherit}
-
-    /* Remove all bolding explicitly */
-    .about-tables strong, .about-tables b{font-weight:inherit}
-
-    /* (existing fridge rules remain) */
-    /* Row hover: dim siblings like Connect links (no bg change) */
-    .tbl.work:hover .item, .tbl.work:focus-within .item{opacity:.45;transition:opacity .15s ease}
-    .tbl.projects:hover .item, .tbl.projects:focus-within .item{opacity:.45;transition:opacity .15s ease}
-    .tbl.work .item:hover, .tbl.work .item:focus-within{opacity:1}
-    .tbl.projects .item:hover, .tbl.projects .item:focus-within{opacity:1}
-    .tbl .item:hover, .tbl .linkrow:hover{background:transparent}
-    .tbl .linkrow{cursor:pointer;text-decoration:none}
+    /* Stats badge (bottom-right) */
+    .fridge-strip .stats{
+      position:absolute;right:10px;bottom:10px;
+      display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
+      background:rgba(0,0,0,.55);
+      color:#fff;font-weight:600;
+      padding:.4rem .6rem;border-radius:10px;
+      backdrop-filter:blur(2px);
+      font-size:.9rem;line-height:1;
+    }
+    .fridge-strip .stats .dot{opacity:.6}
+    .fridge-strip .stats .metric{white-space:nowrap}
   </style>
 </Layout>

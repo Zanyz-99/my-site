@@ -3,66 +3,150 @@ import Layout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";
 ---
 <Layout title="About — Zach Scholz" description="Background, focus areas, and interests.">
-  <Container class="about">
-    <!-- Photos row (flip-on-hover component to add next) -->
-    <div class="photo-grid">
-      <!-- placeholders for now -->
-      <div class="ph"></div><div class="ph"></div><div class="ph"></div><div class="ph"></div>
-    </div>
-
-    <!-- 4–5 sentences about me -->
-    <p class="blurb">
-      Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable outcomes, 
-      ship quickly, and iterate. Interests: vehicle routing, terrain-aware travel-time, and lean automations for finance ops. 
-      Outside of work, I’m usually running or exploring trails.
-    </p>
-
-    <!-- Connect (LinkedIn, Email, Strava) -->
-    <div class="connect">
-      <a class="icon" href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener" aria-label="LinkedIn">
-        <!-- inline LinkedIn -->
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0 8h5v16H0V8zm7.5 0h4.8v2.2h.1c.7-1.3 2.4-2.7 4.9-2.7 5.2 0 6.1 3.4 6.1 7.9V24h-5v-7.1c0-1.7 0-3.9-2.4-3.9s-2.8 1.8-2.8 3.8V24h-5V8z"/></svg>
-        <span>LinkedIn</span>
-      </a>
-      <a class="link" href="mailto:ztscholz86@gmail.com"><strong><u>Email</u></strong></a>
-      <a class="icon" href="https://www.strava.com/athletes/11644136" target="_blank" rel="noopener" aria-label="Strava">
-        <!-- inline Strava -->
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M14.7 20.6l-2.7-5.3-2.7 5.3H4L12 4l8 16.6h-5.3zM17.6 20.6l-1.9-3.7-1.9 3.7h3.8z"/></svg>
-        <span>Strava</span>
-      </a>
-    </div>
-
-    <!-- Work -->
-    <section>
-      <h2>Work</h2>
-      <ul class="list">
-        <li>Lieutenant, U.S. Navy — Reactor Control Assistant; Ops & decommissioning lead</li>
-        <li>Staff HQ — analytics & planning, Naples, Italy</li>
-      </ul>
+  <Container class="about-tables">
+    <!-- About Me (2×1) -->
+    <section class="tbl t2" role="table" aria-label="About Me">
+      <div class="cell head first" role="rowheader">About Me</div>
+      <div class="cell first" role="cell">
+        <p>
+          Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
+          outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain‑aware travel‑time, and lean automations for
+          finance ops. Outside of work, I’m usually running or exploring trails.
+        </p>
+      </div>
     </section>
 
-    <!-- Side Projects (each links to /coding/XXX) -->
-    <section>
-      <h2>Side Projects</h2>
-      <ul class="projects">
-        <li><a href="/coding/Tone">🎯 Tone</a> — Ear/reaction trainer (Unity WebGL)</li>
-        <li><a href="/coding/Sheepshead">🃏 Sheepshead</a> — Trick-taking card game</li>
-      </ul>
+    <!-- Connect (4×1) -->
+    <section class="tbl t4" role="table" aria-label="Connect">
+      <div class="cell head first" role="rowheader">Connect</div>
+      <a class="cell first link" href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="cell first link" href="mailto:ztscholz86@gmail.com">Email</a>
+      <a class="cell first link" href="https://www.strava.com/athletes/11644136" target="_blank" rel="noopener">Strava</a>
+    </section>
+
+    <!-- Work (2×N, left label spans all rows) -->
+    <section class="tbl t2 work" role="table" aria-label="Work">
+      <div class="cell head span-all" role="rowheader">Work</div>
+      <!-- Short description (row 1) -->
+      <div class="cell note" role="cell">Selected roles and highlights.</div>
+
+      <!-- Experience rows (add/remove freely) -->
+      <div class="cell item" role="cell">
+        <div class="line">
+          <div class="logo ph" aria-hidden="true"></div>
+          <div class="meta">
+            <div class="title"><strong>Reactor Control Assistant; Ops & Decommissioning Lead</strong></div>
+            <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+          </div>
+          <div class="dates">2018–2021</div>
+        </div>
+      </div>
+
+      <div class="cell item" role="cell">
+        <div class="line">
+          <div class="logo ph" aria-hidden="true"></div>
+          <div class="meta">
+            <div class="title"><strong>Staff Officer — Analytics & Planning</strong></div>
+            <div class="sub">Allied & Fleet HQ · Naples, Italy</div>
+          </div>
+          <div class="dates">2023–Present</div>
+        </div>
+      </div>
+
+      <!-- Example extra row (comment or remove) -->
+      <!--
+      <div class="cell item" role="cell">
+        <div class="line">
+          <img class="logo" src="/logos/example.svg" alt="Example logo" />
+          <div class="meta">
+            <div class="title"><strong>Role Title</strong></div>
+            <div class="sub">Company or Command</div>
+          </div>
+          <div class="dates">YYYY–YYYY</div>
+        </div>
+      </div>
+      -->
+    </section>
+
+    <!-- Side Projects (2×N, left label spans all rows) -->
+    <section class="tbl t2 projects" role="table" aria-label="Side Projects">
+      <div class="cell head span-all" role="rowheader">Side Projects</div>
+      <!-- Short description (row 1) -->
+      <div class="cell note" role="cell">A few things I’ve built — click to view details.</div>
+
+      <!-- Project rows (row is clickable) -->
+      <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/FOC/">
+        <div class="line">
+          <div class="logo ph" aria-hidden="true"></div>
+          <div class="meta">
+            <div class="title"><strong>FOC</strong></div>
+            <div class="sub">Unity WebGL tactical sim</div>
+          </div>
+        </div>
+      </a>
+
+      <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/tone/">
+        <div class="line">
+          <div class="logo ph" aria-hidden="true"></div>
+          <div class="meta">
+            <div class="title"><strong>Tone</strong></div>
+            <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
+          </div>
+        </div>
+      </a>
+
+      <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/sheepshead/">
+        <div class="line">
+          <div class="logo ph" aria-hidden="true"></div>
+          <div class="meta">
+            <div class="title"><strong>Sheepshead</strong></div>
+            <div class="sub">Trick‑taking card game (Unity WebGL)</div>
+          </div>
+        </div>
+      </a>
     </section>
   </Container>
 
   <style>
-    .about{display:grid;gap:1.25rem}
-    .photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
-    .ph{aspect-ratio:1/1;background:var(--card);border:1px solid var(--border);border-radius:12px}
-    .blurb{max-width:68ch;color:var(--muted)}
-    .connect{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
-    .connect .icon{display:inline-flex;gap:.5rem;align-items:center;padding:.4rem .6rem;border:1px solid var(--border);border-radius:999px;background:var(--card);text-decoration:none}
-    .connect .icon:hover{background:var(--hover)}
-    .list{padding-left:1rem}
-    .projects{padding-left:1rem}
-    .projects a{text-decoration:none}
-    .projects a:hover{text-decoration:underline}
-    @media (max-width:800px){.photo-grid{grid-template-columns:repeat(2,1fr)}}
+    /* Center the whole page content */
+    .about-tables{display:grid;gap:1.25rem;justify-items:center}
+
+    /* Base “table” */
+    .tbl{width:min(960px,92vw);display:grid;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .tbl .cell{padding:14px 16px;border-top:1px solid var(--border)}
+    .tbl .cell.first{border-top:none}
+
+    /* Column templates */
+    .tbl.t2{grid-template-columns:180px 1fr}
+    .tbl.t4{grid-template-columns:180px repeat(3, 1fr)}
+
+    /* Left header column */
+    .tbl .head{font-weight:600;background:color-mix(in oklab, var(--card) 85%, var(--border) 15%)}
+
+    /* Span the left label across all subsequent rows in these sections */
+    .tbl.work .head, .tbl.projects .head{grid-row:1 / -1}
+
+    /* Rows on the right side */
+    .tbl .note{color:var(--muted)}
+    .tbl .item .line{display:flex;align-items:center;gap:.85rem}
+    .tbl .logo{width:38px;height:38px;border-radius:8px;border:1px solid var(--border);background:var(--surface)}
+    .tbl .logo.ph{background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
+    .tbl .meta{display:grid;gap:.15rem}
+    .tbl .title{line-height:1.15}
+    .tbl .sub{color:var(--muted);font-size:.95rem}
+    .tbl .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
+
+    /* Links */
+    .tbl .link, .tbl .linkrow{color:inherit;text-decoration:none}
+    .tbl .link:hover, .tbl .linkrow:hover{background:var(--hover)}
+
+    /* Responsive: stack label on top on narrow screens */
+    @media (max-width:640px){
+      .tbl.t2{grid-template-columns:1fr}
+      .tbl.t4{grid-template-columns:1fr 1fr}
+      .tbl.work .head, .tbl.projects .head{grid-row:auto}
+      .tbl .dates{margin-left:0}
+      .tbl .item .line{align-items:flex-start}
+    }
   </style>
 </Layout>

@@ -10,6 +10,10 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/icons/logo.png" />
+    <link rel="apple-touch-icon" href="/icons/logo.png" />
+    
     <style>
       /* GLOBAL THEME TOKENS (affect whole page) */
       :root{

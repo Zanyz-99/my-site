@@ -38,18 +38,28 @@ async function refreshAccessToken() {
   });
   if (!res.ok) throw new Error(`Token refresh failed: ${await res.text()}`);
   const data = await res.json();
+
+  // ⚠️ Strava may rotate refresh tokens. We can't update GH secrets automatically here,
+  // but we log a hint so you know to refresh it manually if needed.
+  if (data.refresh_token && data.refresh_token !== STRAVA_REFRESH_TOKEN) {
+    console.log('Note: Strava returned a new refresh_token. Update your repo secret to keep this working long-term.');
+    // If you want to automate this, see section C below.
+  }
+
   return data.access_token;
 }
 
 async function run() {
   const access = await refreshAccessToken();
 
-  // 1) Get recent activities
   const actsRes = await fetch(
     'https://www.strava.com/api/v3/athlete/activities?per_page=10',
     { headers: { Authorization: `Bearer ${access}` } }
   );
-  if (!actsRes.ok) throw new Error(`Activities fetch failed: ${actsRes.status}`);
+  if (!actsRes.ok) {
+    const body = await actsRes.text();
+    throw new Error(`Activities fetch failed: ${actsRes.status} – ${body}`);
+  }
   const activities = await actsRes.json();
 
   const picked =
@@ -57,10 +67,10 @@ async function run() {
 
   if (!picked) {
     console.log('No activities found');
+    writePayload({ error: 'No activities found' });
     return;
   }
 
-  // 2) First photo, good size
   let photoUrl = null;
   try {
     const photosRes = await fetch(
@@ -78,10 +88,13 @@ async function run() {
           p?.url ||
           null;
       }
+    } else {
+      console.log('Photo fetch failed:', photosRes.status, await photosRes.text());
     }
-  } catch {}
+  } catch (e) {
+    console.log('Photo fetch error:', e.message);
+  }
 
-  // 3) Stats
   const distanceKm = (picked.distance ?? 0) / 1000;
   const durationSec = picked.moving_time ?? picked.elapsed_time ?? 0;
   const isRun = picked.type === 'Run' || picked.type === 'TrailRun';
@@ -101,7 +114,7 @@ async function run() {
         })()
       : { isRun: false, duration: hms(durationSec) };
 
-  const payload = {
+  writePayload({
     athleteUrl: STRAVA_ATHLETE_ID
       ? `https://www.strava.com/athletes/${STRAVA_ATHLETE_ID}`
       : null,
@@ -109,8 +122,10 @@ async function run() {
     photoUrl,
     stats,
     fetchedAt: new Date().toISOString(),
-  };
+  });
+}
 
+function writePayload(payload) {
   const outDir = path.join('public', 'data');
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(
@@ -118,11 +133,13 @@ async function run() {
     JSON.stringify(payload, null, 2),
     'utf8'
   );
-
   console.log('Wrote public/data/strava-latest.json');
 }
 
 run().catch((e) => {
-  console.error(e);
-  process.exit(1);
+  console.error(e.message || e);
+  // Write a fallback so the site still deploys
+  writePayload({ error: String(e.message || e), fetchedAt: new Date().toISOString() });
+  // Do NOT exit non-zero so deploy continues:
+  // process.exit(1);
 });

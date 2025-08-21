@@ -216,13 +216,23 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Global scroll behavior so snapping lands below navbar */
+    /* ---- Kill parent vertical-centering on this page only ---- */
+    /* If any ancestor uses grid/flex centering + 100vh, this forces top alignment */
+    :where(main, .page, .site-main, .content, .container, .wrap, .shell):has(>.about-wrap) {
+      display: block !important;           /* break grid/flex centering */
+      min-height: auto !important;         /* stop 100vh vertical centering */
+      place-content: start !important;     /* grid centering override */
+      justify-content: flex-start !important; /* flex/grid override */
+      align-content: flex-start !important;   /* flex/grid override */
+    }
+  
+    /* Global scroll behavior so snapping lands below navbar (tune if needed) */
     :root {
       --content-w: min(816px, 78vw);
-      --scroll-pad: 72px; /* adjust to your navbar height */
+      --scroll-pad: 72px; /* navbar height; adjust to your actual */
     }
     html { scroll-padding-top: var(--scroll-pad); }
-
+  
     /* Layout: start right under navbar */
     .about-wrap{
       display:grid;
@@ -231,11 +241,13 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       align-items:start;    /* top-align children */
       margin-inline:auto;
       margin-top:2rem;      /* space under navbar */
+      place-self:start;     /* if parent is grid */
+      align-self:flex-start;/* if parent is flex */
     }
-
-    /* Each section is independent; no wrapper accordion needed */
+  
+    /* Each section is independent */
     section.acc { width:100%; background:transparent; overflow-anchor: none; }
-
+  
     /* Titles: left-aligned; content appears below */
     .acc-summary{
       width:var(--content-w);
@@ -252,10 +264,10 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .acc-toggle::before{content:'+'; display:inline-block; width:1ch; text-align:center}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'} /* minus when open */
     .acc-title{line-height:1.2}
-
+  
     /* Panels default hidden; JS toggles display */
     .acc-panel{padding:0;margin:0; display:none;}
-
+  
     /* Shared content width */
     .block, .stack, .list, .photos4{
       width:var(--content-w);
@@ -263,12 +275,12 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
-
+  
     /* Dim others on hover (connect, work, projects) */
     .dim-others .hoverable{transition:opacity .15s ease}
     .dim-others:hover .hoverable{opacity:.45}
     .dim-others .hoverable:hover{opacity:1}
-
+  
     /* 1-column list rows (Work & Projects) */
     .list{display:grid;gap:10px}
     .row{text-decoration:none;color:inherit}
@@ -279,7 +291,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .title{line-height:1.15}
     .sub{color:inherit;font-size:.95rem}
     .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
-
+  
     /* Photos 4×1 strip */
     .photos4{
       display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
@@ -289,7 +301,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       width:100%;aspect-ratio:3/4;object-fit:cover;
       border-radius:14px;display:block;box-shadow:0 8px 24px rgba(0,0,0,.18);
     }
-
+  
     /* Strava tile overlays */
     .strava{position:relative;text-decoration:none;color:inherit}
     .strava-cta{

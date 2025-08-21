@@ -139,43 +139,37 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
-  
+
     const items   = Array.from(accRoot.querySelectorAll('.acc'));
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
-  
+
     // OPTIONAL: if you have a fixed header (e.g., .topbar), we’ll pin just below it.
     function getPinOffset() {
       const fixedHeader = document.querySelector('.topbar'); // change selector if needed
       return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
     }
-  
-    // Keep accordion top at the pin offset in the viewport
+
     function pinAccordionTop({ settle = true } = {}) {
       const targetTop = getPinOffset(); // usually 0 if no fixed header
       let tries = 0;
       let last = null;
-  
+
       const step = () => {
         const nowTop = accRoot.getBoundingClientRect().top;
         const delta  = nowTop - targetTop;
         if (delta) window.scrollBy({ top: delta, left: 0 }); // instant correction
-  
+
         if (!settle) return;
-  
-        // run for a few frames until layout stabilizes (images/fonts/etc.)
-        if (last !== null && Math.abs(nowTop - last) < 0.25) {
-          // two near-identical frames: close enough
-          return;
-        }
+        if (last !== null && Math.abs(nowTop - last) < 0.25) return;
         last = nowTop;
         if (++tries < 16) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
     }
-  
+
     let openIndex = -1;
-  
+
     function setOpen(idx) {
       items.forEach((_, i) => {
         const open = i === idx;
@@ -184,45 +178,36 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       });
       openIndex = idx;
     }
-  
+
     function activate(i, evt) {
       if (evt) evt.preventDefault();
       const next = (openIndex === i) ? -1 : i;   // toggle same to close
       setOpen(next);
-  
-      // On any toggle, pin the accordion to the top of the page
       pinAccordionTop({ settle: true });
     }
-  
-    // Wire up interactions
+
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => activate(i, e));
       btn.addEventListener('keydown', (e) => {
         if (e.key === ' ' || e.key === 'Enter') activate(i, e);
       });
     });
-  
-    // Start collapsed
+
     setOpen(-1);
-  
-    // Re-pin on dynamic layout changes that happen after toggle
+
     const ro = new ResizeObserver(() => {
       if (openIndex !== -1) pinAccordionTop({ settle: false });
     });
     ro.observe(accRoot);
-  
-    // Re-pin if images inside the accordion finish loading
+
     accRoot.querySelectorAll('img').forEach(img => {
       if (!img.complete) {
-        img.addEventListener('load', () => { if (openIndex !== -1) pinAccordionTop({ settle: false }); });
+        img.addEventListener('load', () => {
+          if (openIndex !== -1) pinAccordionTop({ settle: false });
+        });
       }
     });
-  
-    // Prevent browser scroll-anchoring from fighting us
-    document.documentElement.style.scrollBehavior = getComputedStyle(document.documentElement).scrollBehavior; // keep current behavior
-    accRoot.style.contain = 'layout'; // small isolation hint
   </script>
-
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>
@@ -265,41 +250,66 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Layout: center the column on the page */
+    /* Center column; NO vertical centering */
     .about-wrap{display:grid;gap:36px;justify-items:center;align-items:start;margin-inline:auto}
 
     /* Content width (used by titles + content) */
     :root { --content-w: min(816px, 78vw); }
+
+    /* Icon gutter variables for consistent alignment */
+    :root { --icon-w: 1.25ch; --icon-gap: .6rem; }
+
     .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
     .acc{width:100%;background:transparent}
 
-    /* Titles: left-aligned; fixed spot (content appears below) */
+    /* Titles: same size as <p>, bold; icon in a fixed-width gutter */
     .acc-summary{
       width:var(--content-w);
       margin-inline:auto;
-      display:flex; align-items:center; gap:.6rem;
+      display:flex; align-items:center; gap:var(--icon-gap);
       justify-content:flex-start;
       padding:8px 0;
       cursor:pointer; user-select:none;
-      color:var(--muted); font-weight:600;
-      text-align:left;
-      background:none; border:0;
+      color:var(--text);                /* titles not muted */
+      font-weight:700;                  /* bold */
+      font-size:var(--body-size);       /* same size as <p> */
+      line-height:var(--line);
+      background:none; border:0; text-align:left;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-    .acc-toggle::before{content:'+'; display:inline-block; width:1ch; text-align:center}
-    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'} /* minus when open */
+
+    /* Fixed-width icon gutter so text baseline lines up with panel content */
+    .acc-toggle{display:inline-block; width:var(--icon-w); text-align:center; flex:0 0 var(--icon-w);}
+    .acc-toggle::before{content:'+';}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+
     .acc-title{line-height:1.2}
 
-    /* Panels default hidden; JS sets display:block on open */
-    .acc-panel{padding:0;margin:0; display:none; overflow-anchor: none;} /* prevent scroll-anchoring jumps */
+    /* Panels: same font size as <p>, aligned under the title text (not the icon) */
+    .acc-panel{
+      padding:0;
+      margin:0;
+      display:none;
+      overflow-anchor: none; /* avoid Chrome scroll anchoring jumps */
+      font-size:var(--body-size);       /* same size as <p> */
+      line-height:var(--line);
+      /* Align panel content start with title text start */
+      padding-left: calc(var(--icon-w) + var(--icon-gap));
+    }
 
     /* Blocks share same left edge as titles; column centered overall */
     .block, .stack, .list, .photos4{
       width:var(--content-w);
       margin:6px auto 0;
     }
+
+    /* Lists / links */
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
+    /* Ensure Connect links never go blue/purple; already handled globally in Layout, but keep local too */
+    .accordion a,
+    .accordion a:visited{ color:inherit; text-decoration: none; }
+    .accordion a:hover{ text-decoration: underline; }
 
     /* Dim others on hover (connect, work, projects) */
     .dim-others .hoverable{transition:opacity .15s ease}
@@ -314,13 +324,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
     .meta{display:grid;gap:.15rem}
     .title{line-height:1.15}
-    .sub{color:inherit;font-size:.95rem}
+    .sub{color:inherit;font-size:calc(var(--body-size) * 0.95)}
     .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
 
     /* Photos 4×1 strip */
-    .photos4{
-      display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
-    }
+    .photos4{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; }
     .photos4 .ph{margin:0;padding:0;display:block}
     .photos4 img{
       width:100%;aspect-ratio:3/4;object-fit:cover;
@@ -338,7 +346,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
       background:rgba(0,0,0,.55);color:#fff;font-weight:600;
       padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);
-      font-size:.9rem;line-height:1;
+      font-size:calc(var(--body-size) * .9); line-height:1;
     }
     .stats .dot{opacity:.6}
     .stats .metric{white-space:nowrap}

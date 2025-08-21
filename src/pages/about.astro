@@ -135,31 +135,58 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     </section>
   </Container>
 
-  <!-- One-at-a-time + keep title fixed in viewport when toggling -->
+  <!-- Accordion: one open at a time + no title jump -->
   <script type="module">
-    const items = Array.from(document.querySelectorAll('.acc'));
-
-    // Close others when one opens
-    items.forEach((d) => {
-      d.addEventListener('toggle', () => {
-        if (d.open) for (const other of items) if (other !== d && other.open) other.open = false;
+    const accRoot = document.querySelector('.accordion');
+    if (accRoot) {
+      const startTops = new WeakMap();
+  
+      // Capture the title's screen position BEFORE the toggle happens
+      const captureTop = (el) => startTops.set(el, el.getBoundingClientRect().top);
+  
+      // Mouse: record before native toggle
+      accRoot.addEventListener('mousedown', (e) => {
+        const sum = e.target.closest('.acc-summary');
+        if (sum) captureTop(sum);
       });
-    });
-
-    // Prevent the clicked summary from "jumping" by compensating scroll
-    const summaries = Array.from(document.querySelectorAll('.acc-summary'));
-    summaries.forEach((sum) => {
-      sum.addEventListener('click', () => {
-        const startTop = sum.getBoundingClientRect().top;
-        // After the toggle & layout, adjust scroll to keep the summary put
+  
+      // Keyboard (Enter/Space on summary): record before native toggle
+      accRoot.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const sum = e.target.closest('.acc-summary');
+        if (sum) captureTop(sum);
+      });
+  
+      // Handle toggles (fires for any <details class="acc">)
+      accRoot.addEventListener('toggle', (e) => {
+        const details = e.target.closest('.acc');
+        if (!details) return;
+  
+        // Enforce "one open at a time"
+        if (details.open) {
+          for (const other of accRoot.querySelectorAll('.acc')) {
+            if (other !== details && other.open) other.open = false;
+          }
+        }
+  
+        // Only adjust scroll for the item the user actually interacted with
+        const summary = details.querySelector('.acc-summary');
+        const startTop = startTops.get(summary);
+        if (startTop == null) return;
+  
+        // Wait for all layout changes (including others closing), then correct scroll
         requestAnimationFrame(() => {
-          const endTop = sum.getBoundingClientRect().top;
-          const delta = endTop - startTop;
-          if (delta !== 0) window.scrollBy(0, delta);
+          requestAnimationFrame(() => {
+            const endTop = summary.getBoundingClientRect().top;
+            const delta = endTop - startTop;
+            if (delta) window.scrollBy({ top: delta, left: 0 });
+            startTops.delete(summary);
+          });
         });
       });
-    });
+    }
   </script>
+
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>

@@ -434,14 +434,31 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
 
     /* Photos 3×1 strip */
-    .photos4{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
-    .photos4 .ph{margin:0;padding:0;display:block; position:relative;}
-    .photos4 img{
-      width:100%; aspect-ratio:3/4; object-fit:cover;
-      border-radius: 0 0 60px 0;       /* bigger bottom-right radius */
-      display:block; box-shadow:0 8px 24px rgba(0,0,0,.18);
-      transition: filter 160ms ease, opacity 160ms ease;
+    .photos4 { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 16px; 
     }
+    .photos4 .ph {
+      margin: 0; 
+      padding: 0; 
+      display: block;
+    }
+    .photos4 img {
+      width: 100%;
+      aspect-ratio: 1 / 1;   /* makes them square */
+      object-fit: cover;
+      border-radius: 0 0 60px 0; /* only bottom-right rounded */
+      display: block;
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    
+      filter: grayscale(1);
+      transition: filter 200ms ease;
+    }
+    .photos4 img:hover {
+      filter: grayscale(0);
+    }
+
 
     /* Strava tile overlay positions updated */
     .strava{position:relative;text-decoration:none;color:inherit}

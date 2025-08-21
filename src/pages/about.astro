@@ -139,14 +139,13 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
-
-    const items = Array.from(accRoot.querySelectorAll('.acc'));
+  
+    const items   = Array.from(accRoot.querySelectorAll('.acc'));
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
-
+  
     let openIndex = -1;
-    const startTop = new WeakMap();
-
+  
     const setOpen = (idx) => {
       items.forEach((_, i) => {
         const open = i === idx;
@@ -155,44 +154,61 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       });
       openIndex = idx;
     };
-
-    const recordTop = (btn) => startTop.set(btn, btn.getBoundingClientRect().top);
-
-    const lockTitle = (btn) => {
-      const before = startTop.get(btn);
-      if (before == null) return;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const after = btn.getBoundingClientRect().top;
-          const delta = after - before;
-          if (delta) window.scrollBy({ top: delta, left: 0 }); // instant, no animation
-          startTop.delete(btn);
-        });
+  
+    // Temporarily make the clicked title sticky at its current screen Y,
+    // perform the layout changes, then release. Guarantees no visual shift.
+    const lockDuringLayout = async (btn, toggleFn) => {
+      const rect = btn.getBoundingClientRect();
+  
+      // Inline styles to freeze its on-screen position
+      const prevStyle = btn.getAttribute('style') || '';
+      btn.style.position = 'sticky';
+      btn.style.top = rect.top + 'px';
+      btn.style.zIndex = '2';
+      btn.style.background = 'var(--bg)';
+      btn.style.width = rect.width + 'px';
+      btn.style.boxSizing = 'border-box';
+  
+      // Do the layout change (close others / open this)
+      toggleFn();
+  
+      // Let layout settle fully
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  
+      // Correct any residual delta (rare on some engines)
+      const after = btn.getBoundingClientRect().top;
+      const delta = after - rect.top;
+      if (delta) window.scrollBy({ top: delta, left: 0 });
+  
+      // Release the sticky lock
+      btn.setAttribute('style', prevStyle);
+    };
+  
+    const handleToggle = (i) => {
+      const btn = buttons[i];
+      lockDuringLayout(btn, () => {
+        const next = (openIndex === i) ? -1 : i; // toggle if same, else open
+        setOpen(next);
       });
     };
-
+  
+    // Wire up
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        recordTop(btn);
-        const next = (openIndex === i) ? -1 : i; // toggle same to close; otherwise open this
-        setOpen(next);
-        lockTitle(btn);
+        handleToggle(i);
       });
-
       btn.addEventListener('keydown', (e) => {
         if (e.key !== ' ' && e.key !== 'Enter') return;
         e.preventDefault(); // prevent page scroll on Space
-        recordTop(btn);
-        const next = (openIndex === i) ? -1 : i;
-        setOpen(next);
-        lockTitle(btn);
+        handleToggle(i);
       });
     });
-
-    // Start with none open
+  
+    // Start with none open (or change to 0 to open "About Me" by default)
     setOpen(-1);
   </script>
+
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>
@@ -240,7 +256,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
     /* Content width (used by titles + content) */
     :root { --content-w: min(816px, 78vw); }
-    .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
+    .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto;overflow-anchor: none}
     .acc{width:100%;background:transparent}
 
     /* Titles: left-aligned; fixed spot (content appears below) */

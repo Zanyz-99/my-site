@@ -140,15 +140,50 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   <!-- Tiny client script to hydrate the Strava photo/stats -->
   <script type="module">
     (async () => {
+      const sameOrigin = `${import.meta.env.BASE_URL}data/strava-latest.json`;
+      const pagesOrigin = 'https://zanyz-99.github.io/my-site/data/strava-latest.json';
+  
+      async function load(url) {
+        const r = await fetch(`${url}?ts=${Date.now()}`, { cache: 'no-store' });
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      }
+  
       try {
-        const dataUrl = `${import.meta.env.BASE_URL}data/strava-latest.json`;
-        const r = await fetch(`${dataUrl}?ts=${Date.now()}`, { cache: 'no-store' });
-        if (!r.ok) return;
-        const data = await r.json();
-        // ... (rest unchanged)
-      } catch {}
+        // Try same-origin (works once zachscholz.com serves from Pages)
+        var data = await load(sameOrigin);
+      } catch {
+        // Fallback to GitHub Pages (works now)
+        try { data = await load(pagesOrigin); } catch {}
+      }
+  
+      if (!data) return;
+  
+      const img = document.getElementById('strava-img');
+      const statsEl = document.getElementById('strava-stats');
+      const link = document.getElementById('strava-card');
+  
+      if (data.photoUrl && img) img.src = data.photoUrl; // stays on placeholder if null
+      if (data.activityUrl && link) link.href = data.activityUrl;
+  
+      const s = data.stats;
+      if (statsEl && s) {
+        if (s.isRun && s.distance && s.pace && s.duration) {
+          statsEl.innerHTML = `
+            <span class="metric">${s.distance}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.pace}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.duration}</span>
+          `;
+        } else if (s.duration) {
+          statsEl.textContent = s.duration;
+        }
+        statsEl.hidden = false;
+      }
     })();
   </script>
+
 
   <style>
     /* Center the whole page content */

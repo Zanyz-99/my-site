@@ -27,10 +27,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </p>
           </div>
 
-          <!-- Photos 4×1 (upright) -->
-          <div class="photos4">
+          <!-- Photos 3×1 (upright) -->
+          <div class="photos4" id="about-photos">
             <figure class="ph"><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
-            <figure class="ph"><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
             <figure class="ph"><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
 
             <!-- Dynamic Strava tile -->
@@ -68,25 +67,54 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
           <div class="list dim-others" aria-label="Work history">
             <div class="row hoverable">
               <div class="row-line">
-                <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
+                <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
                 <div class="meta">
-                  <div class="title">Reactor Control Assistant; Ops &amp; Decommissioning Lead</div>
-                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+                  <div class="title">Foreign Affairs Officer</div>
+                  <div class="sub">U.S. Naval Forces Europe, U.S. Naval Forces Africa · U.S. Navy</div>
                 </div>
-                <div class="dates">2018–2021</div>
               </div>
             </div>
 
             <div class="row hoverable">
               <div class="row-line">
-                <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
+                <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
                 <div class="meta">
-                  <div class="title">Staff Officer — Analytics &amp; Planning</div>
-                  <div class="sub">Allied &amp; Fleet HQ · Naples, Italy</div>
+                  <div class="title">Inactivation Coordinator</div>
+                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
                 </div>
-                <div class="dates">2023–Present</div>
               </div>
             </div>
+
+            <div class="row hoverable">
+              <div class="row-line">
+                <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
+                <div class="meta">
+                  <div class="title">Assistant Operations Officer</div>
+                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row hoverable">
+              <div class="row-line">
+                <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
+                <div class="meta">
+                  <div class="title">Reactor Control Assistant</div>
+                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row hoverable">
+              <div class="row-line">
+                <img class="logo" src="/icons/NPS.png" alt="Naval Postgraduate School logo" />
+                <div class="meta">
+                  <div class="title">Graduate Student</div>
+                  <div class="sub">Naval Postrgraduate School · U.S. Navy</div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -104,7 +132,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
                 <div class="logo ph" aria-hidden="true"></div>
                 <div class="meta">
                   <div class="title">FOC</div>
-                  <div class="sub">Unity WebGL tactical sim</div>
+                  <div class="sub">subtitle</div>
                 </div>
               </div>
             </a>
@@ -114,7 +142,17 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
                 <img class="logo" src="/icons/Tone.png" alt="Tone icon" />
                 <div class="meta">
                   <div class="title">Tone</div>
-                  <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
+                  <div class="sub">subtitle</div>
+                </div>
+              </div>
+            </a>
+
+            <a class="row hoverable" href="#">
+              <div class="row-line">
+                <div class="logo ph" aria-hidden="true"></div>
+                <div class="meta">
+                  <div class="title">Pantry Planner</div>
+                  <div class="sub">subtitle</div>
                 </div>
               </div>
             </a>
@@ -124,7 +162,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
                 <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
                 <div class="meta">
                   <div class="title">Sheepshead</div>
-                  <div class="sub">Trick‑taking card game (Unity WebGL)</div>
+                  <div class="sub">subtitle</div>
                 </div>
               </div>
             </a>
@@ -135,7 +173,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     </section>
   </Container>
 
-  <!-- Accordion logic: pin accordion's top at page top; one open at a time -->
+  <!-- Accordion logic: pin top + one-open + animated panels -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
@@ -158,7 +196,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       const step = () => {
         const nowTop = accRoot.getBoundingClientRect().top;
         const delta  = nowTop - targetTop;
-        if (delta) window.scrollBy({ top: delta, left: 0 }); // instant correction
+        if (delta) window.scrollBy({ top: delta, left: 0 });
 
         if (!settle) return;
         if (last !== null && Math.abs(nowTop - last) < 0.25) return;
@@ -168,24 +206,63 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       requestAnimationFrame(step);
     }
 
+    // Smooth open/close helpers
+    function openPanel(panel) {
+      panel.hidden = false;
+      panel.style.display = 'block';
+      const startHeight = panel.offsetHeight; // likely 0
+      const target = panel.scrollHeight;
+      panel.style.height = startHeight + 'px';
+      panel.getBoundingClientRect(); // force reflow
+      panel.style.height = target + 'px';
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.height = 'auto'; // let it size naturally after animation
+      });
+    }
+
+    function closePanel(panel) {
+      const current = panel.offsetHeight;
+      panel.style.height = current + 'px';
+      panel.getBoundingClientRect();
+      panel.style.height = '0px';
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.display = 'none';
+        panel.hidden = true;
+      });
+    }
+
     let openIndex = -1;
 
     function setOpen(idx) {
       items.forEach((_, i) => {
-        const open = i === idx;
-        buttons[i].setAttribute('aria-expanded', String(open));
-        panels[i].style.display = open ? 'block' : 'none';
+        const shouldOpen = i === idx;
+        buttons[i].setAttribute('aria-expanded', String(shouldOpen));
+        const p = panels[i];
+        if (shouldOpen) {
+          if (p.hidden || p.style.display === 'none' || p.style.height === '0px') openPanel(p);
+        } else {
+          if (!p.hidden && p.style.display !== 'none' && p.style.height !== '0px') closePanel(p);
+        }
       });
       openIndex = idx;
     }
 
     function activate(i, evt) {
       if (evt) evt.preventDefault();
-      const next = (openIndex === i) ? -1 : i;   // toggle same to close
+      const next = (openIndex === i) ? -1 : i; // toggle same to close
       setOpen(next);
       pinAccordionTop({ settle: true });
     }
 
+    // Wire up interactions
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => activate(i, e));
       btn.addEventListener('keydown', (e) => {
@@ -193,8 +270,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       });
     });
 
-    setOpen(-1);
+    // Initialize collapsed
+    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
+    openIndex = -1;
 
+    // Re-pin on dynamic layout changes after toggle
     const ro = new ResizeObserver(() => {
       if (openIndex !== -1) pinAccordionTop({ settle: false });
     });
@@ -207,6 +287,17 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
         });
       }
     });
+
+    // Strava hover -> gray out other photos
+    const photosWrap = document.getElementById('about-photos');
+    const stravaCard = document.getElementById('strava-card');
+    if (photosWrap && stravaCard) {
+      stravaCard.addEventListener('mouseenter', () => photosWrap.classList.add('grey-others'));
+      stravaCard.addEventListener('mouseleave', () => photosWrap.classList.remove('grey-others'));
+      // for touch: toggle briefly on tap
+      stravaCard.addEventListener('touchstart', () => photosWrap.classList.add('grey-others'), { passive:true });
+      stravaCard.addEventListener('touchend',   () => photosWrap.classList.remove('grey-others'));
+    }
   </script>
 
   <!-- Strava hydrate -->
@@ -253,78 +344,64 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     /* Center column; NO vertical centering */
     .about-wrap{display:grid;gap:36px;justify-items:center;align-items:start;margin-inline:auto}
 
-    /* Content width (used by titles + content) */
-    :root {
+    :root{
       --content-w: min(816px, 78vw);
-      --icon-w: 1.25rem;  /* fixed width for toggle icon */
-      --icon-gap: 0.6rem; /* spacing between icon and title */
+      --icon-w: 1.25rem;      /* fixed width for toggle icon */
+      --icon-gap: 0.6rem;     /* spacing between icon and title */
+      --panel-speed: 220ms;   /* panel animation speed */
+      --panel-ease: ease;     /* panel animation easing */
     }
 
     /* Accordion container */
-    .accordion {
-      display: grid;
-      gap: 12px;
-      justify-items: center;
-      width: var(--content-w);
-      margin-inline: auto;
+    .accordion{
+      display:grid; gap:12px; justify-items:center;
+      width:var(--content-w); margin-inline:auto;
     }
-    .acc { width: 100%; background: transparent; }
+    .acc{ width:100%; background:transparent; }
 
     /* Section summary (button) */
-    .acc-summary {
-      width: 100%;
-      margin-inline: auto;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;  /* left aligned */
-      gap: var(--icon-gap);
-      padding: 8px 0;
-      cursor: pointer;
-      user-select: none;
-      color: var(--muted);          /* same color family as <p> */
-      font-weight: 700;             /* bold title */
-      text-align: left;
-      background: none;
-      border: 0;
-      font-size: clamp(16px, 3vw, 20px); /* same size as <p> */
-      line-height: 1.5;                    /* mirrors <p> line-height */
+    .acc-summary{
+      width:100%;
+      margin-inline:auto;
+      display:flex; align-items:center; justify-content:flex-start;
+      gap:var(--icon-gap);
+      padding:8px 0;
+      cursor:pointer; user-select:none;
+      color:var(--muted); font-weight:700;
+      text-align:left; background:none; border:0;
+      font-size:clamp(16px, 3vw, 20px); line-height:1.5;
     }
-    .acc-summary:focus-visible {
-      outline: 2px solid var(--border);
-      outline-offset: 4px;
-      border-radius: 8px;
-    }
+    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
     /* Icon: same font style as title, fixed width to prevent shifts */
-    .acc-toggle {
-      flex: 0 0 var(--icon-w);
-      text-align: center;
-      font: inherit;        /* same family, size, weight, line-height */
+    .acc-toggle{
+      flex:0 0 var(--icon-w);
+      text-align:center;
+      font:inherit;
     }
-    .acc-toggle::before { content: '+'; }
-    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
+    .acc-toggle::before{content:'+'}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
 
-    /* Title text inherits font from .acc-summary (bold, same size) */
-    .acc-title {
-      line-height: 1.2;
-      font: inherit;        /* inherits size/weight/family from .acc-summary */
-    }
+    .acc-title{line-height:1.2; font:inherit}
 
-    /* Panels align with the title text (not the icon) */
-    .acc-panel {
+    /* Animated panels: align with title text (not icon) */
+    .acc-panel{
       padding-left: calc(var(--icon-w) + var(--icon-gap));
-      margin: 0;
-      display: none;
-      overflow-anchor: none;
-      font-size: clamp(16px, 3vw, 20px);  /* same as <p> */
-      line-height: 1.5;
-      color: var(--muted);
+      margin:0;
+      display:block;          /* we animate height instead */
+      height:0;
+      overflow:hidden;
+      overflow-anchor:none;
+      transition: height var(--panel-speed) var(--panel-ease);
+      font-size:clamp(16px, 3vw, 20px);
+      line-height:1.5;
+      color:var(--muted);
     }
 
-    /* Shared block widths */
-    .block, .stack, .list, .photos4 {
-      width: 100%;
-      margin: 6px auto 0;
+    /* Blocks inside panel occupy full width of content column */
+    .block, .stack, .list, .photos4{
+      width:100%;
+      margin:6px auto 0;
     }
 
     /* Links inherit color */
@@ -334,31 +411,19 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .accordion a:visited{ color:inherit; text-decoration:none; }
     .accordion a:hover{ text-decoration:underline; }
 
-    /* Rows */
-    .list{display:grid;gap:10px}
-    .row{text-decoration:none;color:inherit}
-    .row-line{display:flex;align-items:center;gap:.85rem}
-    .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
-    .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
-    .meta{display:grid;gap:.15rem}
-    .title{line-height:1.15}
-    .sub{color:inherit;font-size:calc(16px * 0.95)}
-    .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
-
-    /* Photos 4×1 strip */
-    .photos4{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; }
-    .photos4 .ph{margin:0;padding:0;display:block}
+    /* Photos strip (3 items now) */
+    .photos4{
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;
+    }
+    .photos4 .ph{margin:0;padding:0;display:block; position:relative;}
     .photos4 img{
-      width:100%;
-      aspect-ratio:3/4;
-      object-fit:cover;
-      /* Only bottom-right corner rounded */
-      border-radius: 0 0 14px 0;
-      display:block;
-      box-shadow:0 8px 24px rgba(0,0,0,.18);
+      width:100%; aspect-ratio:3/4; object-fit:cover;
+      border-radius: 0 0 25px 0;       /* only bottom-right corner rounded */
+      display:block; box-shadow:0 8px 24px rgba(0,0,0,.18);
+      transition: filter 160ms ease, opacity 160ms ease;
     }
 
-    /* Strava tile overlays */
+    /* Strava tile overlay + stats */
     .strava{position:relative;text-decoration:none;color:inherit}
     .strava-cta{
       position:absolute;left:10px;top:10px;color:#fff;font-weight:700;
@@ -373,5 +438,26 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .stats .dot{opacity:.6}
     .stats .metric{white-space:nowrap}
+
+    /* Hovering Strava dims the other photos (JS toggles .grey-others) */
+    .photos4.grey-others .ph:not(.strava) img{
+      filter: grayscale(1) brightness(.75);
+    }
+
+    /* Work / Projects rows */
+    .list{display:grid;gap:10px}
+    .row{text-decoration:none;color:inherit}
+    .row-line{display:flex;align-items:center;gap:.85rem}
+    .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
+    .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
+    .meta{display:grid;gap:.15rem}
+    .title{line-height:1.15}
+    .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
+    .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
+
+    /* Do NOT underline on hover for side project rows */
+    #acc-projects .list .row:hover { text-decoration: none !important; }
+    #acc-projects .list .row:hover .title,
+    #acc-projects .list .row:hover .sub { text-decoration: none !important; }
   </style>
 </Layout>

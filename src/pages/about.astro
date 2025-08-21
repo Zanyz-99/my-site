@@ -7,98 +7,131 @@ const STRAVA_PROFILE = `https://www.strava.com/athletes/${ATHLETE_ID}`;
 const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 ---
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
-  <Container class="about-wrap">
-    <!-- Accordion -->
+  <Container class="about-tables">
+
+    <!-- Accordion wrapper -->
     <section class="accordion" aria-label="About sections">
-      <!-- About Me -->
-      <details class="acc-item">
+
+      <!-- ABOUT ME -->
+      <details class="acc" id="acc-about">
         <summary class="acc-summary">About Me</summary>
         <div class="acc-panel">
-          <p>
-            Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
-            outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain‑aware travel‑time, and lean automations for
-            finance ops. Outside of work, I’m usually running or exploring trails.
-          </p>
+          <!-- Keep your table formatting -->
+          <section class="tbl t2" role="table" aria-label="About Me">
+            <div class="cell head first" role="rowheader">About Me</div>
+            <div class="cell first" role="cell">
+              <p>
+                Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
+                outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain-aware travel-time, and lean automations for
+                finance ops. Outside of work, I’m usually running or exploring trails.
+              </p>
 
-          <!-- Photos (simple grid, upright) -->
-          <div class="photos">
-            <figure><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
-            <figure><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
-            <figure><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
+              <!-- 4×1 photos strip (upright, same visual size as before) -->
+              <div class="photos4">
+                <figure class="ph"><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
+                <figure class="ph"><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
+                <figure class="ph"><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
 
-            <!-- Dynamic Strava tile -->
-            <a class="strava-tile" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
-              <img id="strava-img" src="/photos/about-4.png" alt="Latest Strava activity" loading="lazy" />
-              <div class="stats" id="strava-stats" hidden></div>
-              <span class="strava-cta">View on Strava ↗</span>
-            </a>
-          </div>
+                <!-- Dynamic Strava tile -->
+                <a class="ph strava" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
+                  <img id="strava-img" src="/photos/about-4.png" alt="Latest Strava activity" loading="lazy" />
+                  <div class="stats" id="strava-stats" hidden></div>
+                  <span class="strava-cta">View on Strava ↗</span>
+                </a>
+              </div>
+            </div>
+          </section>
         </div>
       </details>
 
-      <!-- Connect -->
-      <details class="acc-item">
+      <!-- CONNECT -->
+      <details class="acc" id="acc-connect">
         <summary class="acc-summary">Connect</summary>
         <div class="acc-panel">
-          <div class="links">
-            <a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a>
-            <a href="mailto:ztscholz86@gmail.com">Email</a>
-            <a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a>
-          </div>
+          <section class="tbl t2 connect" role="table" aria-label="Connect">
+            <div class="cell head first" role="rowheader">Connect</div>
+            <div class="cell first" role="cell">
+              <div class="links">
+                <a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a>
+                <a href="mailto:ztscholz86@gmail.com">Email</a>
+                <a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a>
+              </div>
+            </div>
+          </section>
         </div>
       </details>
 
-      <!-- Work -->
-      <details class="acc-item">
+      <!-- WORK -->
+      <details class="acc" id="acc-work">
         <summary class="acc-summary">Work</summary>
         <div class="acc-panel">
-          <div class="item">
-            <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
-            <div class="meta">
-              <div class="title">Reactor Control Assistant; Ops &amp; Decommissioning Lead</div>
-              <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
-            </div>
-            <div class="dates">2018–2021</div>
-          </div>
+          <section class="tbl t2 work" role="table" aria-label="Work">
+            <div class="cell head span-all" role="rowheader">Work</div>
+            <div class="cell note" role="cell">Selected roles and highlights.</div>
 
-          <div class="item">
-            <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
-            <div class="meta">
-              <div class="title">Staff Officer — Analytics &amp; Planning</div>
-              <div class="sub">Allied &amp; Fleet HQ · Naples, Italy</div>
+            <div class="cell item" role="cell">
+              <div class="line">
+                <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
+                <div class="meta">
+                  <div class="title">Reactor Control Assistant; Ops &amp; Decommissioning Lead</div>
+                  <div class="sub">USS Chicago (SSN-721) · U.S. Navy</div>
+                </div>
+                <div class="dates">2018–2021</div>
+              </div>
             </div>
-            <div class="dates">2023–Present</div>
-          </div>
+
+            <div class="cell item" role="cell">
+              <div class="line">
+                <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
+                <div class="meta">
+                  <div class="title">Staff Officer — Analytics &amp; Planning</div>
+                  <div class="sub">Allied &amp; Fleet HQ · Naples, Italy</div>
+                </div>
+                <div class="dates">2023–Present</div>
+              </div>
+            </div>
+          </section>
         </div>
       </details>
 
-      <!-- Side Projects -->
-      <details class="acc-item">
+      <!-- SIDE PROJECTS -->
+      <details class="acc" id="acc-projects">
         <summary class="acc-summary">Side Projects</summary>
         <div class="acc-panel">
-          <a class="proj" href="https://zachscholz.com/coding/FOC/">
-            <div class="logo ph" aria-hidden="true"></div>
-            <div class="meta">
-              <div class="title">FOC</div>
-              <div class="sub">Unity WebGL tactical sim</div>
-            </div>
-          </a>
+          <section class="tbl t2 projects" role="table" aria-label="Side Projects">
+            <div class="cell head span-all" role="rowheader">Side Projects</div>
+            <div class="cell note" role="cell">A few things I’ve built — click to view details.</div>
 
-          <a class="proj" href="https://zachscholz.com/coding/tone/">
-            <img class="logo" src="/icons/Tone.png" alt="Tone icon" />
-            <div class="meta">
-              <div class="title">Tone</div>
-              <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
-            </div>
-          </a>
+            <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/FOC/">
+              <div class="line">
+                <div class="logo ph" aria-hidden="true"></div>
+                <div class="meta">
+                  <div class="title">FOC</div>
+                  <div class="sub">Unity WebGL tactical sim</div>
+                </div>
+              </div>
+            </a>
 
-          <a class="proj" href="https://zachscholz.com/coding/sheepshead/">
-            <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
-            <div class="meta">
-              <div class="title">Sheepshead</div>
-              <div class="sub">Trick‑taking card game (Unity WebGL)</div>
-            </div>
-          </a>
+            <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/tone/">
+              <div class="line">
+                <img class="logo" src="/icons/Tone.png" alt="Tone icon" />
+                <div class="meta">
+                  <div class="title">Tone</div>
+                  <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
+                </div>
+              </div>
+            </a>
+
+            <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/sheepshead/">
+              <div class="line">
+                <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
+                <div class="meta">
+                  <div class="title">Sheepshead</div>
+                  <div class="sub">Trick‑taking card game (Unity WebGL)</div>
+                </div>
+              </div>
+            </a>
+          </section>
         </div>
       </details>
     </section>
@@ -110,4 +143,125 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       const sameOrigin = dataUrl;
       const pagesOrigin = 'https://zanyz-99.github.io/my-site/data/strava-latest.json';
       const load = async (url) => {
-        const r = await fetch(`${url}?ts=${Date.now()
+        const r = await fetch(`${url}?ts=${Date.now()}`, { cache: 'no-store' });
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      };
+
+      let data;
+      try { data = await load(sameOrigin); }
+      catch { try { data = await load(pagesOrigin); } catch {} }
+      if (!data) return;
+
+      const img = document.getElementById('strava-img');
+      const statsEl = document.getElementById('strava-stats');
+      const link = document.getElementById('strava-card');
+
+      if (data.photoUrl && img) img.src = data.photoUrl;
+      if (data.activityUrl && link) link.href = data.activityUrl;
+
+      const s = data.stats;
+      if (statsEl && s) {
+        if (s.isRun && s.distance && s.pace && s.duration) {
+          statsEl.innerHTML = `
+            <span class="metric">${s.distance}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.pace}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.duration}</span>`;
+        } else if (s.duration) {
+          statsEl.textContent = s.duration;
+        }
+        statsEl.hidden = false;
+      }
+    })();
+  </script>
+
+  <style>
+    /* Center the whole content block */
+    .about-tables{display:grid;gap:48px;justify-items:center;align-items:start;margin-inline:auto}
+
+    /* ===== Accordion ===== */
+    .accordion{display:grid;gap:18px;justify-items:center;width:min(960px,92vw);margin-inline:auto}
+    .acc{width:100%;border:1px solid var(--border);border-radius:14px;background:var(--card);overflow:hidden}
+    .acc[open]{background:transparent;border-color:var(--border)}
+
+    /* Centered, bold summary tiles */
+    .acc-summary{
+      list-style:none; cursor:pointer; user-select:none;
+      display:flex; align-items:center; justify-content:center;
+      padding:16px 18px; font-weight:800; text-align:center;
+      color:var(--text);
+    }
+    .acc-summary::-webkit-details-marker{display:none}
+    .acc-summary:focus-visible{outline:2px solid var(--border); outline-offset:4px; border-radius:8px}
+
+    /* Panel spacing */
+    .acc-panel{padding:10px 12px 18px}
+
+    /* ===== Keep your table formatting ===== */
+    .tbl{width:min(816px, 78vw);display:grid;background:transparent;border:none;border-radius:0;overflow:visible;margin-inline:auto;justify-self:center}
+    .tbl .cell{padding:14px 16px;border-top:none}
+    .tbl .cell.first{border-top:none}
+    .tbl.t2{grid-template-columns:180px 1fr}
+    .tbl.t4{grid-template-columns:180px repeat(3, 1fr)}
+    .tbl .head{font-weight:600;background:transparent;text-align:right;color:var(--muted)}
+    .tbl .head{grid-column:1}
+    .tbl .head.span-all{grid-row:1 / -1}
+    .tbl.work .head, .tbl.projects .head{grid-row:1 / -1}
+    .tbl.work .cell:not(.head), .tbl.projects .cell:not(.head){grid-column:2}
+    .tbl .note{color:var(--muted)}
+    .tbl .item .line{display:flex;align-items:center;gap:.85rem}
+    .tbl .logo{width:56px;height:auto;display:block;border:none;border-radius:0;background:transparent;flex:0 0 56px}
+    .tbl .logo.ph{width:56px;height:56px;border:none;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
+    .tbl .meta{display:grid;gap:.15rem}
+    .tbl .title{line-height:1.15}
+    .tbl .sub{color:inherit;font-size:.95rem}
+    .tbl .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
+    .tbl .link, .tbl .linkrow{color:inherit;text-decoration:none}
+    .tbl .link:hover, .tbl .linkrow:hover{background:var(--hover)}
+    @media (max-width:640px){
+      .tbl.t2{grid-template-columns:1fr}
+      .tbl.t4{grid-template-columns:1fr 1fr}
+      .tbl.work .head, .tbl.projects .head{grid-row:auto}
+      .tbl .dates{margin-left:0}
+      .tbl .item .line{align-items:flex-start}
+    }
+    .connect .links{display:flex;gap:1.25rem;flex-wrap:wrap}
+    .connect .links a{font-weight:700;text-decoration:underline}
+    .connect .links a:link, .connect .links a:visited{color:inherit}
+    .connect .links:hover a{opacity:.45;transition:opacity .15s ease}
+    .connect .links a:hover{opacity:1}
+    .connect .links a:focus-visible{outline:2px solid var(--border);outline-offset:2px}
+    .about-tables strong, .about-tables b{font-weight:inherit}
+
+    /* ===== Photos 4×1 strip (upright, same feel as prior sizes) ===== */
+    .photos4{
+      /* match the old collage total width */
+      width:min(960px,92vw);
+      margin:18px auto 6px;
+      display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;
+    }
+    .photos4 .ph{margin:0; padding:0; display:block}
+    .photos4 img{
+      width:100%; aspect-ratio:3/4; object-fit:cover;
+      border-radius:14px; display:block; box-shadow:0 8px 24px rgba(0,0,0,.18);
+    }
+
+    /* Strava stats badge in the tile */
+    .strava{position:relative; text-decoration:none; color:inherit}
+    .stats{
+      position:absolute;right:10px;bottom:10px;
+      display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
+      background:rgba(0,0,0,.55); color:#fff; font-weight:600;
+      padding:.4rem .6rem;border-radius:10px; backdrop-filter:blur(2px);
+      font-size:.9rem;line-height:1;
+    }
+    .stats .dot{opacity:.6}
+    .stats .metric{white-space:nowrap}
+    .strava-cta{
+      position:absolute; left:10px; bottom:10px; color:#fff; font-weight:700;
+      background:rgba(0,0,0,.35); padding:.25rem .5rem; border-radius:8px;
+    }
+  </style>
+</Layout>

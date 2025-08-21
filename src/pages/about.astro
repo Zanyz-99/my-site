@@ -403,9 +403,19 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
 
-    /* Greying hover effect (for Connect & Side Projects) */
-    .gray-hover .hoverable{ transition: filter 160ms ease, opacity 160ms ease; }
-    .gray-hover .hoverable:hover{ filter: grayscale(1) brightness(.8); opacity: .9; }
+    /* Shared grey-out container (Connect + Side Projects) */
+    .gray-hover:hover .hoverable {
+      filter: grayscale(1) brightness(.8);
+      opacity: .6;
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+    
+    /* Cancel out effect for the one being hovered */
+    .gray-hover .hoverable:hover {
+      filter: none;
+      opacity: 1;
+    }
+
 
     .accordion a,
     .accordion a:visited{ color:inherit; text-decoration:none; }

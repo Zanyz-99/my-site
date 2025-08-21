@@ -4,6 +4,7 @@ import Container from "../components/Container.astro";
 
 const ATHLETE_ID = Number(import.meta.env.STRAVA_ATHLETE_ID) || 35369206;
 const STRAVA_PROFILE = `https://www.strava.com/athletes/${ATHLETE_ID}`;
+const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 ---
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
   <Container class="about-tables">
@@ -140,7 +141,7 @@ const STRAVA_PROFILE = `https://www.strava.com/athletes/${ATHLETE_ID}`;
   <script type="module">
   (async () => {
     try {
-      const r = await fetch('/data/strava-latest.json?ts=' + Date.now(), { cache: 'no-store' });
+      const r = await fetch(`${"<!--@-->"+dataUrl+"<!--@-->"}?ts=${Date.now()}`, { cache: 'no-store' });
       if (!r.ok) return;
       const data = await r.json();
       const img = document.getElementById('strava-img');

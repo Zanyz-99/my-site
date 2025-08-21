@@ -135,58 +135,58 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     </section>
   </Container>
 
-  <!-- Accordion: one open at a time + no title jump -->
+  <!-- Accordion: one-open + lock clicked title in place -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
-    if (accRoot) {
-      const startTops = new WeakMap();
+    if (!accRoot) return;
   
-      // Capture the title's screen position BEFORE the toggle happens
-      const captureTop = (el) => startTops.set(el, el.getBoundingClientRect().top);
+    const startTops = new WeakMap();
   
-      // Mouse: record before native toggle
-      accRoot.addEventListener('mousedown', (e) => {
-        const sum = e.target.closest('.acc-summary');
-        if (sum) captureTop(sum);
-      });
+    const recordTop = (summary) => {
+      if (summary) startTops.set(summary, summary.getBoundingClientRect().top);
+    };
   
-      // Keyboard (Enter/Space on summary): record before native toggle
-      accRoot.addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        const sum = e.target.closest('.acc-summary');
-        if (sum) captureTop(sum);
-      });
+    // Pointer (mouse/touch/pen): record BEFORE the native <details> toggle runs
+    accRoot.addEventListener('pointerdown', (e) => {
+      const sum = e.target.closest('.acc-summary');
+      if (sum) recordTop(sum);
+    });
   
-      // Handle toggles (fires for any <details class="acc">)
-      accRoot.addEventListener('toggle', (e) => {
-        const details = e.target.closest('.acc');
-        if (!details) return;
+    // Keyboard: Enter/Space on focused summary
+    accRoot.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const sum = e.target.closest('.acc-summary');
+      if (sum) recordTop(sum);
+    });
   
-        // Enforce "one open at a time"
-        if (details.open) {
-          for (const other of accRoot.querySelectorAll('.acc')) {
-            if (other !== details && other.open) other.open = false;
-          }
+    // Main toggle handler (fires for any <details.acc>)
+    accRoot.addEventListener('toggle', (e) => {
+      const details = e.target.closest('.acc');
+      if (!details) return;
+  
+      // One open at a time
+      if (details.open) {
+        for (const other of accRoot.querySelectorAll('.acc')) {
+          if (other !== details && other.open) other.open = false;
         }
+      }
   
-        // Only adjust scroll for the item the user actually interacted with
-        const summary = details.querySelector('.acc-summary');
-        const startTop = startTops.get(summary);
-        if (startTop == null) return;
+      // Keep THIS title fixed in the viewport
+      const summary = details.querySelector('.acc-summary');
+      const startTop = startTops.get(summary);
+      if (startTop == null) return;
   
-        // Wait for all layout changes (including others closing), then correct scroll
+      // Wait a tick for layout (others may have collapsed), then correct scroll
+      requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            const endTop = summary.getBoundingClientRect().top;
-            const delta = endTop - startTop;
-            if (delta) window.scrollBy({ top: delta, left: 0 });
-            startTops.delete(summary);
-          });
+          const endTop = summary.getBoundingClientRect().top;
+          const delta = endTop - startTop;
+          if (delta) window.scrollBy({ top: delta, left: 0 }); // instant (no animation)
+          startTops.delete(summary);
         });
       });
-    }
+    });
   </script>
-
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>

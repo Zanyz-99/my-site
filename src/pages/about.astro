@@ -254,69 +254,73 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .about-wrap{display:grid;gap:36px;justify-items:center;align-items:start;margin-inline:auto}
 
     /* Content width (used by titles + content) */
-    :root { --content-w: min(816px, 78vw); }
-
-    /* Icon gutter variables */
-    :root { --icon-w: 1.25ch; --icon-gap: .6rem; }
-
-    .accordion{
-      width:var(--content-w);
-      margin-inline:auto;
-      display:grid;
-      gap:12px;
-      justify-items:stretch;
+    :root {
+      --content-w: min(816px, 78vw);
+      --icon-w: 1.25rem; /* fixed width for toggle icon */
+      --icon-gap: 0.6rem; /* spacing between icon and title */
+    }
+    
+    /* Accordion container */
+    .accordion {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      width: var(--content-w);
+      margin-inline: auto;
+    }
+    .acc { width: 100%; background: transparent; }
+    
+    /* Section summary (button) */
+    .acc-summary {
+      width: 100%;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: var(--icon-gap);
+      padding: 8px 0;
+      cursor: pointer;
+      user-select: none;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: left;
+      background: none;
+      border: 0;
+    }
+    .acc-summary:focus-visible {
+      outline: 2px solid var(--border);
+      outline-offset: 4px;
+      border-radius: 8px;
+    }
+    
+    /* Icon slot — always takes fixed width so layout doesn't shift */
+    .acc-toggle {
+      flex: 0 0 var(--icon-w);
+      text-align: center;
+    }
+    .acc-toggle::before { content: '+'; }
+    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
+    
+    /* Title text */
+    .acc-title {
+      line-height: 1.2;
+      font-size: clamp(16px, 3vw, 20px);
+    }
+    
+    /* Panels: hidden until opened */
+    .acc-panel {
+      padding-left: calc(var(--icon-w) + var(--icon-gap));
+      margin: 0;
+      display: none;
+      overflow-anchor: none; /* prevent scroll jumps */
+    }
+    
+    /* Shared block widths */
+    .block, .stack, .list, .photos4 {
+      width: 100%;
+      margin: 6px auto 0;
     }
 
-    /* Each accordion item is a 2-col grid: [icon][content] */
-    .acc{
-      display:grid;
-      grid-template-columns: var(--icon-w) 1fr;
-      column-gap: var(--icon-gap);
-      width:100%;
-      background:transparent;
-    }
-
-    /* Title row: same size as <p>, bold; place icon/text in grid columns */
-    .acc-summary{
-      grid-column: 1 / -1;        /* the button spans both cols, but... */
-      display: contents;          /* ...its children become grid items of .acc */
-    }
-    .acc-toggle{
-      grid-column:1;
-      align-self:center;
-      text-align:center;
-    }
-    .acc-toggle::before{ content:'+'; }
-    .acc-summary[aria-expanded="true"] .acc-toggle::before{ content:'–'; }
-
-    .acc-title{
-      grid-column:2;
-      align-self:center;
-      color:var(--text);
-      font-weight:700;
-      font-size:var(--body-size);
-      line-height:var(--line);
-      padding:8px 0;              /* clickable height */
-      cursor:pointer;
-      user-select:none;
-    }
-
-    /* Panel lives exactly under the title text column (not under the icon) */
-    .acc-panel{
-      grid-column:2;
-      display:none;
-      overflow-anchor: none;
-      font-size:var(--body-size);
-      line-height:var(--line);
-      margin:0;
-      padding:0;
-    }
-
-    /* Inner blocks should fill the content column without exceeding it */
-    .block, .stack, .list, .photos4{
-      width:100%;
-      margin:6px 0 0 0;           /* no auto margins -> no re-centering */
-    }
 
     /* Lists / links */
     .stack{list-style:none;padding:0}

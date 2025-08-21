@@ -9,7 +9,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
   <Container class="about-wrap">
 
-    <!-- Accordion (multiple can be open; titles do not move) -->
+    <!-- Accordion (one open at a time) -->
     <section class="accordion" aria-label="About sections">
 
       <!-- ABOUT ME -->
@@ -135,6 +135,16 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     </section>
   </Container>
 
+  <!-- One-at-a-time accordion behavior -->
+  <script type="module">
+    const items = Array.from(document.querySelectorAll('.acc'));
+    items.forEach((d) => {
+      d.addEventListener('toggle', () => {
+        if (d.open) for (const other of items) if (other !== d && other.open) other.open = false;
+      });
+    });
+  </script>
+
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>
     (async () => {
@@ -179,13 +189,13 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     /* Layout: center the column on the page */
     .about-wrap{display:grid;gap:36px;justify-items:center;align-items:start;margin-inline:auto}
 
-    /* Unified content width for titles & content (left edges align) */
+    /* Content width (used by titles + content) */
     :root { --content-w: min(816px, 78vw); }
     .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
     .acc{width:100%;background:transparent}
     .acc-panel{padding:0;margin:0}
 
-    /* Titles: left-aligned, fixed position; +/– indicator */
+    /* Titles: left-aligned, fixed position (don’t move on open) */
     .acc-summary{
       width:var(--content-w);
       margin-inline:auto;
@@ -202,13 +212,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .acc[open] > .acc-summary .acc-toggle::before{content:'–'} /* minus when open */
     .acc-title{line-height:1.2}
 
-    /* Content blocks share the same left edge; the column is centered overall */
+    /* Blocks share the same left edge as titles; column centered overall */
     .block, .stack, .list, .photos4{
       width:var(--content-w);
       margin:6px auto 0;
     }
-
-    /* Connect list */
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
 
@@ -217,7 +225,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .dim-others:hover .hoverable{opacity:.45}
     .dim-others .hoverable:hover{opacity:1}
 
-    /* 1-column rows (Work & Projects) */
+    /* 1-column list rows (Work & Projects) */
     .list{display:grid;gap:10px}
     .row{text-decoration:none;color:inherit}
     .row-line{display:flex;align-items:center;gap:.85rem}

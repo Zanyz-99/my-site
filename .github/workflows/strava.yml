@@ -1,28 +1,31 @@
-name: Update Strava JSON
+name: Fetch Strava + Deploy Pages
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'   # every 30 minutes; adjust if you prefer daily
+    - cron: '*/30 * * * *'   # every 30 minutes; adjust as you like
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+  # Needed for updating repo secrets:
+  secrets: write
 
 jobs:
-  update:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write        # to commit JSON
-      actions: read
-      secrets: write         # to update repo secret
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - run: npm ci
 
-      - name: Install deps
-        run: npm ci
-
-      - name: Run Strava fetch
+      # 1) Fetch Strava JSON (writes to public/data/strava-latest.json)
+      - name: Fetch Strava
         env:
           STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
@@ -30,48 +33,27 @@ jobs:
           STRAVA_ATHLETE_ID: ${{ secrets.STRAVA_ATHLETE_ID }}
         run: node scripts/fetch-strava.mjs
 
-      - name: Commit updated JSON (if changed)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/strava-latest.json
-          git commit -m "Update Strava JSON [skip ci]" || echo "No changes to commit"
-          git push
-
-      - name: Capture rotated refresh token (if present)
-        id: capture
+      # 2) If Strava rotated the refresh token, update repo secret
+      - name: Update rotated STRAVA_REFRESH_TOKEN secret (if present)
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -f .data/rotated_refresh_token.txt ]; then
-            echo "NEW_RT=$(cat .data/rotated_refresh_token.txt)" >> $GITHUB_OUTPUT
+            node scripts/update-gh-secret.mjs STRAVA_REFRESH_TOKEN
+          else
+            echo "No rotated token; skipping."
           fi
 
-      - name: Update STRAVA_REFRESH_TOKEN secret
-        if: steps.capture.outputs.NEW_RT != ''
-        uses: actions/github-script@v7
-        env:
-          NEW_RT: ${{ steps.capture.outputs.NEW_RT }}
+      # 3) Build Astro
+      - name: Build
+        run: npm run build
+
+      # 4) Upload Pages artifact and deploy
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          script: |
-            // 1) Get repo public key
-            const { data: pub } = await github.request(
-              'GET /repos/{owner}/{repo}/actions/secrets/public-key',
-              { owner: context.repo.owner, repo: context.repo.repo }
-            );
-
-            // 2) Encrypt NEW_RT with Sodium (sealed box)
-            const sodium = require('tweetsodium');
-            const messageBytes = Buffer.from(process.env.NEW_RT);
-            const keyBytes = Buffer.from(pub.key, 'base64');
-            const encryptedBytes = sodium.seal(messageBytes, keyBytes);
-            const encrypted_value = Buffer.from(encryptedBytes).toString('base64');
-
-            // 3) Update the repo secret
-            await github.request('PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}', {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              secret_name: 'STRAVA_REFRESH_TOKEN',
-              encrypted_value,
-              key_id: pub.key_id,
-            });
-
-            core.info('Updated STRAVA_REFRESH_TOKEN secret');
+          path: ./dist
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

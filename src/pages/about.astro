@@ -9,16 +9,16 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
   <Container class="about-wrap">
 
-    <!-- Accordion (one open at a time) -->
+    <!-- Accordion (custom dropdowns, one open at a time) -->
     <section class="accordion" aria-label="About sections">
 
       <!-- ABOUT ME -->
-      <details class="acc" id="acc-about">
-        <summary class="acc-summary">
+      <div class="acc" id="acc-about">
+        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
           <span class="acc-toggle" aria-hidden="true"></span>
           <span class="acc-title">About Me</span>
-        </summary>
-        <div class="acc-panel">
+        </button>
+        <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
           <div class="block">
             <p>
               Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
@@ -41,30 +41,30 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </a>
           </div>
         </div>
-      </details>
+      </div>
 
       <!-- CONNECT -->
-      <details class="acc" id="acc-connect">
-        <summary class="acc-summary">
+      <div class="acc" id="acc-connect">
+        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
           <span class="acc-toggle" aria-hidden="true"></span>
           <span class="acc-title">Connect</span>
-        </summary>
-        <div class="acc-panel">
+        </button>
+        <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
           <ul class="stack dim-others" aria-label="Connect links">
             <li class="stack-item hoverable"><a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a></li>
             <li class="stack-item hoverable"><a href="mailto:ztscholz86@gmail.com">Email</a></li>
             <li class="stack-item hoverable"><a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a></li>
           </ul>
         </div>
-      </details>
+      </div>
 
       <!-- WORK -->
-      <details class="acc" id="acc-work">
-        <summary class="acc-summary">
+      <div class="acc" id="acc-work">
+        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
           <span class="acc-toggle" aria-hidden="true"></span>
           <span class="acc-title">Work</span>
-        </summary>
-        <div class="acc-panel">
+        </button>
+        <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
           <div class="list dim-others" aria-label="Work history">
             <div class="row hoverable">
               <div class="row-line">
@@ -89,15 +89,15 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </div>
           </div>
         </div>
-      </details>
+      </div>
 
       <!-- SIDE PROJECTS -->
-      <details class="acc" id="acc-projects">
-        <summary class="acc-summary">
+      <div class="acc" id="acc-projects">
+        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-projects" id="btn-projects">
           <span class="acc-toggle" aria-hidden="true"></span>
           <span class="acc-title">Side Projects</span>
-        </summary>
-        <div class="acc-panel">
+        </button>
+        <div class="acc-panel" id="panel-projects" role="region" aria-labelledby="btn-projects">
           <div class="list dim-others" aria-label="Side projects">
             <a class="row hoverable" href="https://zachscholz.com/coding/FOC/">
               <div class="row-line">
@@ -130,66 +130,69 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </a>
           </div>
         </div>
-      </details>
+      </div>
 
     </section>
   </Container>
 
-  <!-- Accordion: one-open + lock clicked title in place -->
+  <!-- Dropdown accordion logic: lock clicked title, close others -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
-    if (!accRoot) return;
-  
-    const startTops = new WeakMap();
-  
-    const recordTop = (summary) => {
-      if (summary) startTops.set(summary, summary.getBoundingClientRect().top);
+    if (!accRoot) throw new Error('Accordion root not found');
+
+    const items = Array.from(accRoot.querySelectorAll('.acc'));
+    const buttons = items.map(i => i.querySelector('.acc-summary'));
+    const panels  = items.map(i => i.querySelector('.acc-panel'));
+
+    let openIndex = -1;
+    const startTop = new WeakMap();
+
+    const setOpen = (idx) => {
+      items.forEach((_, i) => {
+        const open = i === idx;
+        buttons[i].setAttribute('aria-expanded', String(open));
+        panels[i].style.display = open ? 'block' : 'none';
+      });
+      openIndex = idx;
     };
-  
-    // Pointer (mouse/touch/pen): record BEFORE the native <details> toggle runs
-    accRoot.addEventListener('pointerdown', (e) => {
-      const sum = e.target.closest('.acc-summary');
-      if (sum) recordTop(sum);
-    });
-  
-    // Keyboard: Enter/Space on focused summary — prevent default page scroll
-    accRoot.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const sum = e.target.closest('.acc-summary');
-      if (!sum) return;
-      e.preventDefault();          // ← stop the page from scrolling on Space
-      recordTop(sum);
-    });
-  
-    // Main toggle handler (fires for any <details.acc>)
-    accRoot.addEventListener('toggle', (e) => {
-      const details = e.target.closest('.acc');
-      if (!details) return;
-  
-      // One open at a time
-      if (details.open) {
-        for (const other of accRoot.querySelectorAll('.acc')) {
-          if (other !== details && other.open) other.open = false;
-        }
-      }
-  
-      // Keep THIS title fixed in the viewport
-      const summary = details.querySelector('.acc-summary');
-      const startTop = startTops.get(summary);
-      if (startTop == null) return;
-  
-      // Wait a tick for layout (others may have collapsed), then correct scroll
+
+    const recordTop = (btn) => startTop.set(btn, btn.getBoundingClientRect().top);
+
+    const lockTitle = (btn) => {
+      const before = startTop.get(btn);
+      if (before == null) return;
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          const endTop = summary.getBoundingClientRect().top;
-          const delta = endTop - startTop;
-          if (delta) window.scrollBy({ top: delta, left: 0 }); // instant (no animation)
-          startTops.delete(summary);
+          const after = btn.getBoundingClientRect().top;
+          const delta = after - before;
+          if (delta) window.scrollBy({ top: delta, left: 0 }); // instant, no animation
+          startTop.delete(btn);
         });
       });
-    });
-  </script>
+    };
 
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        recordTop(btn);
+        const next = (openIndex === i) ? -1 : i; // toggle same to close; otherwise open this
+        setOpen(next);
+        lockTitle(btn);
+      });
+
+      btn.addEventListener('keydown', (e) => {
+        if (e.key !== ' ' && e.key !== 'Enter') return;
+        e.preventDefault(); // prevent page scroll on Space
+        recordTop(btn);
+        const next = (openIndex === i) ? -1 : i;
+        setOpen(next);
+        lockTitle(btn);
+      });
+    });
+
+    // Start with none open
+    setOpen(-1);
+  </script>
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>
@@ -239,7 +242,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     :root { --content-w: min(816px, 78vw); }
     .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
     .acc{width:100%;background:transparent}
-    .acc-panel{padding:0;margin:0}
 
     /* Titles: left-aligned; fixed spot (content appears below) */
     .acc-summary{
@@ -251,12 +253,15 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       cursor:pointer; user-select:none;
       color:var(--muted); font-weight:600;
       text-align:left;
+      background:none; border:0;
     }
-    .acc-summary::-webkit-details-marker{display:none}
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
     .acc-toggle::before{content:'+'; display:inline-block; width:1ch; text-align:center}
-    .acc[open] > .acc-summary .acc-toggle::before{content:'–'} /* minus when open */
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'} /* minus when open */
     .acc-title{line-height:1.2}
+
+    /* Panels default hidden; JS sets display:block on open */
+    .acc-panel{padding:0;margin:0; display:none;}
 
     /* Blocks share same left edge as titles; column centered overall */
     .block, .stack, .list, .photos4{

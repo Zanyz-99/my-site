@@ -251,82 +251,139 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Layout: center the column on the page */
-    .about-wrap{display:grid;gap:36px;justify-items:center;align-items:start;margin-inline:auto;margin-top: 0;justify-content: start}
-
+    /* Layout: stack starts at top under navbar */
+    .about-wrap {
+      display: grid;
+      gap: 36px;
+      justify-items: center;  /* horizontal centering only */
+      align-items: start;     /* child items align to top */
+      margin-inline: auto;
+      margin-top: 2rem;       /* spacing under navbar */
+    }
+  
     /* Content width (used by titles + content) */
     :root { --content-w: min(816px, 78vw); }
-    .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto;overflow-anchor: none}
-    .acc{width:100%;background:transparent}
-
+  
+    .accordion {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      width: var(--content-w);
+      margin-inline: auto;
+      overflow-anchor: none;
+    }
+  
+    .acc { width: 100%; background: transparent; }
+  
     /* Titles: left-aligned; fixed spot (content appears below) */
-    .acc-summary{
-      width:var(--content-w);
-      margin-inline:auto;
-      display:flex; align-items:center; gap:.6rem;
-      justify-content:flex-start;
-      padding:8px 0;
-      cursor:pointer; user-select:none;
-      color:var(--muted); font-weight:600;
-      text-align:left;
-      background:none; border:0;
+    .acc-summary {
+      width: var(--content-w);
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      justify-content: flex-start;
+      padding: 8px 0;
+      cursor: pointer;
+      user-select: none;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: left;
+      background: none;
+      border: 0;
     }
-    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-    .acc-toggle::before{content:'+'; display:inline-block; width:1ch; text-align:center}
-    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'} /* minus when open */
-    .acc-title{line-height:1.2}
-
+    .acc-summary:focus-visible {
+      outline: 2px solid var(--border);
+      outline-offset: 4px;
+      border-radius: 8px;
+    }
+    .acc-toggle::before {
+      content: '+';
+      display: inline-block;
+      width: 1ch;
+      text-align: center;
+    }
+    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
+    .acc-title { line-height: 1.2; }
+  
     /* Panels default hidden; JS sets display:block on open */
-    .acc-panel{padding:0;margin:0; display:none;}
-
+    .acc-panel { padding: 0; margin: 0; display: none; }
+  
     /* Blocks share same left edge as titles; column centered overall */
-    .block, .stack, .list, .photos4{
-      width:var(--content-w);
-      margin:6px auto 0;
+    .block, .stack, .list, .photos4 {
+      width: var(--content-w);
+      margin: 6px auto 0;
     }
-    .stack{list-style:none;padding:0}
-    .stack-item{padding:8px 0}
-
+    .stack { list-style: none; padding: 0; }
+    .stack-item { padding: 8px 0; }
+  
     /* Dim others on hover (connect, work, projects) */
-    .dim-others .hoverable{transition:opacity .15s ease}
-    .dim-others:hover .hoverable{opacity:.45}
-    .dim-others .hoverable:hover{opacity:1}
-
+    .dim-others .hoverable { transition: opacity .15s ease; }
+    .dim-others:hover .hoverable { opacity: .45; }
+    .dim-others .hoverable:hover { opacity: 1; }
+  
     /* 1-column list rows (Work & Projects) */
-    .list{display:grid;gap:10px}
-    .row{text-decoration:none;color:inherit}
-    .row-line{display:flex;align-items:center;gap:.85rem}
-    .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
-    .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
-    .meta{display:grid;gap:.15rem}
-    .title{line-height:1.15}
-    .sub{color:inherit;font-size:.95rem}
-    .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
-
+    .list { display: grid; gap: 10px; }
+    .row { text-decoration: none; color: inherit; }
+    .row-line { display: flex; align-items: center; gap: .85rem; }
+    .logo { width: 56px; height: auto; display: block; flex: 0 0 56px; border-radius: 0; }
+    .logo.ph {
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      background: linear-gradient(
+        135deg,
+        color-mix(in oklab, var(--border) 30%, transparent),
+        transparent
+      );
+    }
+    .meta { display: grid; gap: .15rem; }
+    .title { line-height: 1.15; }
+    .sub { color: inherit; font-size: .95rem; }
+    .dates { margin-left: auto; white-space: nowrap; color: var(--muted); }
+  
     /* Photos 4×1 strip */
-    .photos4{
-      display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
+    .photos4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .photos4 .ph { margin: 0; padding: 0; display: block; }
+    .photos4 img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: 14px;
+      display: block;
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
     }
-    .photos4 .ph{margin:0;padding:0;display:block}
-    .photos4 img{
-      width:100%;aspect-ratio:3/4;object-fit:cover;
-      border-radius:14px;display:block;box-shadow:0 8px 24px rgba(0,0,0,.18);
-    }
-
+  
     /* Strava tile overlays */
-    .strava{position:relative;text-decoration:none;color:inherit}
-    .strava-cta{
-      position:absolute;left:10px;top:10px;color:#fff;font-weight:700;
-      background:rgba(0,0,0,.35);padding:.25rem .5rem;border-radius:8px;
+    .strava { position: relative; text-decoration: none; color: inherit; }
+    .strava-cta {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      color: #fff;
+      font-weight: 700;
+      background: rgba(0,0,0,.35);
+      padding: .25rem .5rem;
+      border-radius: 8px;
     }
-    .stats{
-      position:absolute;right:10px;bottom:10px;
-      display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
-      background:rgba(0,0,0,.55);color:#fff;font-weight:600;
-      padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);
-      font-size:.9rem;line-height:1;
+    .stats {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      flex-wrap: wrap;
+      background: rgba(0,0,0,.55);
+      color: #fff;
+      font-weight: 600;
+      padding: .4rem .6rem;
+      border-radius: 10px;
+      backdrop-filter: blur(2px);
+      font-size: .9rem;
+      line-height: 1;
     }
-    .stats .dot{opacity:.6}
-    .stats .metric{white-space:nowrap}
+    .stats .dot { opacity: .6; }
+    .stats .metric { white-space: nowrap; }
   </style>
 </Layout>

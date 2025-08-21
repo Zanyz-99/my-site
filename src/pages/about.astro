@@ -140,7 +140,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   <!-- Tiny client script to hydrate the Strava photo/stats -->
   <script type="module">
     (async () => {
-      const sameOrigin = `${import.meta.env.BASE_URL}data/strava-latest.json`;
+      // bake the path at build time so no import.meta is needed
+      const sameOrigin = /* build-time */ {{ JSON.stringify(dataUrl) }};
       const pagesOrigin = 'https://zanyz-99.github.io/my-site/data/strava-latest.json';
   
       async function load(url) {
@@ -149,13 +150,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
         return r.json();
       }
   
-      try {
-        // Try same-origin (works once zachscholz.com serves from Pages)
-        var data = await load(sameOrigin);
-      } catch {
-        // Fallback to GitHub Pages (works now)
-        try { data = await load(pagesOrigin); } catch {}
-      }
+      let data;
+      try { data = await load(sameOrigin); }
+      catch { try { data = await load(pagesOrigin); } catch {} }
   
       if (!data) return;
   
@@ -163,7 +160,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       const statsEl = document.getElementById('strava-stats');
       const link = document.getElementById('strava-card');
   
-      if (data.photoUrl && img) img.src = data.photoUrl; // stays on placeholder if null
+      if (data.photoUrl && img) img.src = data.photoUrl;
       if (data.activityUrl && link) link.href = data.activityUrl;
   
       const s = data.stats;
@@ -174,8 +171,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             <span class="dot">•</span>
             <span class="metric">${s.pace}</span>
             <span class="dot">•</span>
-            <span class="metric">${s.duration}</span>
-          `;
+            <span class="metric">${s.duration}</span>`;
         } else if (s.duration) {
           statsEl.textContent = s.duration;
         }
@@ -183,6 +179,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       }
     })();
   </script>
+
 
 
   <style>

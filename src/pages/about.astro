@@ -30,11 +30,12 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </p>
           </div>
 
-          <!-- Photos 3×1 (upright) -->
+          <!-- Photos 2×2 -->
           <div class="photos4" id="about-photos">
             <figure class="ph"><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
+            <figure class="ph"><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
             <figure class="ph"><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
-
+          
             <!-- Dynamic Strava tile -->
             <a class="ph strava" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
               <img id="strava-img" src="/photos/about-4.png" alt="Latest Strava activity" loading="lazy" />
@@ -42,8 +43,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
               <div class="stats" id="strava-stats" hidden></div>
             </a>
           </div>
-        </div>
-      </div>
+
 
       <!-- CONNECT -->
       <div class="acc" id="acc-connect">
@@ -433,20 +433,23 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
     .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
 
-    /* Photos 3×1 strip */
+    /* Photos 2×2 grid */
     .photos4 { 
       display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
+      grid-template-columns: repeat(2, 1fr); 
+      grid-template-rows: repeat(2, 1fr);
       gap: 16px; 
     }
+    
     .photos4 .ph {
       margin: 0; 
       padding: 0; 
       display: block;
     }
+    
     .photos4 img {
       width: 100%;
-      aspect-ratio: 1 / 1;   /* makes them square */
+      aspect-ratio: 1 / 1;   /* keeps them square */
       object-fit: cover;
       border-radius: 0 0 25% 0; /* only bottom-right rounded */
       display: block;
@@ -458,7 +461,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .photos4 img:hover {
       filter: grayscale(0);
     }
-
 
     /* Strava tile overlay positions updated */
     .strava{position:relative;text-decoration:none;color:inherit}

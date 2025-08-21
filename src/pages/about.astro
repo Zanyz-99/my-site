@@ -1,54 +1,299 @@
-/* Accordion container stays the same */
-.accordion{display:grid;gap:18px;justify-items:center;width:min(960px,92vw);margin-inline:auto}
-.acc{width:100%;background:transparent}
+---
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/Container.astro";
 
-/* Make summary tile share the SAME grid as the tables (so it lines up) */
-.acc-summary{
-  list-style:none; cursor:pointer; user-select:none;
-  /* match table width */
-  width:min(816px, 78vw);
-  margin-inline:auto;
-  /* mimic .tbl.t2 columns so col 1 aligns perfectly */
-  display:grid; grid-template-columns:180px 1fr;
-  padding:14px 16px;
-  background:transparent;
-  border:none;
-}
-.acc-summary::-webkit-details-marker{display:none}
-/* Hide the summary when open so the table header in col 1 becomes the title */
-.acc[open] > .acc-summary{display:none;}
-.acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
+const ATHLETE_ID = Number(import.meta.env.STRAVA_ATHLETE_ID) || 35369206;
+const STRAVA_PROFILE = `https://www.strava.com/athletes/${ATHLETE_ID}`;
+const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
+---
+<Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
+  <Container class="about-tables">
 
-/* Make the summary text EXACTLY like .tbl .head (col 1) */
-.acc-title{
-  grid-column:1; /* first column */
-  justify-self:end; /* right align like .tbl .head */
-  font-weight:600;          /* same weight */
-  color:var(--muted);       /* same color */
-  font-size:inherit;        /* follows page font-size like .tbl .head */
-  line-height:1.15;         /* matches .tbl .title rhythm */
-  text-align:right;         /* mirror .tbl .head alignment */
-}
+    <!-- Accordion (one open at a time) -->
+    <section class="accordion" aria-label="About sections">
 
-/* Panel spacing lets the tables control their own padding */
-.acc-panel{padding:0}
+      <!-- ABOUT ME -->
+      <details class="acc" id="acc-about">
+        <summary class="acc-summary">
+          <span class="acc-label">About Me</span>
+        </summary>
+        <div class="acc-panel">
+          <!-- Photos ABOVE the table, 4×1, upright -->
+          <div class="photos4">
+            <figure class="ph"><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
+            <figure class="ph"><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
+            <figure class="ph"><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
 
-/* Strava badges — move CTA to top, keep stats bottom-right */
-.strava{position:relative; text-decoration:none; color:inherit}
-.stats{
-  position:absolute; right:10px; bottom:10px;
-  display:flex; align-items:center; gap:.35rem; flex-wrap:wrap;
-  background:rgba(0,0,0,.55); color:#fff; font-weight:600;
-  padding:.4rem .6rem; border-radius:10px; backdrop-filter:blur(2px);
-  font-size:.9rem; line-height:1; z-index:1;
-}
-.stats .dot{opacity:.6}
-.stats .metric{white-space:nowrap}
+            <!-- Dynamic Strava tile -->
+            <a class="ph strava" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
+              <img id="strava-img" src="/photos/about-4.png" alt="Latest Strava activity" loading="lazy" />
+              <div class="stats" id="strava-stats" hidden></div>
+              <span class="strava-cta">View on Strava ↗</span>
+            </a>
+          </div>
 
-.strava-cta{
-  position:absolute; left:10px; top:10px;   /* moved to TOP */
-  color:#fff; font-weight:700;
-  background:rgba(0,0,0,.35);
-  padding:.25rem .5rem; border-radius:8px;
-  z-index:2;                                  /* above the photo, not overlapping stats */
-}
+          <!-- Keep table formatting; title lives in first column -->
+          <section class="tbl t2" role="table" aria-label="About Me">
+            <div class="cell head first" role="rowheader">About Me</div>
+            <div class="cell first" role="cell">
+              <p>
+                Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
+                outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain-aware travel-time, and lean automations for
+                finance ops. Outside of work, I’m usually running or exploring trails.
+              </p>
+            </div>
+          </section>
+        </div>
+      </details>
+
+      <!-- CONNECT -->
+      <details class="acc" id="acc-connect">
+        <summary class="acc-summary">
+          <span class="acc-label">Connect</span>
+        </summary>
+        <div class="acc-panel">
+          <section class="tbl t2 connect" role="table" aria-label="Connect">
+            <div class="cell head first" role="rowheader">Connect</div>
+            <div class="cell first" role="cell">
+              <div class="links">
+                <a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a>
+                <a href="mailto:ztscholz86@gmail.com">Email</a>
+                <a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </details>
+
+      <!-- WORK -->
+      <details class="acc" id="acc-work">
+        <summary class="acc-summary">
+          <span class="acc-label">Work</span>
+        </summary>
+        <div class="acc-panel">
+          <section class="tbl t2 work dim-others" role="table" aria-label="Work">
+            <div class="cell head span-all" role="rowheader">Work</div>
+            <div class="cell note" role="cell">Selected roles and highlights.</div>
+
+            <div class="cell item" role="cell">
+              <div class="line hoverable">
+                <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
+                <div class="meta">
+                  <div class="title">Reactor Control Assistant; Ops &amp; Decommissioning Lead</div>
+                  <div class="sub">USS Chicago (SSN-721) · U.S. Navy</div>
+                </div>
+                <div class="dates">2018–2021</div>
+              </div>
+            </div>
+
+            <div class="cell item" role="cell">
+              <div class="line hoverable">
+                <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
+                <div class="meta">
+                  <div class="title">Staff Officer — Analytics &amp; Planning</div>
+                  <div class="sub">Allied &amp; Fleet HQ · Naples, Italy</div>
+                </div>
+                <div class="dates">2023–Present</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </details>
+
+      <!-- SIDE PROJECTS -->
+      <details class="acc" id="acc-projects">
+        <summary class="acc-summary">
+          <span class="acc-label">Side Projects</span>
+        </summary>
+        <div class="acc-panel">
+          <section class="tbl t2 projects dim-others" role="table" aria-label="Side Projects">
+            <div class="cell head span-all" role="rowheader">Side Projects</div>
+            <div class="cell note" role="cell">A few things I’ve built — click to view details.</div>
+
+            <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/FOC/">
+              <div class="line hoverable">
+                <div class="logo ph" aria-hidden="true"></div>
+                <div class="meta">
+                  <div class="title">FOC</div>
+                  <div class="sub">Unity WebGL tactical sim</div>
+                </div>
+              </div>
+            </a>
+
+            <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/tone/">
+              <div class="line hoverable">
+                <img class="logo" src="/icons/Tone.png" alt="Tone icon" />
+                <div class="meta">
+                  <div class="title">Tone</div>
+                  <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
+                </div>
+              </div>
+            </a>
+
+            <a class="cell item linkrow" role="cell" href="https://zachscholz.com/coding/sheepshead/">
+              <div class="line hoverable">
+                <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
+                <div class="meta">
+                  <div class="title">Sheepshead</div>
+                  <div class="sub">Trick‑taking card game (Unity WebGL)</div>
+                </div>
+              </div>
+            </a>
+          </section>
+        </div>
+      </details>
+
+    </section>
+  </Container>
+
+  <!-- One-at-a-time accordion behavior -->
+  <script type="module">
+    const items = Array.from(document.querySelectorAll('.acc'));
+    items.forEach((d) => {
+      d.addEventListener('toggle', () => {
+        if (d.open) for (const other of items) if (other !== d && other.open) other.open = false;
+      });
+    });
+  </script>
+
+  <!-- Strava hydrate -->
+  <script type="module" define:vars={{ dataUrl }}>
+    (async () => {
+      const sameOrigin = dataUrl;
+      const pagesOrigin = 'https://zanyz-99.github.io/my-site/data/strava-latest.json';
+      const load = async (url) => {
+        const r = await fetch(`${url}?ts=${Date.now()}`, { cache: 'no-store' });
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      };
+
+      let data;
+      try { data = await load(sameOrigin); }
+      catch { try { data = await load(pagesOrigin); } catch {} }
+      if (!data) return;
+
+      const img = document.getElementById('strava-img');
+      const statsEl = document.getElementById('strava-stats');
+      const link = document.getElementById('strava-card');
+
+      if (data.photoUrl && img) img.src = data.photoUrl;
+      if (data.activityUrl && link) link.href = data.activityUrl;
+
+      const s = data.stats;
+      if (statsEl && s) {
+        if (s.isRun && s.distance && s.pace && s.duration) {
+          statsEl.innerHTML = `
+            <span class="metric">${s.distance}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.pace}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.duration}</span>`;
+        } else if (s.duration) {
+          statsEl.textContent = s.duration;
+        }
+        statsEl.hidden = false;
+      }
+    })();
+  </script>
+
+  <style>
+    /* Page layout */
+    .about-tables{display:grid;gap:48px;justify-items:center;align-items:start;margin-inline:auto}
+
+    /* ===== Accordion container & items (no borders) ===== */
+    .accordion{display:grid;gap:18px;justify-items:center;width:min(960px,92vw);margin-inline:auto}
+    .acc{width:100%;background:transparent}
+    .acc-panel{padding:0} /* tables/blocks handle their own padding */
+    .acc[open] > .acc-summary{display:none;} /* hide title tile once opened */
+
+    /* ===== Title tiles aligned to column 1 (same font as table headers) ===== */
+    .acc-summary{
+      /* match table width + grid with same first column width (180px) */
+      width:min(816px, 78vw);
+      margin-inline:auto;
+      display:grid;
+      grid-template-columns:180px 1fr;
+      align-items:center;
+      padding:12px 16px;
+      cursor:pointer; user-select:none;
+      color:var(--muted); /* match .tbl .head color */
+      font-weight:600;    /* match .tbl .head weight */
+      /* inherit default font-size from page (same as table) */
+    }
+    .acc-summary::-webkit-details-marker{display:none}
+    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
+    .acc-label{grid-column:1; justify-self:end; text-align:right;} /* align to header column */
+
+    /* ===== Keep your table styles intact ===== */
+    .tbl{width:min(816px, 78vw);display:grid;background:transparent;border:none;border-radius:0;overflow:visible;margin-inline:auto;justify-self:center}
+    .tbl .cell{padding:14px 16px;border-top:none}
+    .tbl .cell.first{border-top:none}
+    .tbl.t2{grid-template-columns:180px 1fr}
+    .tbl.t4{grid-template-columns:180px repeat(3, 1fr)}
+    .tbl .head{font-weight:600;background:transparent;text-align:right;color:var(--muted)}
+    .tbl .head{grid-column:1}
+    .tbl .head.span-all{grid-row:1 / -1}
+    .tbl.work .head, .tbl.projects .head{grid-row:1 / -1}
+    .tbl.work .cell:not(.head), .tbl.projects .cell:not(.head){grid-column:2}
+    .tbl .note{color:var(--muted)}
+    .tbl .item .line{display:flex;align-items:center;gap:.85rem}
+    .tbl .logo{width:56px;height:auto;display:block;border:none;border-radius:0;background:transparent;flex:0 0 56px}
+    .tbl .logo.ph{width:56px;height:56px;border:none;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
+    .tbl .meta{display:grid;gap:.15rem}
+    .tbl .title{line-height:1.15}
+    .tbl .sub{color:inherit;font-size:.95rem}
+    .tbl .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
+    .tbl .link, .tbl .linkrow{color:inherit;text-decoration:none}
+    .tbl .link:hover, .tbl .linkrow:hover{background:var(--hover)}
+    @media (max-width:640px){
+      .tbl.t2{grid-template-columns:1fr}
+      .tbl.t4{grid-template-columns:1fr 1fr}
+      .tbl.work .head, .tbl.projects .head{grid-row:auto}
+      .tbl .dates{margin-left:0}
+      .tbl .item .line{align-items:flex-start}
+    }
+
+    /* Connect links existing behavior */
+    .connect .links{display:flex;gap:1.25rem;flex-wrap:wrap}
+    .connect .links a{font-weight:700;text-decoration:underline}
+    .connect .links a:link, .connect .links a:visited{color:inherit}
+    .connect .links:hover a{opacity:.45;transition:opacity .15s ease}
+    .connect .links a:hover{opacity:1}
+    .connect .links a:focus-visible{outline:2px solid var(--border);outline-offset:2px}
+    .about-tables strong, .about-tables b{font-weight:inherit}
+
+    /* ===== Work & Projects: dim other rows on hover ===== */
+    .dim-others .item .line.hoverable{transition:opacity .15s ease}
+    .dim-others:hover .item .line.hoverable{opacity:.45}
+    .dim-others .item .line.hoverable:hover{opacity:1}
+
+    /* ===== Photos 4×1 strip (upright; same footprint as old collage) ===== */
+    .photos4{
+      width:min(960px,92vw);
+      margin:18px auto 10px;
+      display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
+    }
+    .photos4 .ph{margin:0;padding:0;display:block}
+    .photos4 img{
+      width:100%;aspect-ratio:3/4;object-fit:cover;
+      border-radius:14px;display:block;box-shadow:0 8px 24px rgba(0,0,0,.18);
+    }
+
+    /* Strava tile overlays */
+    .strava{position:relative;text-decoration:none;color:inherit}
+    .stats{
+      position:absolute;right:10px;bottom:10px;
+      display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
+      background:rgba(0,0,0,.55);color:#fff;font-weight:600;
+      padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);
+      font-size:.9rem;line-height:1;
+    }
+    .stats .dot{opacity:.6}
+    .stats .metric{white-space:nowrap}
+    /* Move CTA to top so it doesn't overlap stats */
+    .strava-cta{
+      position:absolute;left:10px;top:10px;color:#fff;font-weight:700;
+      background:rgba(0,0,0,.35);padding:.25rem .5rem;border-radius:8px;
+    }
+  </style>
+</Layout>

@@ -1,17 +1,17 @@
+# .github/workflows/strava-pages.yml
 name: Fetch Strava + Deploy Pages
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'   # every 30 minutes; adjust as you like
+    - cron: '*/30 * * * *'   # every 30 minutes (adjust as needed)
 
+# Top-level permissions used by the Pages deploy and secret update
 permissions:
   contents: read
   pages: write
   id-token: write
-  actions: read
-  # Needed for updating repo secrets:
-  secrets: write
+  actions: write     # <-- allow updating secrets via Actions API
 
 jobs:
   build-and-deploy:
@@ -24,7 +24,7 @@ jobs:
           node-version: 20
       - run: npm ci
 
-      # 1) Fetch Strava JSON (writes to public/data/strava-latest.json)
+      # 1) Fetch Strava JSON into public/data/strava-latest.json
       - name: Fetch Strava
         env:
           STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
@@ -33,7 +33,7 @@ jobs:
           STRAVA_ATHLETE_ID: ${{ secrets.STRAVA_ATHLETE_ID }}
         run: node scripts/fetch-strava.mjs
 
-      # 2) If Strava rotated the refresh token, update repo secret
+      # 2) If Strava rotated the refresh token, update the repo secret
       - name: Update rotated STRAVA_REFRESH_TOKEN secret (if present)
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -49,7 +49,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      # 4) Upload Pages artifact and deploy
+      # 4) Upload and deploy to GitHub Pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

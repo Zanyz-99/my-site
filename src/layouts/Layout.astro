@@ -6,7 +6,7 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
 <!doctype html>
 <html lang="en" data-theme="light">
   <head>
-    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width" />
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
 
@@ -15,12 +15,13 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     <link rel="apple-touch-icon" href="/icons/logo dark.png" />
     
     <style>
-      /* GLOBAL THEME TOKENS (affect whole page) */
+      /* GLOBAL THEME TOKENS */
       :root{
         --bg:#ffffff; --text:#0b0b0b; --muted:#6b6b6b;
         --card:#f6f7f8; --border:#e8e8ee;
         --bar-bg: color-mix(in oklab, var(--bg) 92%, #000 8%);
         --hover: rgba(0,0,0,.06);
+        --footer-h: 72px; /* fallback; real value set via script */
       }
       html[data-theme="dark"]{
         --bg:#131313; --text:#e7e7e7; --muted:#b3b3b3;
@@ -29,39 +30,41 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         --hover: rgba(255,255,255,.08);
       }
 
-      /* Sticky footer layout (no vertical centering) */
-      html, body{
-        margin:0;
-        height:100%;
+      html,body{
+        margin:0; height:100%;
         background:var(--bg); color:var(--text);
         font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
-
-        display:flex;             /* flex column page */
-        flex-direction:column;
       }
 
-      /* Main stretches to fill leftover space; no vertical centering */
+      /* Content area; reserve space for fixed footer */
       main{
         max-width:1200px;
         margin:0 auto;
-        padding:2rem 1rem;
-        display:grid;
-        align-items:start;      /* top-align content */
-        justify-items:center;   /* keep children centered horizontally if you like */
-        min-height:auto;        /* don’t force 70vh */
+        padding:2rem 1rem calc(var(--footer-h) + env(safe-area-inset-bottom)); /* keep above footer */
+        min-height:0;
       }
 
+      /* Fixed footer pinned to bottom */
       footer{
+        position:fixed;
+        left:0; right:0; bottom:0;
         border-top:1px solid var(--border);
         color:var(--muted);
         font-size:.9rem;
         background:var(--bg);
+        /* Optional subtle blur over content when overlapping */
+        backdrop-filter:saturate(1.2) blur(4px);
+        -webkit-backdrop-filter:saturate(1.2) blur(4px);
       }
-      .foot-wrap{max-width:1200px;margin:0 auto;padding:1rem}
+      .foot-wrap{
+        max-width:1200px;
+        margin:0 auto;
+        padding:1rem clamp(12px, 2vw, 16px) calc(1rem + env(safe-area-inset-bottom));
+      }
     </style>
 
     <script>
-      // Initial theme by TIME OF DAY (local): dark 19:00–06:00, else light.
+      // Initial theme by time-of-day (local): dark 19:00–06:00, else light.
       (function(){
         const saved = localStorage.getItem('theme');
         let theme = 'light';
@@ -72,6 +75,26 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
           theme = (h >= 19 || h < 6) ? 'dark' : 'light';
         }
         document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    <script>
+      // Dynamically reserve exact space for the fixed footer
+      (function(){
+        function setFooterHeight(){
+          const f = document.querySelector('footer');
+          if (!f) return;
+          const h = Math.ceil(f.offsetHeight);
+          document.documentElement.style.setProperty('--footer-h', h + 'px');
+        }
+        // Run once, then on resize and after fonts/images load
+        window.addEventListener('load', setFooterHeight);
+        window.addEventListener('resize', setFooterHeight);
+        const ro = 'ResizeObserver' in window ? new ResizeObserver(setFooterHeight) : null;
+        if (ro) ro.observe(document.body);
+        // In case of late layout changes, adjust shortly after load
+        setTimeout(setFooterHeight, 0);
+        setTimeout(setFooterHeight, 300);
       })();
     </script>
   </head>

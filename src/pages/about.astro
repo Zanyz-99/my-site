@@ -19,7 +19,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
           <span class="acc-title">About Me</span>
         </summary>
         <div class="acc-panel">
-          <!-- Paragraph -->
           <div class="block">
             <p>
               Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
@@ -187,30 +186,38 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Layout container */
-    .about-wrap{display:grid;gap:42px;justify-items:center;align-items:start;margin-inline:auto}
+    /* Layout: center the column on the page */
+    .about-wrap{display:grid;gap:36px;justify-items:center;align-items:start;margin-inline:auto}
 
-    /* ===== Accordion (centered list of tiles) ===== */
-    .accordion{display:grid;gap:14px;justify-items:center;width:min(960px,92vw);margin-inline:auto}
+    /* Content width (used by titles + content) */
+    :root { --content-w: min(816px, 78vw); }
+    .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
     .acc{width:100%;background:transparent}
     .acc-panel{padding:0;margin:0}
 
-    /* Title tiles: centered row; + / − icon; keep title visible when open */
+    /* Titles: left-aligned, fixed position (don’t move on open) */
     .acc-summary{
-      width:min(816px, 78vw);
+      width:var(--content-w);
       margin-inline:auto;
-      display:flex; gap:.8rem; align-items:center; justify-content:center;
-      padding:10px 12px;
+      display:flex; align-items:center; gap:.6rem;
+      justify-content:flex-start;
+      padding:8px 0;
       cursor:pointer; user-select:none;
       color:var(--muted); font-weight:600;
+      text-align:left;
     }
     .acc-summary::-webkit-details-marker{display:none}
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
     .acc-toggle::before{content:'+'; display:inline-block; width:1ch; text-align:center}
-    .acc[open] > .acc-summary .acc-toggle::before{content:'–'} /* en dash/minus */
+    .acc[open] > .acc-summary .acc-toggle::before{content:'–'} /* minus when open */
+    .acc-title{line-height:1.2}
 
-    .block{width:min(816px,78vw);margin:6px auto 0;padding:0}
-    .stack{list-style:none;margin:6px 0 0;padding:0;width:min(816px,78vw)}
+    /* Blocks share the same left edge as titles; column centered overall */
+    .block, .stack, .list, .photos4{
+      width:var(--content-w);
+      margin:6px auto 0;
+    }
+    .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
 
     /* Dim others on hover (connect, work, projects) */
@@ -218,8 +225,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .dim-others:hover .hoverable{opacity:.45}
     .dim-others .hoverable:hover{opacity:1}
 
-    /* 1-column “list” look for Work & Projects */
-    .list{display:grid;gap:10px;width:min(816px,78vw);margin:6px auto 0}
+    /* 1-column list rows (Work & Projects) */
+    .list{display:grid;gap:10px}
     .row{text-decoration:none;color:inherit}
     .row-line{display:flex;align-items:center;gap:.85rem}
     .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
@@ -229,10 +236,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .sub{color:inherit;font-size:.95rem}
     .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
 
-    /* Photos 4×1 (upright; same footprint as earlier) */
+    /* Photos 4×1 strip */
     .photos4{
-      width:min(960px,92vw);
-      margin:14px auto 8px;
       display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
     }
     .photos4 .ph{margin:0;padding:0;display:block}

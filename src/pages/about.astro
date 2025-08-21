@@ -9,8 +9,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
   <Container class="about-wrap">
 
-    <!-- Small buffer so accordion doesn't start at page top -->
-    <section class="buffer" aria-hidden="true"></section>
+    <!-- Medium spacer so the accordion doesn't start at the very top -->
+    <div class="spacer-md" aria-hidden="true"></div>
 
     <!-- Accordion (custom dropdowns, one open at a time) -->
     <section class="accordion" aria-label="About sections">
@@ -52,7 +52,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
           <span class="acc-title">Connect</span>
         </button>
         <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
-          <ul class="stack dim-others" aria-label="Connect links">
+          <ul class="stack gray-hover" aria-label="Connect links">
             <li class="stack-item hoverable"><a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a></li>
             <li class="stack-item hoverable"><a href="mailto:ztscholz86@gmail.com">Email</a></li>
             <li class="stack-item hoverable"><a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a></li>
@@ -60,7 +60,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
         </div>
       </div>
 
-      <!-- WORK -->
+      <!-- WORK (logos removed) -->
       <div class="acc" id="acc-work">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
           <span class="acc-toggle" aria-hidden="true"></span>
@@ -69,7 +69,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
         <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
           <div class="list dim-others" aria-label="Work history">
             <div class="row hoverable">
-              <div class="row-line">
+              <div class="row-line no-logo">
                 <div class="meta">
                   <div class="title">Foreign Affairs Officer</div>
                   <div class="sub">U.S. Naval Forces Europe, U.S. Naval Forces Africa · U.S. Navy</div>
@@ -78,7 +78,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </div>
 
             <div class="row hoverable">
-              <div class="row-line">
+              <div class="row-line no-logo">
                 <div class="meta">
                   <div class="title">Inactivation Coordinator</div>
                   <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
@@ -87,7 +87,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </div>
 
             <div class="row hoverable">
-              <div class="row-line">
+              <div class="row-line no-logo">
                 <div class="meta">
                   <div class="title">Assistant Operations Officer</div>
                   <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
@@ -96,7 +96,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </div>
 
             <div class="row hoverable">
-              <div class="row-line">
+              <div class="row-line no-logo">
                 <div class="meta">
                   <div class="title">Reactor Control Assistant</div>
                   <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
@@ -105,7 +105,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </div>
 
             <div class="row hoverable">
-              <div class="row-line">
+              <div class="row-line no-logo">
                 <div class="meta">
                   <div class="title">Graduate Student</div>
                   <div class="sub">Naval Postrgraduate School · U.S. Navy</div>
@@ -117,16 +117,17 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
         </div>
       </div>
 
-      <!-- SIDE PROJECTS -->
+      <!-- SIDE PROJECTS (rows grey out on hover; keep logos) -->
       <div class="acc" id="acc-projects">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-projects" id="btn-projects">
           <span class="acc-toggle" aria-hidden="true"></span>
           <span class="acc-title">Side Projects</span>
         </button>
         <div class="acc-panel" id="panel-projects" role="region" aria-labelledby="btn-projects">
-          <div class="list dim-others" aria-label="Side projects">
+          <div class="list gray-hover" aria-label="Side projects">
             <a class="row hoverable" href="https://zachscholz.com/coding/FOC/">
               <div class="row-line">
+                <div class="logo ph" aria-hidden="true"></div>
                 <div class="meta">
                   <div class="title">FOC</div>
                   <div class="sub">subtitle</div>
@@ -136,6 +137,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
             <a class="row hoverable" href="https://zachscholz.com/coding/tone/">
               <div class="row-line">
+                <img class="logo" src="/icons/Tone.png" alt="Tone icon" />
                 <div class="meta">
                   <div class="title">Tone</div>
                   <div class="sub">subtitle</div>
@@ -145,6 +147,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
             <a class="row hoverable" href="#">
               <div class="row-line">
+                <div class="logo ph" aria-hidden="true"></div>
                 <div class="meta">
                   <div class="title">Pantry Planner</div>
                   <div class="sub">subtitle</div>
@@ -154,6 +157,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
             <a class="row hoverable" href="https://zachscholz.com/coding/sheepshead/">
               <div class="row-line">
+                <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
                 <div class="meta">
                   <div class="title">Sheepshead</div>
                   <div class="sub">subtitle</div>
@@ -183,7 +187,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
     function pinAccordionTop({ settle = true } = {}) {
       const targetTop = getPinOffset();
-      let tries = 0, last = null;
+      let tries = 0;
+      let last = null;
 
       const step = () => {
         const nowTop = accRoot.getBoundingClientRect().top;
@@ -198,14 +203,14 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       requestAnimationFrame(step);
     }
 
-    // Smooth open/close helpers (height animation)
+    // Smooth open/close helpers
     function openPanel(panel) {
       panel.hidden = false;
       panel.style.display = 'block';
-      const start = panel.offsetHeight;
+      const startHeight = panel.offsetHeight; // likely 0
       const target = panel.scrollHeight;
-      panel.style.height = start + 'px';
-      panel.getBoundingClientRect(); // reflow
+      panel.style.height = startHeight + 'px';
+      panel.getBoundingClientRect(); // force reflow
       panel.style.height = target + 'px';
       panel.classList.add('animating');
       panel.addEventListener('transitionend', function done(ev){
@@ -254,6 +259,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       pinAccordionTop({ settle: true });
     }
 
+    // Wire up interactions
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => activate(i, e));
       btn.addEventListener('keydown', (e) => {
@@ -265,7 +271,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
     openIndex = -1;
 
-    // Re-pin on dynamic layout changes after toggle
+    // Re-pin on image loads/resizes while open
     const ro = new ResizeObserver(() => {
       if (openIndex !== -1) pinAccordionTop({ settle: false });
     });
@@ -279,13 +285,12 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       }
     });
 
-    // Strava hover -> gray out other photos
+    // Strava hover -> gray out other photos (JS toggles .grey-others for wide support)
     const photosWrap = document.getElementById('about-photos');
     const stravaCard = document.getElementById('strava-card');
     if (photosWrap && stravaCard) {
       stravaCard.addEventListener('mouseenter', () => photosWrap.classList.add('grey-others'));
       stravaCard.addEventListener('mouseleave', () => photosWrap.classList.remove('grey-others'));
-      // for touch: toggle briefly on tap
       stravaCard.addEventListener('touchstart', () => photosWrap.classList.add('grey-others'), { passive:true });
       stravaCard.addEventListener('touchend',   () => photosWrap.classList.remove('grey-others'));
     }
@@ -343,8 +348,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       --panel-ease: ease;
     }
 
-    /* Buffer above accordion */
-    .buffer{ height: 24px; width: var(--content-w); }
+    /* Medium spacer above the accordion */
+    .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
 
     /* Accordion container */
     .accordion{
@@ -368,9 +373,14 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
     /* Icon: same font style as title, fixed width to prevent shifts */
-    .acc-toggle{ flex:0 0 var(--icon-w); text-align:center; font:inherit; }
+    .acc-toggle{
+      flex:0 0 var(--icon-w);
+      text-align:center;
+      font:inherit;
+    }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+
     .acc-title{line-height:1.2; font:inherit}
 
     /* Animated panels: align with title text (not icon) */
@@ -387,38 +397,51 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       color:var(--muted);
     }
 
-    /* Blocks inside panel occupy full width of content column */
+    /* Lists and rows */
     .block, .stack, .list, .photos4{ width:100%; margin:6px auto 0; }
 
-    /* Links inherit color */
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
-    .accordion a, .accordion a:visited{ color:inherit; text-decoration:none; }
+
+    /* Greying hover effect (for Connect & Side Projects) */
+    .gray-hover .hoverable{ transition: filter 160ms ease, opacity 160ms ease; }
+    .gray-hover .hoverable:hover{ filter: grayscale(1) brightness(.8); opacity: .9; }
+
+    .accordion a,
+    .accordion a:visited{ color:inherit; text-decoration:none; }
     .accordion a:hover{ text-decoration:underline; }
 
-    /* Dim/grey behavior (connect + side projects use this) */
-    .dim-others .hoverable{ transition: filter .15s ease; }
-    .dim-others:hover .hoverable{ filter: grayscale(1) brightness(.78); }
-    .dim-others .hoverable:hover{ filter: none; }
+    /* Work/Projects rows */
+    .list{display:grid;gap:10px}
+    .row{text-decoration:none;color:inherit}
+    .row-line{display:flex;align-items:center;gap:.85rem}
+    .row-line.no-logo{ gap: 0; } /* no left gap when there’s no logo */
+    .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
+    .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
+    .meta{display:grid;gap:.15rem}
+    .title{line-height:1.15}
+    .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
+    .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
 
-    /* Photos strip (3 items now) */
+    /* Photos 3×1 strip */
     .photos4{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
     .photos4 .ph{margin:0;padding:0;display:block; position:relative;}
     .photos4 img{
       width:100%; aspect-ratio:3/4; object-fit:cover;
-      border-radius: 0 0 60px 0;       /* only bottom-right corner rounded: 60px */
+      border-radius: 0 0 60px 0;       /* bigger bottom-right radius */
       display:block; box-shadow:0 8px 24px rgba(0,0,0,.18);
       transition: filter 160ms ease, opacity 160ms ease;
     }
 
-    /* Strava tile overlay + stats */
+    /* Strava tile overlay positions updated */
     .strava{position:relative;text-decoration:none;color:inherit}
     .strava-cta{
-      position:absolute;left:10px;top:10px;color:#fff;font-weight:700;
+      position:absolute;left:10px;bottom:10px; /* bottom-left */
+      color:#fff;font-weight:700;
       background:rgba(0,0,0,.35);padding:.25rem .5rem;border-radius:8px;
     }
     .stats{
-      position:absolute;right:10px;bottom:10px;
+      position:absolute;right:10px;top:10px;   /* top-right */
       display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
       background:rgba(0,0,0,.55);color:#fff;font-weight:600;
       padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);
@@ -427,15 +450,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .stats .dot{opacity:.6}
     .stats .metric{white-space:nowrap}
 
-    /* Hovering Strava dims the other photos (JS toggles .grey-others) */
-    .photos4.grey-others .ph:not(.strava) img{ filter: grayscale(1) brightness(.75); }
-
-    /* Work / Projects rows (no logos in Work) */
-    .list{display:grid;gap:10px}
-    .row{text-decoration:none;color:inherit}
-    .row-line{display:flex;align-items:center;gap:.85rem}
-    .meta{display:grid;gap:.15rem}
-    .title{line-height:1.15}
-    .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
+    /* Hovering Strava dims the other photos */
+    .photos4.grey-others .ph:not(.strava) img{
+      filter: grayscale(1) brightness(.75);
+    }
   </style>
 </Layout>

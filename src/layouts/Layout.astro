@@ -34,7 +34,15 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         background:var(--bg); color:var(--text);
         font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
       }
-      main{max-width:1200px;margin:0 auto;padding:2rem 1rem;display:grid;place-items:center;min-height:70vh}
+      main{
+        max-width:1200px;
+        margin:0 auto;
+        padding:2rem 1rem;
+        display:grid;
+        align-items:start;      /* top-align content */
+        justify-items:center;   /* keep children centered horizontally if you like */
+        min-height:auto;        /* don’t force 70vh */
+      }
       footer{border-top:1px solid var(--border);color:var(--muted);font-size:.9rem}
       .foot-wrap{max-width:1200px;margin:0 auto;padding:1rem}
     </style>

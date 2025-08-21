@@ -89,23 +89,26 @@ function buildStats(activity) {
   return { isRun: false, duration: hms(moving) };
 }
 
-// Find the newest activity that truly has a photo
+// Find the newest activity that truly has a photo — scan deep if needed
 async function findLatestActivityWithPhoto(access) {
-  // Try first up to 3 pages of recent activities
-  for (let page = 1; page <= 3; page++) {
+  const MAX_PAGES = 40;          // scan up to ~2000 activities
+  const PER_PAGE  = 50;
+
+  for (let page = 1; page <= MAX_PAGES; page++) {
     const actsRes = await fetch(
-      `https://www.strava.com/api/v3/athlete/activities?per_page=50&page=${page}`,
+      `https://www.strava.com/api/v3/athlete/activities?per_page=${PER_PAGE}&page=${page}`,
       { headers: { Authorization: `Bearer ${access}` } }
     );
     if (!actsRes.ok) throw new Error(`Activities fetch failed: ${actsRes.status} – ${await actsRes.text()}`);
     const activities = await actsRes.json();
     if (!Array.isArray(activities) || activities.length === 0) break;
 
-    // Iterate newest → oldest
+    // newest → oldest on each page
     for (const a of activities) {
-      // Quick filter: total_photo_count
-      if ((a.total_photo_count ?? 0) > 0) {
-        // Fetch photos list
+      if ((a.total_photo_count ?? 0) <= 0) continue;
+
+      // Try gallery photos first (highest res)
+      try {
         const photosRes = await fetch(
           `https://www.strava.com/api/v3/activities/${a.id}/photos?size=2048`,
           { headers: { Authorization: `Bearer ${access}` } }
@@ -117,7 +120,10 @@ async function findLatestActivityWithPhoto(access) {
             if (best) return { activity: a, photoUrl: best };
           }
         }
-        // If the direct photos call didn’t return URLs, try the detailed activity (has primary photo)
+      } catch {}
+
+      // Fallback: detailed activity cover photo (photos.primary)
+      try {
         const actDetailRes = await fetch(
           `https://www.strava.com/api/v3/activities/${a.id}?include_all_efforts=false`,
           { headers: { Authorization: `Bearer ${access}` } }
@@ -127,11 +133,12 @@ async function findLatestActivityWithPhoto(access) {
           const best = pickBestPhotoUrl(detail?.photos?.primary);
           if (best) return { activity: a, photoUrl: best };
         }
-      }
+      } catch {}
     }
   }
   return null;
 }
+
 
 function writePayload(payload) {
   const outDir = path.join('public', 'data');

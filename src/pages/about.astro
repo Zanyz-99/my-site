@@ -152,11 +152,13 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       if (sum) recordTop(sum);
     });
   
-    // Keyboard: Enter/Space on focused summary
+    // Keyboard: Enter/Space on focused summary — prevent default page scroll
     accRoot.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       const sum = e.target.closest('.acc-summary');
-      if (sum) recordTop(sum);
+      if (!sum) return;
+      e.preventDefault();          // ← stop the page from scrolling on Space
+      recordTop(sum);
     });
   
     // Main toggle handler (fires for any <details.acc>)
@@ -187,6 +189,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       });
     });
   </script>
+
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>

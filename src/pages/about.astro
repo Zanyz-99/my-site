@@ -257,45 +257,76 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     :root { --content-w: min(816px, 78vw); }
 
     /* Icon gutter variables for consistent alignment */
-    :root { --icon-w: 1.25ch; --icon-gap: .6rem; }
-
-    .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
-    .acc{width:100%;background:transparent}
-
-    /* Titles: same size as <p>, bold; icon in a fixed-width gutter */
-    .acc-summary{
-      width:var(--content-w);
-      margin-inline:auto;
-      display:flex; align-items:center; gap:var(--icon-gap);
-      justify-content:flex-start;
-      padding:8px 0;
-      cursor:pointer; user-select:none;
-      color:var(--text);                /* titles not muted */
-      font-weight:700;                  /* bold */
-      font-size:var(--body-size);       /* same size as <p> */
-      line-height:var(--line);
-      background:none; border:0; text-align:left;
+    :root {
+      --content-w: min(816px, 78vw);
+      --icon-w: 1.25rem;   /* fixed width for +/- box */
+      --icon-gap: 0.6rem;  /* spacing between icon and text */
     }
-    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-
-    /* Fixed-width icon gutter so text baseline lines up with panel content */
-    .acc-toggle{display:inline-block; width:var(--icon-w); text-align:center; flex:0 0 var(--icon-w);}
-    .acc-toggle::before{content:'+';}
-    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-
-    .acc-title{line-height:1.2}
-
-    /* Panels: same font size as <p>, aligned under the title text (not the icon) */
-    .acc-panel{
-      padding:0;
-      margin:0;
-      display:none;
-      overflow-anchor: none; /* avoid Chrome scroll anchoring jumps */
-      font-size:var(--body-size);       /* same size as <p> */
-      line-height:var(--line);
-      /* Align panel content start with title text start */
-      padding-left: calc(var(--icon-w) + var(--icon-gap));
+    
+    .accordion {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      width: var(--content-w);
+      margin-inline: auto;
     }
+    .acc { width: 100%; background: transparent; }
+    
+    /* Titles */
+    .acc-summary {
+      width: var(--content-w);
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 8px 0;
+      cursor: pointer;
+      user-select: none;
+      background: none;
+      border: 0;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: left;
+      gap: var(--icon-gap);
+    }
+    .acc-summary:focus-visible {
+      outline: 2px solid var(--border);
+      outline-offset: 4px;
+      border-radius: 8px;
+    }
+    
+    /* Icon column has fixed width */
+    .acc-toggle {
+      flex: 0 0 var(--icon-w);
+      text-align: center;
+    }
+    .acc-toggle::before { content: '+'; }
+    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
+    
+    .acc-title {
+      line-height: 1.2;
+      font-size: clamp(16px, 3vw, 20px);
+    }
+    
+    /* Panels */
+    .acc-panel {
+      display: none;
+      margin: 0;
+      padding: 0 0 0 calc(var(--icon-w) + var(--icon-gap));
+      overflow-anchor: none;
+      font-size: clamp(16px, 3vw, 20px);
+      color: var(--muted);
+    }
+    .acc-panel p {
+      margin: .1rem 0 0 0;
+    }
+    
+    /* Shared block/list widths */
+    .block, .stack, .list, .photos4 {
+      width: var(--content-w);
+      margin: 6px auto 0;
+    }
+
 
     /* Blocks share same left edge as titles; column centered overall */
     .block, .stack, .list, .photos4{

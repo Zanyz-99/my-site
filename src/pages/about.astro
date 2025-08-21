@@ -15,7 +15,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <!-- ABOUT ME -->
       <div class="acc" id="acc-about">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
-          <span class="acc-toggle" aria-hidden="true"></span>
+          <span class="acc-icon" aria-hidden="true"></span>
           <span class="acc-title">About Me</span>
         </button>
         <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
@@ -46,7 +46,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <!-- CONNECT -->
       <div class="acc" id="acc-connect">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
-          <span class="acc-toggle" aria-hidden="true"></span>
+          <span class="acc-icon" aria-hidden="true"></span>
           <span class="acc-title">Connect</span>
         </button>
         <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
@@ -61,7 +61,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <!-- WORK -->
       <div class="acc" id="acc-work">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
-          <span class="acc-toggle" aria-hidden="true"></span>
+          <span class="acc-icon" aria-hidden="true"></span>
           <span class="acc-title">Work</span>
         </button>
         <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
@@ -94,7 +94,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <!-- SIDE PROJECTS -->
       <div class="acc" id="acc-projects">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-projects" id="btn-projects">
-          <span class="acc-toggle" aria-hidden="true"></span>
+          <span class="acc-icon" aria-hidden="true"></span>
           <span class="acc-title">Side Projects</span>
         </button>
         <div class="acc-panel" id="panel-projects" role="region" aria-labelledby="btn-projects">
@@ -257,97 +257,68 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     :root { --content-w: min(816px, 78vw); }
 
     /* Icon gutter variables for consistent alignment */
-    :root {
-      --content-w: min(816px, 78vw);
-      --icon-w: 1.25rem;   /* fixed width for +/- box */
-      --icon-gap: 0.6rem;  /* spacing between icon and text */
+    :root { --icon-w: 1.25rem; --icon-gap: 0.6rem; }
+
+    .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
+
+    /* Each item: the button holds the icon + title text; panel aligns to title column */
+    .acc{width:100%;background:transparent}
+
+    /* Title button: grid with [icon | gap | text]; bold; same size as <p> */
+    .acc-summary{
+      width:var(--content-w);
+      margin-inline:auto;
+      display:grid;
+      grid-template-columns: var(--icon-w) var(--icon-gap) 1fr;
+      align-items:center;
+      padding:8px 0;
+      cursor:pointer; user-select:none;
+      color:var(--text);
+      font-weight:700;                  /* bold titles */
+      font-size:var(--body-size);       /* same size as <p> */
+      line-height:var(--line);
+      background:none; border:0; text-align:left;
     }
-    
-    .accordion {
-      display: grid;
-      gap: 12px;
-      justify-items: center;
-      width: var(--content-w);
-      margin-inline: auto;
+    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
+
+    /* Icon in its own column; text in the third column */
+    .acc-icon{ grid-column: 1; text-align:center; }
+    .acc-title{ grid-column: 3; line-height:1.2; }
+
+    /* Toggle glyph via aria-expanded */
+    .acc-summary .acc-icon::before{ content:'+'; }
+    .acc-summary[aria-expanded="true"] .acc-icon::before{ content:'–'; }
+
+    /* Panels: align start with title text column (column 3) */
+    .acc-panel{
+      display:none;
+      margin:0;
+      padding:0;
+      overflow-anchor: none;            /* avoid Chrome scroll anchoring jumps */
+      font-size:var(--body-size);       /* same size as <p> */
+      line-height:var(--line);
+      /* Align with title text by offsetting past the icon + gap columns */
+      margin-left: calc(var(--icon-w) + var(--icon-gap));
     }
-    .acc { width: 100%; background: transparent; }
-    
-    /* Titles */
-    .acc-summary {
-      width: var(--content-w);
-      margin-inline: auto;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 8px 0;
-      cursor: pointer;
-      user-select: none;
-      background: none;
-      border: 0;
-      color: var(--muted);
-      font-weight: 600;
-      text-align: left;
-      gap: var(--icon-gap);
-    }
-    .acc-summary:focus-visible {
-      outline: 2px solid var(--border);
-      outline-offset: 4px;
-      border-radius: 8px;
-    }
-    
-    /* Icon column has fixed width */
-    .acc-toggle {
-      flex: 0 0 var(--icon-w);
-      text-align: center;
-    }
-    .acc-toggle::before { content: '+'; }
-    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
-    
-    .acc-title {
-      line-height: 1.2;
-      font-size: clamp(16px, 3vw, 20px);
-    }
-    
-    /* Panels */
-    .acc-panel {
-      display: none;
-      margin: 0;
-      padding: 0 0 0 calc(var(--icon-w) + var(--icon-gap));
-      overflow-anchor: none;
-      font-size: clamp(16px, 3vw, 20px);
-      color: var(--muted);
-    }
-    .acc-panel p {
-      margin: .1rem 0 0 0;
-    }
-    
+
     /* Shared block/list widths */
-    .block, .stack, .list, .photos4 {
-      width: var(--content-w);
-      margin: 6px auto 0;
-    }
-
-
-    /* Blocks share same left edge as titles; column centered overall */
     .block, .stack, .list, .photos4{
       width:var(--content-w);
       margin:6px auto 0;
     }
 
-    /* Lists / links */
+    /* Lists / links (inherit color, underline on hover) */
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
-    /* Ensure Connect links never go blue/purple; already handled globally in Layout, but keep local too */
-    .accordion a,
-    .accordion a:visited{ color:inherit; text-decoration: none; }
-    .accordion a:hover{ text-decoration: underline; }
+    .accordion a, .accordion a:visited{ color:inherit; text-decoration:none; }
+    .accordion a:hover{ text-decoration:underline; }
 
     /* Dim others on hover (connect, work, projects) */
     .dim-others .hoverable{transition:opacity .15s ease}
     .dim-others:hover .hoverable{opacity:.45}
     .dim-others .hoverable:hover{opacity:1}
 
-    /* 1-column list rows (Work & Projects) */
+    /* 1-column list rows */
     .list{display:grid;gap:10px}
     .row{text-decoration:none;color:inherit}
     .row-line{display:flex;align-items:center;gap:.85rem}
@@ -359,7 +330,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
 
     /* Photos 4×1 strip */
-    .photos4{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; }
+    .photos4{
+      display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
+    }
     .photos4 .ph{margin:0;padding:0;display:block}
     .photos4 img{
       width:100%;aspect-ratio:3/4;object-fit:cover;

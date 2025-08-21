@@ -138,10 +138,10 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </Container>
 
   <!-- Tiny client script to hydrate the Strava photo/stats -->
-  <script type="module">
+  <script type="module" define:vars={{ dataUrl }}>
     (async () => {
-      // bake the path at build time so no import.meta is needed
-      const sameOrigin = /* build-time */ {{ JSON.stringify(dataUrl) }};
+      // Here `dataUrl` is already a real JS string
+      const sameOrigin = dataUrl;
       const pagesOrigin = 'https://zanyz-99.github.io/my-site/data/strava-latest.json';
   
       async function load(url) {
@@ -179,6 +179,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       }
     })();
   </script>
+
 
 
 

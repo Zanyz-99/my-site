@@ -135,89 +135,94 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     </section>
   </Container>
 
-  <!-- Accordion logic: pin accordion top, close others, keep clicked title visually fixed -->
+  <!-- Accordion logic: pin accordion's top at page top; one open at a time -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
-
-    const items = Array.from(accRoot.querySelectorAll('.acc'));
+  
+    const items   = Array.from(accRoot.querySelectorAll('.acc'));
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
-
-    // Pin target: keep the accordion's top anchored to the same viewport Y
-    const pinnedTopY = accRoot.getBoundingClientRect().top;
-
-    // Internal state
+  
+    // OPTIONAL: if you have a fixed header (e.g., .topbar), we’ll pin just below it.
+    function getPinOffset() {
+      const fixedHeader = document.querySelector('.topbar'); // change selector if needed
+      return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
+    }
+  
+    // Keep accordion top at the pin offset in the viewport
+    function pinAccordionTop({ settle = true } = {}) {
+      const targetTop = getPinOffset(); // usually 0 if no fixed header
+      let tries = 0;
+      let last = null;
+  
+      const step = () => {
+        const nowTop = accRoot.getBoundingClientRect().top;
+        const delta  = nowTop - targetTop;
+        if (delta) window.scrollBy({ top: delta, left: 0 }); // instant correction
+  
+        if (!settle) return;
+  
+        // run for a few frames until layout stabilizes (images/fonts/etc.)
+        if (last !== null && Math.abs(nowTop - last) < 0.25) {
+          // two near-identical frames: close enough
+          return;
+        }
+        last = nowTop;
+        if (++tries < 16) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+  
     let openIndex = -1;
-
-    // Apply open/close (one at a time)
-    const setOpen = (idx) => {
+  
+    function setOpen(idx) {
       items.forEach((_, i) => {
         const open = i === idx;
         buttons[i].setAttribute('aria-expanded', String(open));
         panels[i].style.display = open ? 'block' : 'none';
       });
       openIndex = idx;
-    };
-
-    // Scroll correction: keep accordion top pinned, and re-check until layout stabilizes
-    const pinAccordionTop = () => {
-      // End after stable frames or safety cap
-      let tries = 0;
-      let lastTop = null;
-
-      const tick = () => {
-        const nowTop = accRoot.getBoundingClientRect().top;
-        if (lastTop !== null && Math.abs(nowTop - lastTop) < 0.25) {
-          // Two consecutive near-equal frames => treat as stable
-          const delta = nowTop - pinnedTopY;
-          if (delta) window.scrollBy({ top: delta, left: 0 });
-          return;
-        }
-        lastTop = nowTop;
-
-        const delta = nowTop - pinnedTopY;
-        if (delta) window.scrollBy({ top: delta, left: 0 });
-
-        if (++tries < 16) { // ~2–3 frames for normal reflows; 16 is a safety cap
-          requestAnimationFrame(tick);
-        }
-      };
-      requestAnimationFrame(tick);
-    };
-
-    // Click/keyboard handlers
+    }
+  
+    function activate(i, evt) {
+      if (evt) evt.preventDefault();
+      const next = (openIndex === i) ? -1 : i;   // toggle same to close
+      setOpen(next);
+  
+      // On any toggle, pin the accordion to the top of the page
+      pinAccordionTop({ settle: true });
+    }
+  
+    // Wire up interactions
     buttons.forEach((btn, i) => {
-      const activate = (e) => {
-        e.preventDefault();
-        const next = (openIndex === i) ? -1 : i; // toggle same to close; otherwise open this
-        setOpen(next);
-        pinAccordionTop();
-      };
-
-      btn.addEventListener('click', activate);
+      btn.addEventListener('click', (e) => activate(i, e));
       btn.addEventListener('keydown', (e) => {
-        if (e.key !== ' ' && e.key !== 'Enter') return;
-        e.preventDefault(); // avoid Space scrolling the page
-        activate(e);
+        if (e.key === ' ' || e.key === 'Enter') activate(i, e);
       });
     });
-
-    // Start with none open
+  
+    // Start collapsed
     setOpen(-1);
-
-    // Also re-pin when images load inside panels (late layout changes)
-    const imgs = accRoot.querySelectorAll('img');
-    imgs.forEach(img => img.addEventListener('load', () => {
-      if (openIndex !== -1) pinAccordionTop();
-    }));
-
-    // Extra safety against async DOM size changes (e.g., fonts, Strava fetch)
+  
+    // Re-pin on dynamic layout changes that happen after toggle
     const ro = new ResizeObserver(() => {
-      if (openIndex !== -1) pinAccordionTop();
+      if (openIndex !== -1) pinAccordionTop({ settle: false });
     });
     ro.observe(accRoot);
+  
+    // Re-pin if images inside the accordion finish loading
+    accRoot.querySelectorAll('img').forEach(img => {
+      if (!img.complete) {
+        img.addEventListener('load', () => { if (openIndex !== -1) pinAccordionTop({ settle: false }); });
+      }
+    });
+  
+    // Prevent browser scroll-anchoring from fighting us
+    document.documentElement.style.scrollBehavior = getComputedStyle(document.documentElement).scrollBehavior; // keep current behavior
+    accRoot.style.contain = 'layout'; // small isolation hint
   </script>
+
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>

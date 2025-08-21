@@ -9,143 +9,136 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
   <Container class="about-wrap">
 
-    <!-- Accordion (custom dropdowns, one open at a time) -->
-    <section class="accordion" aria-label="About sections">
+    <!-- ABOUT ME -->
+    <section class="acc" id="acc-about" aria-label="About Me">
+      <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
+        <span class="acc-toggle" aria-hidden="true"></span>
+        <span class="acc-title">About Me</span>
+      </button>
+      <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
+        <div class="block">
+          <p>
+            Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
+            outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain‑aware travel‑time, and lean automations for
+            finance ops. Outside of work, I’m usually running or exploring trails.
+          </p>
+        </div>
 
-      <!-- ABOUT ME -->
-      <div class="acc" id="acc-about">
-        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
-          <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title">About Me</span>
-        </button>
-        <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
-          <div class="block">
-            <p>
-              Naval Officer turned builder — otimization, data pipelines, and mapping. I design pragmatic tools with measurable
-              outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain‑aware travel‑time, and lean automations for
-              finance ops. Outside of work, I’m usually running or exploring trails.
-            </p>
-          </div>
+        <!-- Photos 4×1 (upright) -->
+        <div class="photos4">
+          <figure class="ph"><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
+          <figure class="ph"><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
+          <figure class="ph"><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
 
-          <!-- Photos 4×1 (upright) -->
-          <div class="photos4">
-            <figure class="ph"><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
-            <figure class="ph"><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
-            <figure class="ph"><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
-
-            <!-- Dynamic Strava tile -->
-            <a class="ph strava" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
-              <img id="strava-img" src="/photos/about-4.png" alt="Latest Strava activity" loading="lazy" />
-              <span class="strava-cta">View on Strava ↗</span>
-              <div class="stats" id="strava-stats" hidden></div>
-            </a>
-          </div>
+          <!-- Dynamic Strava tile -->
+          <a class="ph strava" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
+            <img id="strava-img" src="/photos/about-4.png" alt="Latest Strava activity" loading="lazy" />
+            <span class="strava-cta">View on Strava ↗</span>
+            <div class="stats" id="strava-stats" hidden></div>
+          </a>
         </div>
       </div>
-
-      <!-- CONNECT -->
-      <div class="acc" id="acc-connect">
-        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
-          <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title">Connect</span>
-        </button>
-        <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
-          <ul class="stack dim-others" aria-label="Connect links">
-            <li class="stack-item hoverable"><a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a></li>
-            <li class="stack-item hoverable"><a href="mailto:ztscholz86@gmail.com">Email</a></li>
-            <li class="stack-item hoverable"><a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- WORK -->
-      <div class="acc" id="acc-work">
-        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
-          <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title">Work</span>
-        </button>
-        <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
-          <div class="list dim-others" aria-label="Work history">
-            <div class="row hoverable">
-              <div class="row-line">
-                <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
-                <div class="meta">
-                  <div class="title">Reactor Control Assistant; Ops &amp; Decommissioning Lead</div>
-                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
-                </div>
-                <div class="dates">2018–2021</div>
-              </div>
-            </div>
-
-            <div class="row hoverable">
-              <div class="row-line">
-                <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
-                <div class="meta">
-                  <div class="title">Staff Officer — Analytics &amp; Planning</div>
-                  <div class="sub">Allied &amp; Fleet HQ · Naples, Italy</div>
-                </div>
-                <div class="dates">2023–Present</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SIDE PROJECTS -->
-      <div class="acc" id="acc-projects">
-        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-projects" id="btn-projects">
-          <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title">Side Projects</span>
-        </button>
-        <div class="acc-panel" id="panel-projects" role="region" aria-labelledby="btn-projects">
-          <div class="list dim-others" aria-label="Side projects">
-            <a class="row hoverable" href="https://zachscholz.com/coding/FOC/">
-              <div class="row-line">
-                <div class="logo ph" aria-hidden="true"></div>
-                <div class="meta">
-                  <div class="title">FOC</div>
-                  <div class="sub">Unity WebGL tactical sim</div>
-                </div>
-              </div>
-            </a>
-
-            <a class="row hoverable" href="https://zachscholz.com/coding/tone/">
-              <div class="row-line">
-                <img class="logo" src="/icons/Tone.png" alt="Tone icon" />
-                <div class="meta">
-                  <div class="title">Tone</div>
-                  <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
-                </div>
-              </div>
-            </a>
-
-            <a class="row hoverable" href="https://zachscholz.com/coding/sheepshead/">
-              <div class="row-line">
-                <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
-                <div class="meta">
-                  <div class="title">Sheepshead</div>
-                  <div class="sub">Trick‑taking card game (Unity WebGL)</div>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-
     </section>
+
+    <!-- CONNECT -->
+    <section class="acc" id="acc-connect" aria-label="Connect">
+      <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
+        <span class="acc-toggle" aria-hidden="true"></span>
+        <span class="acc-title">Connect</span>
+      </button>
+      <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
+        <ul class="stack dim-others" aria-label="Connect links">
+          <li class="stack-item hoverable"><a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li class="stack-item hoverable"><a href="mailto:ztscholz86@gmail.com">Email</a></li>
+          <li class="stack-item hoverable"><a href={STRAVA_PROFILE} target="_blank" rel="noopener">Strava</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section class="acc" id="acc-work" aria-label="Work">
+      <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
+        <span class="acc-toggle" aria-hidden="true"></span>
+        <span class="acc-title">Work</span>
+      </button>
+      <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
+        <div class="list dim-others" aria-label="Work history">
+          <div class="row hoverable">
+            <div class="row-line">
+              <img class="logo" src="/icons/Chicago.png" alt="USS Chicago crest" />
+              <div class="meta">
+                <div class="title">Reactor Control Assistant; Ops &amp; Decommissioning Lead</div>
+                <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+              </div>
+              <div class="dates">2018–2021</div>
+            </div>
+          </div>
+
+          <div class="row hoverable">
+            <div class="row-line">
+              <img class="logo" src="/icons/NAVEUR.png" alt="NAVEUR logo" />
+              <div class="meta">
+                <div class="title">Staff Officer — Analytics &amp; Planning</div>
+                <div class="sub">Allied &amp; Fleet HQ · Naples, Italy</div>
+              </div>
+              <div class="dates">2023–Present</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIDE PROJECTS -->
+    <section class="acc" id="acc-projects" aria-label="Side Projects">
+      <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-projects" id="btn-projects">
+        <span class="acc-toggle" aria-hidden="true"></span>
+        <span class="acc-title">Side Projects</span>
+      </button>
+      <div class="acc-panel" id="panel-projects" role="region" aria-labelledby="btn-projects">
+        <div class="list dim-others" aria-label="Side projects">
+          <a class="row hoverable" href="https://zachscholz.com/coding/FOC/">
+            <div class="row-line">
+              <div class="logo ph" aria-hidden="true"></div>
+              <div class="meta">
+                <div class="title">FOC</div>
+                <div class="sub">Unity WebGL tactical sim</div>
+              </div>
+            </div>
+          </a>
+
+          <a class="row hoverable" href="https://zachscholz.com/coding/tone/">
+            <div class="row-line">
+              <img class="logo" src="/icons/Tone.png" alt="Tone icon" />
+              <div class="meta">
+                <div class="title">Tone</div>
+                <div class="sub">Ear / reaction trainer (Unity WebGL)</div>
+              </div>
+            </div>
+          </a>
+
+          <a class="row hoverable" href="https://zachscholz.com/coding/sheepshead/">
+            <div class="row-line">
+              <img class="logo" src="/icons/Sheepshead.png" alt="Sheepshead icon" />
+              <div class="meta">
+                <div class="title">Sheepshead</div>
+                <div class="sub">Trick‑taking card game (Unity WebGL)</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
   </Container>
 
-  <!-- Dropdown accordion logic: lock clicked title, close others -->
+  <!-- Dropdown logic: four independent sections, one open at a time, snap title to top -->
   <script type="module">
-    const accRoot = document.querySelector('.accordion');
-    if (!accRoot) throw new Error('Accordion root not found');
-  
-    const items   = Array.from(accRoot.querySelectorAll('.acc'));
+    const items   = Array.from(document.querySelectorAll('section.acc'));
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
-  
+
     let openIndex = -1;
-  
+
     const setOpen = (idx) => {
       items.forEach((_, i) => {
         const open = i === idx;
@@ -154,61 +147,33 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       });
       openIndex = idx;
     };
-  
-    // Temporarily make the clicked title sticky at its current screen Y,
-    // perform the layout changes, then release. Guarantees no visual shift.
-    const lockDuringLayout = async (btn, toggleFn) => {
-      const rect = btn.getBoundingClientRect();
-  
-      // Inline styles to freeze its on-screen position
-      const prevStyle = btn.getAttribute('style') || '';
-      btn.style.position = 'sticky';
-      btn.style.top = rect.top + 'px';
-      btn.style.zIndex = '2';
-      btn.style.background = 'var(--bg)';
-      btn.style.width = rect.width + 'px';
-      btn.style.boxSizing = 'border-box';
-  
-      // Do the layout change (close others / open this)
-      toggleFn();
-  
-      // Let layout settle fully
-      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  
-      // Correct any residual delta (rare on some engines)
-      const after = btn.getBoundingClientRect().top;
-      const delta = after - rect.top;
-      if (delta) window.scrollBy({ top: delta, left: 0 });
-  
-      // Release the sticky lock
-      btn.setAttribute('style', prevStyle);
+
+    const openAndSnapToTop = (i) => {
+      // Close others / open this
+      const next = (openIndex === i) ? -1 : i;
+      setOpen(next);
+
+      // Snap clicked title to top (respects CSS scroll-padding-top)
+      if (next !== -1) {
+        buttons[next].scrollIntoView({ block: 'start' });
+      }
     };
-  
-    const handleToggle = (i) => {
-      const btn = buttons[i];
-      lockDuringLayout(btn, () => {
-        const next = (openIndex === i) ? -1 : i; // toggle if same, else open
-        setOpen(next);
-      });
-    };
-  
-    // Wire up
+
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        handleToggle(i);
+        openAndSnapToTop(i);
       });
       btn.addEventListener('keydown', (e) => {
         if (e.key !== ' ' && e.key !== 'Enter') return;
-        e.preventDefault(); // prevent page scroll on Space
-        handleToggle(i);
+        e.preventDefault();
+        openAndSnapToTop(i);
       });
     });
-  
-    // Start with none open (or change to 0 to open "About Me" by default)
+
+    // Start with none open (change to 0 to open "About Me" by default)
     setOpen(-1);
   </script>
-
 
   <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>
@@ -251,139 +216,94 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Layout: stack starts at top under navbar */
-    .about-wrap {
-      display: grid;
-      gap: 36px;
-      justify-items: center;  /* horizontal centering only */
-      align-items: start;     /* child items align to top */
-      margin-inline: auto;
-      margin-top: 2rem;       /* spacing under navbar */
+    /* Global scroll behavior so snapping lands below navbar */
+    :root {
+      --content-w: min(816px, 78vw);
+      --scroll-pad: 72px; /* adjust to your navbar height */
     }
-  
-    /* Content width (used by titles + content) */
-    :root { --content-w: min(816px, 78vw); }
-  
-    .accordion {
-      display: grid;
-      gap: 12px;
-      justify-items: center;
-      width: var(--content-w);
-      margin-inline: auto;
-      overflow-anchor: none;
+    html { scroll-padding-top: var(--scroll-pad); }
+
+    /* Layout: start right under navbar */
+    .about-wrap{
+      display:grid;
+      gap:36px;
+      justify-items:center; /* horizontal centering */
+      align-items:start;    /* top-align children */
+      margin-inline:auto;
+      margin-top:2rem;      /* space under navbar */
     }
-  
-    .acc { width: 100%; background: transparent; }
-  
-    /* Titles: left-aligned; fixed spot (content appears below) */
-    .acc-summary {
-      width: var(--content-w);
-      margin-inline: auto;
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      justify-content: flex-start;
-      padding: 8px 0;
-      cursor: pointer;
-      user-select: none;
-      color: var(--muted);
-      font-weight: 600;
-      text-align: left;
-      background: none;
-      border: 0;
+
+    /* Each section is independent; no wrapper accordion needed */
+    section.acc { width:100%; background:transparent; overflow-anchor: none; }
+
+    /* Titles: left-aligned; content appears below */
+    .acc-summary{
+      width:var(--content-w);
+      margin-inline:auto;
+      display:flex; align-items:center; gap:.6rem;
+      justify-content:flex-start;
+      padding:8px 0;
+      cursor:pointer; user-select:none;
+      color:var(--muted); font-weight:600;
+      text-align:left;
+      background:none; border:0;
     }
-    .acc-summary:focus-visible {
-      outline: 2px solid var(--border);
-      outline-offset: 4px;
-      border-radius: 8px;
+    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
+    .acc-toggle::before{content:'+'; display:inline-block; width:1ch; text-align:center}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'} /* minus when open */
+    .acc-title{line-height:1.2}
+
+    /* Panels default hidden; JS toggles display */
+    .acc-panel{padding:0;margin:0; display:none;}
+
+    /* Shared content width */
+    .block, .stack, .list, .photos4{
+      width:var(--content-w);
+      margin:6px auto 0;
     }
-    .acc-toggle::before {
-      content: '+';
-      display: inline-block;
-      width: 1ch;
-      text-align: center;
-    }
-    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
-    .acc-title { line-height: 1.2; }
-  
-    /* Panels default hidden; JS sets display:block on open */
-    .acc-panel { padding: 0; margin: 0; display: none; }
-  
-    /* Blocks share same left edge as titles; column centered overall */
-    .block, .stack, .list, .photos4 {
-      width: var(--content-w);
-      margin: 6px auto 0;
-    }
-    .stack { list-style: none; padding: 0; }
-    .stack-item { padding: 8px 0; }
-  
+    .stack{list-style:none;padding:0}
+    .stack-item{padding:8px 0}
+
     /* Dim others on hover (connect, work, projects) */
-    .dim-others .hoverable { transition: opacity .15s ease; }
-    .dim-others:hover .hoverable { opacity: .45; }
-    .dim-others .hoverable:hover { opacity: 1; }
-  
+    .dim-others .hoverable{transition:opacity .15s ease}
+    .dim-others:hover .hoverable{opacity:.45}
+    .dim-others .hoverable:hover{opacity:1}
+
     /* 1-column list rows (Work & Projects) */
-    .list { display: grid; gap: 10px; }
-    .row { text-decoration: none; color: inherit; }
-    .row-line { display: flex; align-items: center; gap: .85rem; }
-    .logo { width: 56px; height: auto; display: block; flex: 0 0 56px; border-radius: 0; }
-    .logo.ph {
-      width: 56px;
-      height: 56px;
-      border-radius: 8px;
-      background: linear-gradient(
-        135deg,
-        color-mix(in oklab, var(--border) 30%, transparent),
-        transparent
-      );
-    }
-    .meta { display: grid; gap: .15rem; }
-    .title { line-height: 1.15; }
-    .sub { color: inherit; font-size: .95rem; }
-    .dates { margin-left: auto; white-space: nowrap; color: var(--muted); }
-  
+    .list{display:grid;gap:10px}
+    .row{text-decoration:none;color:inherit}
+    .row-line{display:flex;align-items:center;gap:.85rem}
+    .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
+    .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
+    .meta{display:grid;gap:.15rem}
+    .title{line-height:1.15}
+    .sub{color:inherit;font-size:.95rem}
+    .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
+
     /* Photos 4×1 strip */
-    .photos4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .photos4 .ph { margin: 0; padding: 0; display: block; }
-    .photos4 img {
-      width: 100%;
-      aspect-ratio: 3/4;
-      object-fit: cover;
-      border-radius: 14px;
-      display: block;
-      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    .photos4{
+      display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
     }
-  
+    .photos4 .ph{margin:0;padding:0;display:block}
+    .photos4 img{
+      width:100%;aspect-ratio:3/4;object-fit:cover;
+      border-radius:14px;display:block;box-shadow:0 8px 24px rgba(0,0,0,.18);
+    }
+
     /* Strava tile overlays */
-    .strava { position: relative; text-decoration: none; color: inherit; }
-    .strava-cta {
-      position: absolute;
-      left: 10px;
-      top: 10px;
-      color: #fff;
-      font-weight: 700;
-      background: rgba(0,0,0,.35);
-      padding: .25rem .5rem;
-      border-radius: 8px;
+    .strava{position:relative;text-decoration:none;color:inherit}
+    .strava-cta{
+      position:absolute;left:10px;top:10px;color:#fff;font-weight:700;
+      background:rgba(0,0,0,.35);padding:.25rem .5rem;border-radius:8px;
     }
-    .stats {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: .35rem;
-      flex-wrap: wrap;
-      background: rgba(0,0,0,.55);
-      color: #fff;
-      font-weight: 600;
-      padding: .4rem .6rem;
-      border-radius: 10px;
-      backdrop-filter: blur(2px);
-      font-size: .9rem;
-      line-height: 1;
+    .stats{
+      position:absolute;right:10px;bottom:10px;
+      display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
+      background:rgba(0,0,0,.55);color:#fff;font-weight:600;
+      padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);
+      font-size:.9rem;line-height:1;
     }
-    .stats .dot { opacity: .6; }
-    .stats .metric { white-space: nowrap; }
+    .stats .dot{opacity:.6}
+    .stats .metric{white-space:nowrap}
   </style>
 </Layout>

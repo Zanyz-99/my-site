@@ -144,7 +144,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
 
-    // OPTIONAL: if you have a fixed header (e.g., .topbar), we’ll pin just below it.
+    // OPTIONAL: if you have a fixed header (e.g., .topbar), pin just below it.
     function getPinOffset() {
       const fixedHeader = document.querySelector('.topbar'); // change selector if needed
       return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
@@ -256,45 +256,42 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     /* Content width (used by titles + content) */
     :root { --content-w: min(816px, 78vw); }
 
-    /* Icon gutter variables for consistent alignment */
+    /* Icon gutter vars (exact alignment) */
     :root { --icon-w: 1.25ch; --icon-gap: .6rem; }
 
     .accordion{display:grid;gap:12px;justify-items:center;width:var(--content-w);margin-inline:auto}
     .acc{width:100%;background:transparent}
 
-    /* Titles: same size as <p>, bold; icon in a fixed-width gutter */
+    /* Title row: same size as <p>, bold; icon absolutely positioned in left padding */
     .acc-summary{
+      position:relative;
       width:var(--content-w);
       margin-inline:auto;
-      display:flex; align-items:center; gap:var(--icon-gap);
-      justify-content:flex-start;
-      padding:8px 0;
+      display:block;
+      padding:8px 0 8px calc(var(--icon-w) + var(--icon-gap)); /* left padding = icon gutter */
       cursor:pointer; user-select:none;
-      color:var(--text);                /* titles not muted */
-      font-weight:700;                  /* bold */
-      font-size:var(--body-size);       /* same size as <p> */
-      line-height:var(--line);
+      color:var(--text); font-weight:700; font-size:var(--body-size); line-height:var(--line);
       background:none; border:0; text-align:left;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
-    /* Fixed-width icon gutter so text baseline lines up with panel content */
-    .acc-toggle{display:inline-block; width:var(--icon-w); text-align:center; flex:0 0 var(--icon-w);}
+    .acc-toggle{
+      position:absolute; left:0; top:0; bottom:0;
+      width:var(--icon-w); display:flex; align-items:center; justify-content:center;
+      pointer-events:none; /* click goes to button */
+    }
     .acc-toggle::before{content:'+';}
-    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–';}
 
     .acc-title{line-height:1.2}
 
-    /* Panels: same font size as <p>, aligned under the title text (not the icon) */
+    /* Panel: EXACTLY aligned to the title text start (same left padding as button) */
     .acc-panel{
-      padding:0;
-      margin:0;
       display:none;
-      overflow-anchor: none; /* avoid Chrome scroll anchoring jumps */
-      font-size:var(--body-size);       /* same size as <p> */
-      line-height:var(--line);
-      /* Align panel content start with title text start */
-      padding-left: calc(var(--icon-w) + var(--icon-gap));
+      padding:0 0 0 calc(var(--icon-w) + var(--icon-gap));
+      margin:0;
+      overflow-anchor:none;
+      font-size:var(--body-size); line-height:var(--line);
     }
 
     /* Blocks share same left edge as titles; column centered overall */
@@ -303,13 +300,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       margin:6px auto 0;
     }
 
-    /* Lists / links */
+    /* Links keep inherited color (already global), underline on hover */
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
-    /* Ensure Connect links never go blue/purple; already handled globally in Layout, but keep local too */
-    .accordion a,
-    .accordion a:visited{ color:inherit; text-decoration: none; }
-    .accordion a:hover{ text-decoration: underline; }
+    .accordion a, .accordion a:visited{ color:inherit; }
+    .accordion a:hover{ text-decoration:underline; }
 
     /* Dim others on hover (connect, work, projects) */
     .dim-others .hoverable{transition:opacity .15s ease}

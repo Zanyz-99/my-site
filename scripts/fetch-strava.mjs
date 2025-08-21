@@ -1,6 +1,7 @@
 // scripts/fetch-strava.mjs
 import fs from 'node:fs';
 import path from 'node:path';
+import { promises as fsp } from 'node:fs';
 
 const {
   STRAVA_CLIENT_ID,
@@ -39,11 +40,11 @@ async function refreshAccessToken() {
   if (!res.ok) throw new Error(`Token refresh failed: ${await res.text()}`);
   const data = await res.json();
 
-  // ⚠️ Strava may rotate refresh tokens. We can't update GH secrets automatically here,
-  // but we log a hint so you know to refresh it manually if needed.
+  // Strava rotates refresh tokens. Stash the new one so the workflow can update the repo secret.
   if (data.refresh_token && data.refresh_token !== STRAVA_REFRESH_TOKEN) {
-    console.log('Note: Strava returned a new refresh_token. Update your repo secret to keep this working long-term.');
-    // If you want to automate this, see section C below.
+    await fsp.mkdir('.data', { recursive: true });
+    await fsp.writeFile('.data/rotated_refresh_token.txt', data.refresh_token, 'utf8');
+    console.log('Detected rotated Strava refresh_token; wrote .data/rotated_refresh_token.txt');
   }
 
   return data.access_token;

@@ -14,6 +14,9 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     <link rel="icon" type="image/png" href="/icons/logo dark.png" />
     <link rel="apple-touch-icon" href="/icons/logo dark.png" />
 
+    <!-- Layout.astro (in <head>) -->
+    <slot name="head" />
+
     <style>
       /* THEME TOKENS */
       :root{

@@ -7,6 +7,16 @@ const STRAVA_PROFILE = `https://www.strava.com/athletes/${ATHLETE_ID}`;
 const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 ---
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
+  <Fragment slot="head">
+    <!-- Preload above-the-fold or “first-open” images -->
+    <link rel="preload" as="image" href="/photos/about-1.webp" imagesrcset="/photos/about-1.jpg 1x, /photos/about-1.webp 1x" fetchpriority="high">
+    <link rel="preload" as="image" href="/photos/about-2.webp" imagesrcset="/photos/about-2.jpg 1x, /photos/about-2.webp 1x">
+    <link rel="preload" as="image" href="/photos/about-3.webp" imagesrcset="/photos/about-3.jpg 1x, /photos/about-3.webp 1x">
+
+    <!-- DNS/TLS warm-up for Strava images (dynamic) -->
+    <link rel="preconnect" href="https://images.strava.com" crossorigin>
+    <link rel="dns-prefetch" href="//images.strava.com">
+  </Fragment>
   <Container class="about-wrap">
 
     <!-- Medium spacer so the accordion doesn't start at the very top -->

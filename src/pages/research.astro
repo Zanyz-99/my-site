@@ -1,51 +1,284 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
 const papers = [
   {
-    title: "Optimizing Prepositioning of Equipment and Personnel for Los Angeles County Fire Department to Fight Wildland Fires",
+    title:
+      "Optimizing Prepositioning of Equipment and Personnel for Los Angeles County Fire Department to Fight Wildland Fires",
     authors: "Gerald Brown, Robert A. Koyak, Javier Salmerón, Zachary Scholz",
     venue: "INFORMS Journal on Applied Analytics (2021)",
     pdf: "/papers/Scholz NPS Thesis.pdf",
     external: "https://pubsonline.informs.org/doi/abs/10.1287/inte.2021.1084",
-    summary: "Decision support for LACoFD to pre‑position wildfire resources on red‑flag days; prediction + optimization adopted by the department."
+    summary:
+      "Decision support for LACoFD to pre‑position wildfire resources on red‑flag days; prediction + optimization adopted by the department.",
   },
   {
-    title: "Evaluation of HEU surrogate sources for use in training and modeling",
+    title:
+      "Evaluation of HEU surrogate sources for use in training and modeling",
     authors: "Z. Scholz, M. Millett, M. Schell",
     venue: "NIM A (2018)",
     pdf: "/papers/Scholz USNA Thesis.pdf",
-    external: "https://www.sciencedirect.com/science/article/abs/pii/S0168900218312002",
-    summary: "Prompt‑gamma surrogates (e.g., Gd) for safe, low‑cost HEU detection training; strong spectral match around 186 keV."
-  }
+    external:
+      "https://www.sciencedirect.com/science/article/abs/pii/S0168900218312002",
+    summary:
+      "Prompt‑gamma surrogates (e.g., Gd) for safe, low‑cost HEU detection training; strong spectral match around 186 keV.",
+  },
 ];
 ---
 <Layout title="Research — Zach Scholz" description="Optimization, geospatial analytics, decision-support.">
-  <section class="wrap">
-    <h1>Research</h1>
-    <p class="muted">Optimization, geospatial analytics, decision support; prior nuclear instrumentation work.</p>
-    <div class="stack">
-      {papers.map((p) => (
-        <article class="card">
-          <h3 style="margin:0 0 .25rem">{p.title}</h3>
-          <div class="meta">{p.authors} • <em>{p.venue}</em></div>
-          <p class="muted" style="margin:.5rem 0 0">{p.summary}</p>
-          <div class="row">
-            <a class="btn" href={encodeURI(p.pdf)} target="_blank" rel="noopener">PDF</a>
-            <a class="btn ghost" href={p.external} target="_blank" rel="noopener">Publisher ↗</a>
+  <section class="research-wrap">
+
+    <!-- Top spacer so the accordion doesn’t start at the very top -->
+    <div class="spacer-md" aria-hidden="true"></div>
+
+    <!-- Header (left-aligned like About) -->
+    <h1 class="page-title">Research</h1>
+    <p class="muted subhead">Optimization, geospatial analytics, decision support; prior nuclear instrumentation work.</p>
+
+    <!-- Accordion (custom dropdowns, one open at a time) -->
+    <section class="accordion" aria-label="Research papers">
+      {papers.map((p, i) => (
+        <div class="acc" id={`acc-paper-${i}`}>
+          <button
+            class="acc-summary"
+            type="button"
+            aria-expanded="false"
+            aria-controls={`panel-paper-${i}`}
+            id={`btn-paper-${i}`}
+          >
+            <span class="acc-toggle" aria-hidden="true"></span>
+            <span class="acc-title">{p.title}</span>
+          </button>
+
+          <div
+            class="acc-panel"
+            id={`panel-paper-${i}`}
+            role="region"
+            aria-labelledby={`btn-paper-${i}`}
+          >
+            <div class="block">
+              <div class="kv">
+                <div class="k">Authors</div>
+                <div class="v">{p.authors}</div>
+              </div>
+              <div class="kv">
+                <div class="k">Venue</div>
+                <div class="v"><em>{p.venue}</em></div>
+              </div>
+              <div class="kv">
+                <div class="k">Summary</div>
+                <div class="v muted">{p.summary}</div>
+              </div>
+            </div>
+
+            <!-- Link list with the same hover-dim behavior as About → Connect -->
+            <ul class="stack gray-hover links" aria-label="Paper links">
+              <li class="stack-item hoverable">
+                <a href={encodeURI(p.pdf)} target="_blank" rel="noopener">PDF</a>
+              </li>
+              <li class="stack-item hoverable">
+                <a href={p.external} target="_blank" rel="noopener">Publisher ↗</a>
+              </li>
+            </ul>
           </div>
-        </article>
+        </div>
       ))}
-    </div>
+    </section>
   </section>
 
+  <!-- Accordion logic (matches the About page behavior) -->
+  <script type="module">
+    const accRoot = document.querySelector('.accordion');
+    if (!accRoot) throw new Error('Accordion root not found');
+
+    const items   = Array.from(accRoot.querySelectorAll('.acc'));
+    const buttons = items.map(i => i.querySelector('.acc-summary'));
+    const panels  = items.map(i => i.querySelector('.acc-panel'));
+
+    function getPinOffset() {
+      const fixedHeader = document.querySelector('.topbar');
+      return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
+    }
+
+    function pinAccordionTop({ settle = true } = {}) {
+      const targetTop = getPinOffset();
+      let tries = 0;
+      let last = null;
+      const step = () => {
+        const nowTop = accRoot.getBoundingClientRect().top;
+        const delta  = nowTop - targetTop;
+        if (delta) window.scrollBy({ top: delta, left: 0 });
+        if (!settle) return;
+        if (last !== null && Math.abs(nowTop - last) < 0.25) return;
+        last = nowTop;
+        if (++tries < 16) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function openPanel(panel) {
+      panel.hidden = false;
+      panel.style.display = 'block';
+      const startHeight = panel.offsetHeight;
+      const target = panel.scrollHeight;
+      panel.style.height = startHeight + 'px';
+      panel.getBoundingClientRect();
+      panel.style.height = target + 'px';
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.height = 'auto';
+      });
+    }
+
+    function closePanel(panel) {
+      const current = panel.offsetHeight;
+      panel.style.height = current + 'px';
+      panel.getBoundingClientRect();
+      panel.style.height = '0px';
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.display = 'none';
+        panel.hidden = true;
+      });
+    }
+
+    let openIndex = -1;
+
+    function setOpen(idx) {
+      items.forEach((_, i) => {
+        const shouldOpen = i === idx;
+        buttons[i].setAttribute('aria-expanded', String(shouldOpen));
+        const p = panels[i];
+        if (shouldOpen) {
+          if (p.hidden || p.style.display === 'none' || p.style.height === '0px') openPanel(p);
+        } else {
+          if (!p.hidden && p.style.display !== 'none' && p.style.height !== '0px') closePanel(p);
+        }
+      });
+      openIndex = idx;
+    }
+
+    function activate(i, evt) {
+      if (evt) evt.preventDefault();
+      const next = (openIndex === i) ? -1 : i; // toggle same to close
+      setOpen(next);
+      pinAccordionTop({ settle: true });
+    }
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', (e) => activate(i, e));
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') activate(i, e);
+      });
+    });
+
+    // Initialize collapsed
+    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
+    openIndex = -1;
+
+    // Re-pin on resize while open
+    const ro = new ResizeObserver(() => {
+      if (openIndex !== -1) pinAccordionTop({ settle: false });
+    });
+    ro.observe(accRoot);
+  </script>
+
   <style>
-    .wrap{display:grid;gap:1rem}
+    /* Layout: mimic About (left-aligned titles, content centered column) */
+    .research-wrap{display:grid;gap:16px;justify-items:center;align-items:start;margin-inline:auto}
+    .page-title{width:var(--content-w, min(816px, 78vw)); margin:0}
+    .subhead{width:var(--content-w, min(816px, 78vw)); margin:0}
+
+    :root{
+      --content-w: min(816px, 78vw);
+      --icon-w: 1.25rem;
+      --icon-gap: 0.6rem;
+      --panel-speed: 220ms;
+      --panel-ease: ease;
+    }
+
+    .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
     .muted{color:var(--muted)}
-    .stack{display:grid;gap:.9rem}
-    .card{border:1px solid var(--border);background:var(--card);border-radius:14px;padding:1rem}
-    .row{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap}
-    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1px solid var(--border);border-radius:.6rem;background:var(--card);text-decoration:none}
-    .btn:hover{background:var(--hover)}
-    .btn.ghost{background:transparent}
+
+    /* Accordion container */
+    .accordion{
+      display:grid; gap:12px; justify-items:center;
+      width:var(--content-w); margin-inline:auto;
+    }
+    .acc{ width:100%; background:transparent; }
+
+    /* Section summary (button) */
+    .acc-summary{
+      width:100%;
+      margin-inline:auto;
+      display:flex; align-items:center; justify-content:flex-start;
+      gap:var(--icon-gap);
+      padding:8px 0;
+      cursor:pointer; user-select:none;
+      color:var(--muted); font-weight:700;
+      text-align:left; background:none; border:0;
+      font-size:clamp(16px, 3vw, 20px); line-height:1.5;
+    }
+    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
+
+    /* Icon: fixed width so titles never shift */
+    .acc-toggle{
+      flex:0 0 var(--icon-w);
+      text-align:center;
+      font:inherit;
+    }
+    .acc-toggle::before{content:'+'}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+
+    .acc-title{line-height:1.2; font:inherit}
+
+    /* Animated panels: align with title text (not icon) */
+    .acc-panel{
+      padding-left: calc(var(--icon-w) + var(--icon-gap));
+      margin:0;
+      display:block;
+      height:0;
+      overflow:hidden;
+      overflow-anchor:none;
+      transition: height var(--panel-speed) var(--panel-ease);
+      font-size:clamp(16px, 3vw, 20px);
+      line-height:1.5;
+      color:var(--muted);
+    }
+
+    /* Content blocks */
+    .block{ width:100%; margin:6px auto 0; display:grid; gap:.6rem }
+
+    /* Key-value rows (Authors, Venue, Summary) */
+    .kv{ display:grid; grid-template-columns: 100px 1fr; gap:.5rem; align-items:start }
+    .kv .k{ font-weight:700; color:var(--text) }
+    .kv .v{ color:inherit }
+
+    /* Link list with About → Connect styling */
+    .stack{list-style:none;padding:0;margin:.25rem 0 0}
+    .stack-item{padding:6px 0}
+    .accordion a,
+    .accordion a:visited{ color:inherit; text-decoration:none; }
+    .accordion a:hover{ text-decoration:underline; }
+
+    /* Grey-out container: hovered link stays normal; others dim */
+    .gray-hover:hover .hoverable {
+      filter: grayscale(1) brightness(.88);
+      opacity: .7;
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+    .gray-hover .hoverable:hover {
+      filter: none;
+      opacity: 1;
+    }
+
+    /* Tighten link list */
+    .links{ margin-top:.4rem }
   </style>
 </Layout>

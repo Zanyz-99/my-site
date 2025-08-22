@@ -170,8 +170,8 @@ const papers = [
   </script>
 
   <style>
-    .research-wrap{display:grid;gap:16px;justify-items:center;align-items:start;margin-inline:auto}
-
+    .research-wrap{display:grid;gap:12px;justify-items:center;align-items:start;margin-inline:auto}
+    
     :root{
       --content-w: min(816px, 78vw);
       --icon-w: 1.25rem;
@@ -179,54 +179,56 @@ const papers = [
       --panel-speed: 220ms;
       --panel-ease: ease;
     }
-
+    
     .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
     .muted{color:var(--muted)}
-
+    
     .accordion{
       display:grid; gap:12px; justify-items:center;
       width:var(--content-w); margin-inline:auto;
     }
     .acc{ width:100%; background:transparent; }
-
+    
     .acc-summary{
       width:100%;
       display:flex; align-items:center; justify-content:flex-start;
       gap:var(--icon-gap);
-      padding:8px 0;
+      padding:6px 0;  /* slightly smaller */
       cursor:pointer; user-select:none;
       color:var(--muted); font-weight:700;
       text-align:left; background:none; border:0;
       font-size:clamp(16px, 3vw, 20px);
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-
+    
     .acc-toggle{ flex:0 0 var(--icon-w); text-align:center; font:inherit; }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-
+    
     .acc-title{line-height:1.2; font:inherit}
-
+    
     .acc-panel{
       padding-left: calc(var(--icon-w) + var(--icon-gap));
+      margin:0;
       display:block;
       height:0;
       overflow:hidden;
       overflow-anchor:none;
       transition: height var(--panel-speed) var(--panel-ease);
       font-size:clamp(16px, 3vw, 20px);
-      line-height:1.5;
+      line-height:1.45; /* slightly tighter */
       color:var(--muted);
     }
-
-    .block{ width:100%; margin:6px auto 0; display:grid; gap:.4rem }
-
+    
+    .block{ width:100%; margin:0; display:grid; gap:.25rem }
+    .block p { margin:0 }
+    
     .stack{list-style:none;padding:0;margin:.25rem 0 0}
-    .stack-item{padding:6px 0}
+    .stack-item{padding:0}
     .accordion a,
     .accordion a:visited{ color:inherit; text-decoration:none; }
     .accordion a:hover{ text-decoration:underline; }
-
+    
     .gray-hover:hover .hoverable {
       filter: grayscale(1) brightness(.88);
       opacity: .7;
@@ -236,7 +238,8 @@ const papers = [
       filter: none;
       opacity: 1;
     }
+    
+    .links{ margin-top:.25rem }
 
-    .links{ margin-top:.4rem }
   </style>
 </Layout>

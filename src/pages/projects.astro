@@ -83,24 +83,28 @@ const projects: Project[] = [
             role="region"
             aria-labelledby={`btn-proj-${p.id}`}
           >
-            <!-- About row: logo on top, then text + links -->
+            <!-- About row: logo+links left, about text right -->
             <div class="about-row">
-              {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
+              <div class="logo-col">
+                {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
 
-              <p class="about-text">{p.about}</p>
+                <ul class="stack gray-hover links" aria-label={`${p.title} links`}>
+                  {p.store && (
+                    <li class="stack-item hoverable">
+                      <a href={p.store} target="_blank" rel="noopener">Google Play</a>
+                    </li>
+                  )}
+                  {p.play && (
+                    <li class="stack-item hoverable">
+                      <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
+                    </li>
+                  )}
+                </ul>
+              </div>
 
-              <ul class="stack gray-hover links" aria-label={`${p.title} links`}>
-                {p.store && (
-                  <li class="stack-item hoverable">
-                    <a href={p.store} target="_blank" rel="noopener">Google Play</a>
-                  </li>
-                )}
-                {p.play && (
-                  <li class="stack-item hoverable">
-                    <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
-                  </li>
-                )}
-              </ul>
+              <div class="about-col">
+                <p class="about-text">{p.about}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -108,7 +112,7 @@ const projects: Project[] = [
     </section>
   </section>
 
-  <!-- Accordion JS (same as before) -->
+  <!-- Accordion JS (unchanged) -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
@@ -269,13 +273,19 @@ const projects: Project[] = [
       color:var(--muted);
     }
 
-    /* Updated layout: stack everything vertically */
+    /* Two-column layout: logo+links left, about right */
     .about-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin: .1rem 0 .25rem 0;
+    }
+    .logo-col {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: .6rem;
-      margin: .1rem 0 .25rem 0;
+      gap: .4rem;
+      flex-shrink: 0;
     }
     .about-logo {
       width: 64px;
@@ -283,12 +293,15 @@ const projects: Project[] = [
       border-radius: 12px;
       display: block;
     }
+    .about-col {
+      flex: 1;
+    }
     .about-text {
       margin: 0;
       color: var(--text);
     }
 
-    .stack{list-style:none;padding:0;margin:.35rem 0 0}
+    .stack{list-style:none;padding:0;margin:0}
     .stack-item{padding:0}
     .accordion a,
     .accordion a:visited{ color:inherit; text-decoration:none; }
@@ -298,5 +311,13 @@ const projects: Project[] = [
     .gray-hover .hoverable:hover { filter: none; opacity: 1; }
 
     .links{ margin-top:.25rem }
+
+    @media (max-width: 600px) {
+      .about-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .about-col { width: 100%; }
+    }
   </style>
 </Layout>

@@ -27,7 +27,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <div class="acc" id="acc-about">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
           <span class="acc-toggle" aria-hidden="true"></span>
-          <h2 class="acc-title">About Me</h2>
+          <h1 class="acc-title">About Me</h1>
         </button>
         <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
           <div class="block">
@@ -58,7 +58,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <div class="acc" id="acc-connect">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
           <span class="acc-toggle" aria-hidden="true"></span>
-          <h2 class="acc-title">Connect</h2>
+          <h1 class="acc-title">Connect</h1>
         </button>
         <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
           <ul class="stack gray-hover" aria-label="Connect links">
@@ -73,7 +73,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <div class="acc" id="acc-work">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
           <span class="acc-toggle" aria-hidden="true"></span>
-          <h2 class="acc-title">Work</h2>
+          <h1 class="acc-title">Work</h1>
         </button>
         <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
           <div class="list dim-others" aria-label="Work history">
@@ -289,9 +289,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       cursor:pointer; user-select:none;
       color:var(--text);
       background:none; border:0; text-align:left;
-      font-size: var(--h2-size);  /* match site h2 size */
+      font-size: var(--h1-size);  /* match site h1 size */
       line-height: calc(var(--line) - .1);
-      font-weight: 750;           /* match your Layout h2 weight */
+      font-weight: 750;           /* match your Layout h1 weight */
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
@@ -304,9 +304,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
 
-    /* h2 inside the button uses global typography; remove default margins */
+    /* h1 inside the button uses global typography; remove default margins */
     .acc-title{
-      margin:0;                  /* kill default h2 margins inside the button */
+      margin:0;                  /* kill default h1 margins inside the button */
       letter-spacing:-0.01em;    /* optional: mirrors your h1 letter-spacing vibe */
     }
 

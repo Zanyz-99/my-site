@@ -1,19 +1,61 @@
-
 ---
-// Simple max‑width wrapper with optional "as" prop (div/section/main)
 interface Props {
   as?: keyof HTMLElementTagNameMap;
   class?: string;
+
+  /** Column width style:
+   *  - 'content' (default): uses --content-w / --content-mob / --content-cap
+   *  - 'wide':   classic 1200px cap
+   *  - 'full':   edge-to-edge (no max width)
+   */
+  width?: 'content' | 'wide' | 'full';
+
+  /** Add horizontal padding (1rem on each side). Default: true */
+  pad?: boolean;
 }
-const { as = 'div', class: cls = '' } = Astro.props;
+const {
+  as = 'div',
+  class: cls = '',
+  width = 'content',
+  pad = true,
+} = Astro.props;
 const Tag = as as any;
+
+const widthClass =
+  width === 'full' ? 'full-col' :
+  width === 'wide' ? 'wide-col' : 'content-col';
+
+const padClass = pad ? 'px-4' : '';
 ---
-<Tag class={`mx-auto px-4 w-full max-w-[1200px] ${cls}`}><slot /></Tag>
+<Tag class={`mx-auto w-full ${padClass} ${widthClass} ${cls}`}><slot /></Tag>
 
 <style>
-  :global(html), :global(body){margin:0}
-  .mx-auto{margin-left:auto;margin-right:auto}
-  .px-4{padding-left:1rem;padding-right:1rem}
-  .w-full{width:100%}
-  .max-w-\[1200px\]{max-width:1200px}
+  :global(html), :global(body){ margin:0 }
+
+  /* tiny utility re-impl (kept for compatibility) */
+  .mx-auto{ margin-left:auto; margin-right:auto }
+  .px-4{ padding-left:1rem; padding-right:1rem }
+  .w-full{ width:100% }
+
+  /* NEW: width behaviors that match Layout.astro tokens */
+  .content-col{
+    /* phones/tablets: near-full width but capped */
+    width: min(var(--content-mob, 95vw), var(--content-cap, 1100px));
+  }
+  @media (min-width: 900px){
+    .content-col{
+      /* desktop: 70vw up to cap (reads from Layout tokens) */
+      width: min(var(--content-w, 70vw), var(--content-cap, 1100px));
+    }
+  }
+
+  .wide-col{
+    max-width: 1200px;   /* classic wide wrapper */
+    width: 100%;
+  }
+
+  .full-col{
+    max-width: none;     /* edge to edge */
+    width: 100%;
+  }
 </style>

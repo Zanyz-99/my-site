@@ -17,7 +17,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     <link rel="dns-prefetch" href="//images.strava.com">
   </Fragment>
 
-  <!-- Use shared width/alignment via .content (no Container) -->
+  <!-- Use shared width/alignment via .content -->
   <section class="content about-wrap">
 
     <!-- Medium spacer so the accordion doesn't start at the very top -->
@@ -257,64 +257,30 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
   </script>
 
-  <!-- Strava hydrate -->
-  <script type="module" define:vars={{ dataUrl }}>
-    (async () => {
-      const sameOrigin = dataUrl;
-      const pagesOrigin = 'https://zanyz-99.github.io/my-site/data/strava-latest.json';
-      const load = async (url) => {
-        const r = await fetch(`${url}?ts=${Date.now()}`, { cache: 'no-store' });
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json();
-      };
-
-      let data;
-      try { data = await load(sameOrigin); }
-      catch { try { data = await load(pagesOrigin); } catch {} }
-      if (!data) return;
-
-      const img = document.getElementById('strava-img');
-      const statsEl = document.getElementById('strava-stats');
-      const link = document.getElementById('strava-card');
-
-      if (data.photoUrl && img) img.src = data.photoUrl;
-      if (data.activityUrl && link) link.href = data.activityUrl;
-
-      const s = data.stats;
-      if (statsEl && s) {
-        if (s.isRun && s.distance && s.pace && s.duration) {
-          statsEl.innerHTML = `
-            <span class="metric">${s.distance}</span>
-            <span class="dot">•</span>
-            <span class="metric">${s.pace}</span>
-            <span class="dot">•</span>
-            <span class="metric">${s.duration}</span>`;
-        } else if (s.duration) {
-          statsEl.textContent = s.duration;
-        }
-        statsEl.hidden = false;
-      }
-    })();
-  </script>
-
   <style>
     /* Left-aligned content inside the shared column */
-    .about-wrap{display:grid;gap:12px;justify-items:start;align-items:start;margin-inline:auto}
+    .about-wrap{
+      display:grid;
+      gap:12px;
+      justify-items:start;
+      align-items:start;
+      /* let .content own the width/centering; no extra centering here */
+    }
 
     /* Medium spacer above the accordion */
     .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
 
-    /* Accordion container — full width of .content */
+    /* Accordion container — full width of .content and no extra margins */
     .accordion{
       display:grid; gap:12px; justify-items:start;
-      width:100%; margin-inline:auto;
+      width:100%;
+      margin:0; /* normalize */
     }
     .acc{ width:100%; background:transparent; }
 
     /* Section summary (button) */
     .acc-summary{
       width:100%;
-      margin-inline:auto;
       display:flex; align-items:center; justify-content:flex-start;
       gap:0.6rem;
       padding:8px 0;
@@ -352,7 +318,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
 
     /* Lists and rows */
-    .block, .stack, .list, .photos4{ width:100%; margin:6px auto 0; }
+    .block, .stack, .list, .photos4{ width:100%; margin:6px 0 0; }
 
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}

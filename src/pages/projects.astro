@@ -178,7 +178,10 @@ const projects: Project[] = [
       });
     }
 
+    // INITIAL STATE: start collapsed
     let openIndex = -1;
+    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
+
     function setOpen(idx) {
       items.forEach((_, i) => {
         const shouldOpen = i === idx;
@@ -200,6 +203,7 @@ const projects: Project[] = [
       pinAccordionTop({ settle: true });
     }
 
+    // wire up interactions
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => activate(i, e));
       btn.addEventListener('keydown', (e) => {
@@ -207,9 +211,7 @@ const projects: Project[] = [
       });
     });
 
-    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
-    openIndex = -1;
-
+    // keep pinned while resizing
     const ro = new ResizeObserver(() => {
       if (openIndex !== -1) pinAccordionTop({ settle: false });
     });
@@ -224,15 +226,16 @@ const projects: Project[] = [
 
     .accordion{
       display:grid; gap:12px; justify-items:start;
-      width:100%; margin-inline:auto;
+      width:100%; margin:0;
     }
     .acc{ width:100%; background:transparent; }
 
+    /* Header: grid so '+' aligns with the first line of a wrapped title */
     .acc-summary{
       width:100%;
       display:grid;
-      grid-template-columns: 1.25rem 1fr;
-      align-items:start;
+      grid-template-columns: 1.25rem 1fr; /* icon + title */
+      align-items:start;                  /* align to first line */
       justify-content:start;
       gap:0.6rem;
       padding:6px 0;
@@ -240,26 +243,39 @@ const projects: Project[] = [
       color:var(--muted); font-weight:700;
       text-align:left; background:none; border:0;
       font-size:var(--body-size);
+      line-height:1.5;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-    
+
     .acc-toggle{
       width:1.25rem;
       text-align:center;
       font:inherit;
       line-height:1;
-      margin-top:0.1em;
+      margin-top:0.1em; /* tiny optical tweak */
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-    
+
     .acc-title{line-height:1.2; font:inherit}
 
+    /* Panel: indent by the icon+gap so body aligns with title text column */
+    .acc-panel{
+      padding-left: calc(1.25rem + 0.6rem);
+      margin:0;
+      display:block;
+      height:0;
+      overflow:hidden;
+      overflow-anchor:none;
+      transition: height 220ms ease;
+      font-size:var(--body-size);
+      line-height:1.45;
+      color:var(--muted);
+    }
 
     .block{ width:100%; margin:0; display:grid; gap:.35rem }
     .block p { margin:0 }
 
-    /* About row */
     .about-row{
       display:flex; align-items:center; gap:.8rem;
       margin: .1rem 0 .25rem 0;

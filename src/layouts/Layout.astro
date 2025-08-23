@@ -26,9 +26,9 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         --hover: rgba(0,0,0,.06);
 
         /* Content width */
-        --content-w: 60vw;        /* desktop/tablet preferred width */
-        --content-cap: 1100px;    /* max cap to keep line length readable */
-        --content-mob: 95vw;      /* near-full width on phones */
+        --content-w: 60vw;
+        --content-cap: 1100px;
+        --content-mob: 95vw;
 
         /* Typography */
         --h1-size: clamp(28px, 5vw, 40px);
@@ -72,15 +72,10 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         margin:0 auto;
         padding:2rem 1rem calc(var(--footer-h) + env(safe-area-inset-bottom));
         min-height:0;
-      
-        /* constrain width to middle of the screen */
         width: min(var(--content-mob), var(--content-cap));
       }
-      
       @media (min-width: 900px){
-        main{
-          width: min(var(--content-w), var(--content-cap)); /* ~70vw, capped */
-        }
+        main{ width: min(var(--content-w), var(--content-cap)); }
       }
 
       /* Fixed footer pinned to bottom */
@@ -94,7 +89,164 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         -webkit-backdrop-filter:saturate(1.1) blur(4px);
       }
       .foot-wrap{ max-width:1200px; margin:0 auto; padding:1rem clamp(12px, 2vw, 16px) calc(1rem + env(safe-area-inset-bottom)); }
+
+      /* ---------- Normalized page sections (About, Research, Projects) ---------- */
+
+      /* Spacers & utilities */
+      .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
+      .muted{ color:var(--muted); }
+
+      /* Section wrappers */
+      :is(.about-wrap, .research-wrap, .projects-wrap){
+        display:grid;
+        gap:12px;
+        justify-items:start;
+        align-items:start;
+        margin-inline:auto;
+        width:100%;
+      }
+
+      /* Accordion (shared) */
+      .accordion{
+        display:grid;
+        gap:12px;
+        justify-items:start;
+        width:100%;
+        margin:0;
+        overflow-anchor:none;
+      }
+      .acc{ width:100%; background:transparent; }
+
+      /* Header button: keep titles stable, align + with first line */
+      .acc-summary{
+        font:inherit;              /* match page typography */
+        color:inherit;             /* let parent decide; typically var(--text) */
+        appearance:none; -webkit-appearance:none;
+        width:100%;
+        display:grid;
+        grid-template-columns: 1.25rem 1fr; /* icon + title */
+        align-items:start;                  /* align to first line */
+        justify-content:start;
+        gap:0.6rem;
+        padding:6px 0;
+        cursor:pointer; user-select:none;
+        background:none; border:0; text-align:left;
+      }
+      /* Optional variant to mute titles (use on .accordion if desired) */
+      .accordion.muted-titles .acc-summary{ color:var(--muted); font-weight:700; }
+
+      .acc-summary:focus-visible{
+        outline:2px solid var(--border);
+        outline-offset:4px;
+        border-radius:8px;
+      }
+
+      .acc-toggle{
+        width:1.25rem;
+        text-align:center;
+        line-height:1;
+        margin-top:0.1em;
+        font:inherit;
+      }
+      .acc-toggle::before{ content:'+'; }
+      .acc-summary[aria-expanded="true"] .acc-toggle::before{ content:'–'; }
+
+      /* Let global heading styles apply; just strip default margins */
+      .acc-title{ margin:0; line-height:1.2; font:inherit; }
+
+      /* Panels: indent by icon+gap so body text aligns with title column */
+      .acc-panel{
+        padding-left: calc(1.25rem + 0.6rem);
+        margin:0;
+        display:block;
+        height:0;                   /* JS sets height for smooth open/close */
+        overflow:hidden;
+        overflow-anchor:none;
+        transition: height 220ms ease;
+        font-size:var(--body-size);
+        line-height:1.45;
+        color:var(--muted);
+      }
+
+      /* Content blocks & simple lists */
+      .block{ width:100%; margin:0; display:grid; gap:.3rem; }
+      .block p{ margin:0; }
+      .stack{ list-style:none; padding:0; margin:.3rem 0 0; }
+      .stack-item{ padding:0; }
+
+      /* Hover grayscale utility for image/link clusters */
+      .gray-hover:hover .hoverable{
+        filter: grayscale(1) brightness(.85);
+        opacity: .7;
+        transition: filter 160ms ease, opacity 160ms ease;
+      }
+      .gray-hover .hoverable:hover{ filter:none; opacity:1; }
+
+      /* Inline links inside accordions inherit global link styles */
+      .accordion a, .accordion a:visited{ color:inherit; text-decoration:none; }
+      .accordion a:hover{ text-decoration:underline; }
+
+      /* Work rows (shared list style) */
+      .list{ display:grid; gap:10px; width:100%; margin:6px 0 0; }
+      .row{ text-decoration:none; color:inherit; }
+      .row-line{ display:flex; align-items:center; gap:.85rem; }
+      .row-line.no-logo{ gap:0; }
+      .meta{ display:grid; gap:.15rem; }
+      .title{ line-height:1.15; }
+      .sub{ color:inherit; font-size:clamp(15px, 2.5vw, 18px); }
+
+      /* About-specific small helpers (safe across pages if reused) */
+      .about-row{ display:flex; align-items:center; gap:.8rem; margin:.1rem 0 .25rem; }
+      .about-logo{ width:64px; height:64px; border-radius:12px; display:block; }
+      .about-text{ margin:0; color:var(--text); }
+      .subhead{ margin:.25rem 0 0; font-size:1em; color:var(--text); }
+
+      /* Photos 2×2 grid */
+      .photos4{
+        width:100%;
+        display:grid;
+        grid-template-columns:repeat(2,1fr);
+        grid-template-rows:repeat(2,1fr);
+        gap:16px;
+        margin:6px 0 0;
+      }
+      .photos4 .ph{ margin:0; padding:0; display:block; position:relative; }
+      .photos4 img{
+        width:100%;
+        aspect-ratio:1/1;
+        object-fit:cover;
+        border-radius:0 0 25% 0;
+        display:block;
+        box-shadow:0 8px 24px rgba(0,0,0,.18);
+        filter:grayscale(1);
+        transition:filter 200ms ease;
+      }
+      .photos4 img:hover{ filter:grayscale(0); }
+      .photos4.grey-others .ph:not(.strava) img{ filter: grayscale(1) brightness(.75); }
+
+      /* Strava overlays */
+      .strava{ position:relative; text-decoration:none; color:inherit; }
+      .strava-cta{
+        position:absolute; left:10px; bottom:10px;
+        color:#fff; font-weight:700;
+        background:rgba(0,0,0,.35);
+        padding:.25rem .5rem; border-radius:8px;
+      }
+      .stats{
+        position:absolute; right:10px; top:10px;
+        display:flex; align-items:center; gap:.35rem; flex-wrap:wrap;
+        background:rgba(0,0,0,.55); color:#fff; font-weight:600;
+        padding:.4rem .6rem; border-radius:10px; backdrop-filter:blur(2px);
+        font-size:14px; line-height:1;
+      }
+      .stats .dot{ opacity:.6; }
+      .stats .metric{ white-space:nowrap; }
+
+      @media (max-width: 640px){
+        .strava-cta, .stats{ display:none !important; }
+      }
     </style>
+
 
     <script>
       // Initial theme by local time

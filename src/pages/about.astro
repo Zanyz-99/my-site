@@ -357,55 +357,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       color:var(--muted);
     }
 
-    /* ==== Accordion typography — keep everything consistent ==== */
-    :root{
-      --acc-font-size: clamp(16px, 3vw, 20px);
-      --acc-line: 1.5;
-      --acc-weight: 700;      /* same weight for titles + section headers */
-      --acc-color: var(--text);
-    }
-    
-    /* Set the base for the whole accordion */
-    .accordion{
-      font-size: var(--acc-font-size);
-      line-height: var(--acc-line);
-      color: var(--acc-color);
-      font-family: inherit;
-    }
-    
-    /* Make summary and panel inherit exactly the same font style */
-    .acc-summary,
-    .acc-title,
-    .acc-panel,
-    .acc-panel *:not(code, pre) {
-      font: inherit;
-      color: inherit;
-    }
-    
-    /* Keep the +/- icon aligned but don’t change type */
-    .acc-toggle{ font: inherit; }
-    
-    /* Optional: if you still want the collapsed titles to look a tad “secondary”,
-       use opacity instead of switching to --muted so the font doesn’t “change”. */
-    .acc-summary{ opacity: .85; }
-    .acc-summary:hover,
-    .acc-summary:focus-visible{ opacity: 1; }
-    
-    /* If you want paragraph text slightly lighter than headings: */
-    .acc-panel p,
-    .acc-panel .sub,
-    .acc-panel .meta,
-    .acc-panel .stack { opacity: .95; }
-    
-    /* Normalize “Work” rows so they don’t override sizes */
-    .list .title,
-    .list .sub { font: inherit; }
-    
-    /* (Optional) Unify link appearance */
-    .accordion a,
-    .accordion a:visited { color: inherit; }
-
-
     /* Lists and rows */
     .block, .stack, .list, .photos4{ width:100%; margin:6px auto 0; }
 

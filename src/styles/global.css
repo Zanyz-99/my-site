@@ -91,3 +91,27 @@ a:hover{ text-decoration:underline; }
   margin: 0 0 .25rem;
   color: var(--text);
 }
+
+/* === Make Home <h1> and About .acc-title IDENTICAL === */
+h1,
+.acc-title {
+  margin: 0 0 .25rem;
+  font-size: var(--h1-size);
+  font-weight: 1000;
+  letter-spacing: -0.01em;
+  line-height: calc(var(--line) - .15);
+  color: var(--text);
+  display: block; /* <span> -> block to match <h1> metrics */
+}
+
+/* Ensure the accordion button doesn't override title typography */
+.acc-summary {
+  font: inherit;        /* don't downscale the title */
+  color: inherit;
+}
+
+/* Keep the +/- icon on body scale so it doesn't look huge */
+.acc-toggle {
+  font-size: var(--body-size);
+  color: var(--text);
+}

@@ -275,8 +275,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .acc-summary{
       width:100%;
       display:grid;
-      grid-template-columns: 1.25rem 1fr;
-      align-items:start;
+      grid-template-columns: 1.25rem 1fr; /* icon + title */
+      align-items:start;                  /* align to first line */
       justify-content:start;
       gap:0.6rem;
       padding:6px 0;
@@ -292,7 +292,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       text-align:center;
       font:inherit;
       line-height:1;
-      margin-top:0.1em;
+      margin-top:0.1em; /* tiny optical tweak */
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
@@ -312,7 +312,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       line-height:1.45;
       color:var(--muted);
     }
-    
+
     /* Lists and rows */
     .block, .stack, .list, .photos4{ width:100%; margin:6px 0 0; }
     .stack{list-style:none;padding:0}

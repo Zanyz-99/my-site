@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Container from "../components/Container.astro";
 
 const ATHLETE_ID = Number(import.meta.env.STRAVA_ATHLETE_ID) || 35369206;
 const STRAVA_PROFILE = `https://www.strava.com/athletes/${ATHLETE_ID}`;
@@ -18,8 +17,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     <link rel="dns-prefetch" href="//images.strava.com">
   </Fragment>
 
-  <!-- Use shared width/alignment via .content -->
-  <Container class="content about-wrap">
+  <!-- Use shared width/alignment via .content (no Container) -->
+  <section class="content about-wrap">
 
     <!-- Medium spacer so the accordion doesn't start at the very top -->
     <div class="spacer-md" aria-hidden="true"></div>
@@ -131,7 +130,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       </div>
 
     </section>
-  </Container>
+  </section>
 
   <!-- Accordion logic: pin top + one-open + animated panels -->
   <script type="module">
@@ -299,7 +298,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Center column; left-align content */
+    /* Left-aligned content inside the shared column */
     .about-wrap{display:grid;gap:36px;justify-items:start;align-items:start;margin-inline:auto}
 
     /* Medium spacer above the accordion */
@@ -358,7 +357,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
 
-    /* Grey-out container (Connect + Side Projects): others dim, hovered stays normal */
+    /* Grey-out container */
     .gray-hover:hover .hoverable {
       filter: grayscale(1) brightness(.8);
       opacity: .6;

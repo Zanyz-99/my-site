@@ -257,6 +257,47 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
   </script>
 
+  <!-- Strava hydrate -->
+  <script type="module" define:vars={{ dataUrl }}>
+    (async () => {
+      const sameOrigin = dataUrl;
+      const pagesOrigin = 'https://zanyz-99.github.io/my-site/data/strava-latest.json';
+      const load = async (url) => {
+        const r = await fetch(`${url}?ts=${Date.now()}`, { cache: 'no-store' });
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      };
+  
+      let data;
+      try { data = await load(sameOrigin); }
+      catch { try { data = await load(pagesOrigin); } catch {} }
+      if (!data) return;
+  
+      const img = document.getElementById('strava-img');
+      const statsEl = document.getElementById('strava-stats');
+      const link = document.getElementById('strava-card');
+  
+      if (data.photoUrl && img) img.src = data.photoUrl;
+      if (data.activityUrl && link) link.href = data.activityUrl;
+  
+      const s = data.stats;
+      if (statsEl && s) {
+        if (s.isRun && s.distance && s.pace && s.duration) {
+          statsEl.innerHTML = `
+            <span class="metric">${s.distance}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.pace}</span>
+            <span class="dot">•</span>
+            <span class="metric">${s.duration}</span>`;
+        } else if (s.duration) {
+          statsEl.textContent = s.duration;
+        }
+        statsEl.hidden = false;
+      }
+    })();
+  </script>
+
+
   <style>
     /* Left-aligned content inside the shared column */
     .about-wrap{
@@ -291,7 +332,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       color:var(--muted); font-weight:700;
       text-align:left; background:none; border:0;
       font-size:var(--body-size);
-      line-height:1.5;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
     

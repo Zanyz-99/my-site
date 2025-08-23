@@ -3,13 +3,13 @@ import Layout from "../layouts/Layout.astro";
 
 type Project = {
   id: string;
-  title: string;           // Section name shown in the accordion button
-  subtitle?: string;       // Optional subtitle if you want it later
+  title: string;
+  subtitle?: string;
   logo?: string;
-  about: string;           // Text shown next to the logo (no "About this game" heading)
+  about: string;
   howto?: string;
-  store?: string | null;   // Google Play link
-  play?: string | null;    // WebGL / detail page
+  store?: string | null;
+  play?: string | null;
 };
 
 const projects: Project[] = [
@@ -44,7 +44,7 @@ const projects: Project[] = [
     howto:
       "Add items you keep on hand, track low stock, and build quick meal templates that auto‑suggest a grocery list.",
     store: "https://play.google.com/store/apps/details?id=com.zanyinc.pantrymealplanner.pantrymealplanner",
-    play: "/coding/pantry-planner", // adjust if your route differs
+    play: "/coding/pantry-planner",
   },
   {
     id: "sheepshead",
@@ -59,9 +59,8 @@ const projects: Project[] = [
   },
 ];
 ---
-
 <Layout title="Projects — Zach Scholz" description="Side projects: games, sims, and tools.">
-  <section class="projects-wrap">
+  <section class="projects-wrap content">
     <div class="spacer-md" aria-hidden="true"></div>
 
     <section class="accordion" aria-label="Side projects">
@@ -218,52 +217,44 @@ const projects: Project[] = [
   </script>
 
   <style>
-    .projects-wrap{display:grid;gap:12px;justify-items:center;align-items:start;margin-inline:auto}
-
-    :root{
-      --content-w: min(816px, 78vw);
-      --icon-w: 1.25rem;
-      --icon-gap: 0.6rem;
-      --panel-speed: 220ms;
-      --panel-ease: ease;
-    }
+    .projects-wrap{display:grid;gap:12px;justify-items:start;align-items:start;margin-inline:auto}
 
     .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
     .muted{color:var(--muted)}
 
     .accordion{
-      display:grid; gap:12px; justify-items:center;
-      width:var(--content-w); margin-inline:auto;
+      display:grid; gap:12px; justify-items:start;
+      width:100%; margin-inline:auto;
     }
     .acc{ width:100%; background:transparent; }
 
     .acc-summary{
       width:100%;
       display:flex; align-items:center; justify-content:flex-start;
-      gap:var(--icon-gap);
+      gap:0.6rem;
       padding:6px 0;
       cursor:pointer; user-select:none;
       color:var(--muted); font-weight:700;
       text-align:left; background:none; border:0;
-      font-size:clamp(16px, 3vw, 20px);
+      font-size:var(--body-size);
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
-    .acc-toggle{ flex:0 0 var(--icon-w); text-align:center; font:inherit; }
+    .acc-toggle{ flex:0 0 1.25rem; text-align:center; font:inherit; }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
 
     .acc-title{line-height:1.2; font:inherit}
 
     .acc-panel{
-      padding-left: calc(var(--icon-w) + var(--icon-gap));
+      padding-left: calc(1.25rem + 0.6rem);
       margin:0;
       display:block;
       height:0;
       overflow:hidden;
       overflow-anchor:none;
-      transition: height var(--panel-speed) var(--panel-ease);
-      font-size:clamp(16px, 3vw, 20px);
+      transition: height 220ms ease;
+      font-size:var(--body-size);
       line-height:1.45;
       color:var(--muted);
     }

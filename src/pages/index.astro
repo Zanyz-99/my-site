@@ -6,4 +6,26 @@ import Layout from "../layouts/Layout.astro";
     <h1>Zach Scholz</h1>
     <p>Navy Veteran</p>
   </section>
+  <style>
+    /* Hero section styles (override defaults if needed) */
+    .hero{
+      width:100%;
+      margin:0 auto;
+      padding:3rem 0;
+      text-align:left;
+    }
+    .hero h1{
+      font-size:var(--h1-size);
+      line-height:calc(var(--line) - .15);
+      font-weight:1000;
+      letter-spacing:-0.01em;
+      margin:0 0 .25rem;
+    }
+    .hero p{
+      font-size:var(--body-size);
+      line-height:var(--line);
+      margin:.25rem 0 0;
+      color:var(--muted);
+    }
+  </style>
 </Layout>

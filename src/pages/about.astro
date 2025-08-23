@@ -281,7 +281,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     /* Section summary (button) */
     .acc-summary{
       width:100%;
-      display:flex; align-items:center; justify-content:flex-start;
+      /* was: display:flex; align-items:center; justify-content:flex-start; */
+      display:grid;
+      grid-template-columns: 1.25rem 1fr; /* icon + title */
+      align-items:start;                  /* align to first line */
+      justify-content:start;
       gap:0.6rem;
       padding:8px 0;
       cursor:pointer; user-select:none;
@@ -290,18 +294,20 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       font-size:var(--body-size); line-height:1.5;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-
-    /* Icon: fixed width to prevent shifts */
+    
+    /* Icon: fixed width; nudge to align with the first line baseline */
     .acc-toggle{
-      --icon-w: 1.25rem;
-      flex:0 0 var(--icon-w);
+      width:1.25rem;
       text-align:center;
       font:inherit;
+      line-height:1;
+      margin-top:0.1em; /* small optical tweak so '+' sits nicely with text */
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-
+    
     .acc-title{line-height:1.2; font:inherit}
+
 
     /* Animated panels: align with title text (not icon) */
     .acc-panel{

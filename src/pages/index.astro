@@ -3,18 +3,46 @@ import Layout from "../layouts/Layout.astro";
 ---
 <Layout title="Home — Zach Scholz" description="Navy Veteran">
   <section class="content home-wrap">
-    <h1 class="home-title align-with-acc">Zach Scholz</h1>
-    <p class="home-sub align-with-acc">Navy Veteran</p>
+    <!-- Clone the accordion header structure for pixel-perfect alignment -->
+    <div class="acc-header-clone" aria-hidden="true">
+      <span class="acc-toggle-clone"></span>
+      <h1 class="home-title">Zach Scholz</h1>
+    </div>
+
+    <!-- Subtitle aligned to the same start line as the title -->
+    <p class="home-sub">Navy Veteran</p>
   </section>
 
   <style>
-    /* Utility: align with About page accordion titles (.acc-title) */
-    .align-with-acc {
-      /* Matches: .acc-toggle width (1.25rem) + gap after it (0.6rem) */
-      padding-left: calc(1.25rem + 0.6rem);
+    /* Use the exact same measures as the About page’s accordion header */
+    :root {
+      --acc-toggle-w: 1.25rem;              /* matches .acc-toggle width */
+      --acc-gap: 0.6rem;                    /* matches gap between toggle and title */
     }
 
     .home-wrap { width: 100%; margin: 0 auto; padding: 3rem 0; }
+
+    /* A flex row with a fake toggle box (same as About’s header) */
+    .acc-header-clone {
+      display: flex;
+      align-items: center;
+      gap: var(--acc-gap);
+    }
+
+    .acc-toggle-clone {
+      /* Matches About page .acc-toggle footprint so text starts at same x */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--acc-toggle-w);
+      /* Font size/weight mirror About’s .acc-toggle so metrics match,
+         but we keep it visually empty so it doesn’t show a glyph. */
+      font-size: calc(var(--h1-size) * 0.8);
+      font-weight: 1000;
+      line-height: 1;
+      color: var(--text);
+      /* No content shown */
+    }
 
     .home-title {
       margin: 0;
@@ -25,10 +53,18 @@ import Layout from "../layouts/Layout.astro";
       color: var(--text);
     }
 
+    /* Subtitle left edge matches the title’s start:
+       we offset by the same toggle width + gap */
     .home-sub {
       margin: .25rem 0 0;
       color: var(--muted);
       font-size: clamp(16px, 2.2vw, 18px);
+      margin-left: calc(var(--acc-toggle-w) + var(--acc-gap));
+    }
+
+    /* Optional: small screens keep the same alignment without overflow */
+    @media (max-width: 560px) {
+      .home-wrap { padding: 2rem 0; }
     }
   </style>
 </Layout>

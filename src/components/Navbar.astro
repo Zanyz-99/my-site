@@ -19,6 +19,7 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
     <ul class="menu" role="menubar" aria-label="Main">
       <li role="none"><a role="menuitem" class={`link ${active('/')}`} href="/">Home</a></li>
       <li role="none"><a role="menuitem" class={`link ${active('/about')}`} href="/about">About</a></li>
+      <li role="none"><a role="menuitem" class={`link ${active('/projects')}`} href="/projects">Projects</a></li>
       <li role="none"><a role="menuitem" class={`link ${active('/research')}`} href="/research">Research</a></li>
     </ul>
 
@@ -79,7 +80,7 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
 
   .topbar{
     position:sticky; top:0; z-index:1000; width:100%;
-    background:var(--bar-bg); 
+    background:var(--bar-bg);
     border-bottom:none;
     backdrop-filter:saturate(150%) blur(6px);
   }
@@ -113,7 +114,4 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
     justify-self:end;
     display:inline-flex; align-items:center; justify-content:center;
     border:1px solid var(--border); background:var(--card);
-    border-radius:999px; padding:.45rem .6rem; cursor:pointer; color:var(--text);
-  }
-  .toggle:hover{ background:var(--hover); }
-</style>
+    border-radius:999px; padding:.45rem .6rem; cursor:

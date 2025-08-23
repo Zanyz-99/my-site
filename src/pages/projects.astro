@@ -83,26 +83,24 @@ const projects: Project[] = [
             role="region"
             aria-labelledby={`btn-proj-${p.id}`}
           >
-            <!-- About row: logo left, text + links right -->
+            <!-- About row: logo on top, then text + links -->
             <div class="about-row">
               {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
 
-              <div class="about-content">
-                <p class="about-text">{p.about}</p>
+              <p class="about-text">{p.about}</p>
 
-                <ul class="stack gray-hover links" aria-label={`${p.title} links`}>
-                  {p.store && (
-                    <li class="stack-item hoverable">
-                      <a href={p.store} target="_blank" rel="noopener">Google Play</a>
-                    </li>
-                  )}
-                  {p.play && (
-                    <li class="stack-item hoverable">
-                      <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
-                    </li>
-                  )}
-                </ul>
-              </div>
+              <ul class="stack gray-hover links" aria-label={`${p.title} links`}>
+                {p.store && (
+                  <li class="stack-item hoverable">
+                    <a href={p.store} target="_blank" rel="noopener">Google Play</a>
+                  </li>
+                )}
+                {p.play && (
+                  <li class="stack-item hoverable">
+                    <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
+                  </li>
+                )}
+              </ul>
             </div>
           </div>
         </div>
@@ -271,23 +269,19 @@ const projects: Project[] = [
       color:var(--muted);
     }
 
+    /* Updated layout: stack everything vertically */
     .about-row {
       display: flex;
+      flex-direction: column;
       align-items: flex-start;
-      gap: 1rem;
+      gap: .6rem;
       margin: .1rem 0 .25rem 0;
     }
     .about-logo {
       width: 64px;
       height: 64px;
       border-radius: 12px;
-      flex-shrink: 0;
       display: block;
-    }
-    .about-content {
-      display: flex;
-      flex-direction: column;
-      gap: .5rem;
     }
     .about-text {
       margin: 0;
@@ -304,12 +298,5 @@ const projects: Project[] = [
     .gray-hover .hoverable:hover { filter: none; opacity: 1; }
 
     .links{ margin-top:.25rem }
-
-    @media (max-width: 600px) {
-      .about-row {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
   </style>
 </Layout>

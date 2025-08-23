@@ -230,7 +230,10 @@ const projects: Project[] = [
 
     .acc-summary{
       width:100%;
-      display:flex; align-items:center; justify-content:flex-start;
+      display:grid;
+      grid-template-columns: 1.25rem 1fr;
+      align-items:start;
+      justify-content:start;
       gap:0.6rem;
       padding:6px 0;
       cursor:pointer; user-select:none;
@@ -239,25 +242,19 @@ const projects: Project[] = [
       font-size:var(--body-size);
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-
-    .acc-toggle{ flex:0 0 1.25rem; text-align:center; font:inherit; }
+    
+    .acc-toggle{
+      width:1.25rem;
+      text-align:center;
+      font:inherit;
+      line-height:1;
+      margin-top:0.1em;
+    }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-
+    
     .acc-title{line-height:1.2; font:inherit}
 
-    .acc-panel{
-      padding-left: calc(1.25rem + 0.6rem);
-      margin:0;
-      display:block;
-      height:0;
-      overflow:hidden;
-      overflow-anchor:none;
-      transition: height 220ms ease;
-      font-size:var(--body-size);
-      line-height:1.45;
-      color:var(--muted);
-    }
 
     .block{ width:100%; margin:0; display:grid; gap:.35rem }
     .block p { margin:0 }

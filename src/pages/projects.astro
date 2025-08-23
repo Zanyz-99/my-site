@@ -136,8 +136,8 @@ const projects: Project[] = [
       let last = null;
       const step = () => {
         const nowTop = accRoot.getBoundingClientRect().top;
-        const delta  = nowTop - targetTop;
-        if (delta) window.scrollBy({ top: delta, left: 0 });
+        theDelta  = nowTop - targetTop;
+        if (theDelta) window.scrollBy({ top: theDelta, left: 0 });
         if (!settle) return;
         if (last !== null && Math.abs(nowTop - last) < 0.25) return;
         last = nowTop;
@@ -230,12 +230,12 @@ const projects: Project[] = [
     }
     .acc{ width:100%; background:transparent; }
 
-    /* Header: grid so '+' aligns with the first line of a wrapped title */
+    /* Header */
     .acc-summary{
       width:100%;
       display:grid;
-      grid-template-columns: 1.25rem 1fr; /* icon + title */
-      align-items:start;                  /* align to first line */
+      grid-template-columns: 1.25rem 1fr;
+      align-items:start;
       justify-content:start;
       gap:0.6rem;
       padding:6px 0;
@@ -251,22 +251,13 @@ const projects: Project[] = [
       text-align:center;
       font:inherit;
       line-height:1;
-      margin-top:0.1em; /* tiny optical tweak */
+      margin-top:0.1em;
       color: var(--text);
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
 
-    .acc-title {
-      margin: 0; 
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      color: var(--text);
-    }
-
-    /* Panel: indent by the icon+gap so body aligns with title text column */
+    /* Panel */
     .acc-panel{
       padding-left: calc(1.25rem + 0.6rem);
       margin:0;
@@ -287,16 +278,10 @@ const projects: Project[] = [
       display:flex; align-items:center; gap:.8rem;
       margin: .1rem 0 .25rem 0;
     }
-    .about-logo{
-      width:64px; height:64px; border-radius:12px; display:block;
-    }
-    .about-text{
-      margin:0; color:var(--text);
-    }
+    .about-logo{ width:64px; height:64px; border-radius:12px; display:block; }
+    .about-text{ margin:0; color:var(--text); }
 
-    .subhead{
-      margin:.25rem 0 0; font-size:1em; color:var(--text);
-    }
+    .subhead{ margin:.25rem 0 0; font-size:1em; color:var(--text); }
 
     .stack{list-style:none;padding:0;margin:.35rem 0 0}
     .stack-item{padding:0}
@@ -304,15 +289,8 @@ const projects: Project[] = [
     .accordion a:visited{ color:inherit; text-decoration:none; }
     .accordion a:hover{ text-decoration:underline; }
 
-    .gray-hover:hover .hoverable {
-      filter: grayscale(1) brightness(.88);
-      opacity: .7;
-      transition: filter 160ms ease, opacity 160ms ease;
-    }
-    .gray-hover .hoverable:hover {
-      filter: none;
-      opacity: 1;
-    }
+    .gray-hover:hover .hoverable { filter: grayscale(1) brightness(.88); opacity: .7; transition: filter 160ms ease, opacity 160ms ease; }
+    .gray-hover .hoverable:hover { filter: none; opacity: 1; }
 
     .links{ margin-top:.25rem }
   </style>

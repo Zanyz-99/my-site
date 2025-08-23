@@ -79,11 +79,13 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
   }
 
   .topbar{
-    position:sticky; top:0; z-index:1000; width:100%;
-    background:var(--bar-bg);
-    border-bottom:none;
-    backdrop-filter:saturate(150%) blur(6px);
+    position: sticky; top: 0; z-index: 1000; width: 100%;
+    background: var(--bg);            /* match page background in light/dark */
+    border-bottom: 1px solid var(--border); /* optional: subtle divider */
+    backdrop-filter: none;            /* remove translucency/blur */
+    -webkit-backdrop-filter: none;
   }
+
   /* Three-column grid = logo | centered menu | toggle */
   .row{
     max-width:1200px; margin:0 auto; padding:.6rem 1rem;

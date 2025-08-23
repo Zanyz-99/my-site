@@ -281,11 +281,10 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       cursor: pointer; user-select: none;
       color: var(--muted);
       background: none; border: 0;
-      text-align:left; 
       font-size: var(--body-size);
     }
 
-    /* Title = h1 look
+    /* Title = h1 look */
     .acc-title {
       display: block;
       margin: 0 0 .25rem;
@@ -294,7 +293,8 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       letter-spacing: -0.01em;
       line-height: calc(var(--line) - .15);
       color: var(--text);
-    } */
+      text-align:left; 
+    }
 
     /* Toggle matches title font */
     .acc-toggle {

@@ -3,7 +3,22 @@ import Layout from "../layouts/Layout.astro";
 ---
 <Layout title="Home — Zach Scholz" description="Navy Veteran">
   <section class="content" style="width:100%; margin:0 auto;">
-    <h1>Zach Scholz</h1>
-    <p>Navy Veteran</p>
+    <h1 class="home-title">Zach Scholz</h1>
+    <p class="home-sub">Navy Veteran</p>
   </section>
+
+  <style>
+    .home-title {
+      padding-left: calc(1.25rem + 0.6rem); /* matches acc-title text start */
+      margin: 0;
+      font-size: var(--h1-size);
+      font-weight: 1000;
+      letter-spacing: -0.01em;
+      line-height: calc(var(--line) - .15);
+      color: var(--text);
+    }
+    .home-sub {
+      padding-left: calc(1.25rem + 0.6rem);
+    }
+  </style>
 </Layout>

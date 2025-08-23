@@ -2,14 +2,21 @@
 import Layout from "../layouts/Layout.astro";
 ---
 <Layout title="Home — Zach Scholz" description="Navy Veteran">
-  <section class="content" style="width:100%; margin:0 auto;">
-    <h1 class="home-title">Zach Scholz</h1>
-    <p class="home-sub">Navy Veteran</p>
+  <section class="content home-wrap">
+    <h1 class="home-title align-with-acc">Zach Scholz</h1>
+    <p class="home-sub align-with-acc">Navy Veteran</p>
   </section>
 
   <style>
+    /* Utility: align with About page accordion titles (.acc-title) */
+    .align-with-acc {
+      /* Matches: .acc-toggle width (1.25rem) + gap after it (0.6rem) */
+      padding-left: calc(1.25rem + 0.6rem);
+    }
+
+    .home-wrap { width: 100%; margin: 0 auto; padding: 3rem 0; }
+
     .home-title {
-      padding-left: calc(1.25rem + 0.6rem); /* matches acc-title text start */
       margin: 0;
       font-size: var(--h1-size);
       font-weight: 1000;
@@ -17,8 +24,11 @@ import Layout from "../layouts/Layout.astro";
       line-height: calc(var(--line) - .15);
       color: var(--text);
     }
+
     .home-sub {
-      padding-left: calc(1.25rem + 0.6rem);
+      margin: .25rem 0 0;
+      color: var(--muted);
+      font-size: clamp(16px, 2.2vw, 18px);
     }
   </style>
 </Layout>

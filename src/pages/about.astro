@@ -17,7 +17,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     <link rel="preconnect" href="https://images.strava.com" crossorigin>
     <link rel="dns-prefetch" href="//images.strava.com">
   </Fragment>
-  <Container class="about-wrap">
+
+  <!-- Use shared width/alignment via .content -->
+  <Container class="content about-wrap">
 
     <!-- Medium spacer so the accordion doesn't start at the very top -->
     <div class="spacer-md" aria-hidden="true"></div>
@@ -297,24 +299,16 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Center column; NO vertical centering */
-    .about-wrap{display:grid;gap:36px;justify-items:center;align-items:start;margin-inline:auto}
-
-    :root{
-      --content-w: min(816px, 78vw);
-      --icon-w: 1.25rem;
-      --icon-gap: 0.6rem;
-      --panel-speed: 220ms;
-      --panel-ease: ease;
-    }
+    /* Center column; left-align content */
+    .about-wrap{display:grid;gap:36px;justify-items:start;align-items:start;margin-inline:auto}
 
     /* Medium spacer above the accordion */
     .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
 
-    /* Accordion container */
+    /* Accordion container — full width of .content */
     .accordion{
-      display:grid; gap:12px; justify-items:center;
-      width:var(--content-w); margin-inline:auto;
+      display:grid; gap:12px; justify-items:start;
+      width:100%; margin-inline:auto;
     }
     .acc{ width:100%; background:transparent; }
 
@@ -323,17 +317,18 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       width:100%;
       margin-inline:auto;
       display:flex; align-items:center; justify-content:flex-start;
-      gap:var(--icon-gap);
+      gap:0.6rem;
       padding:8px 0;
       cursor:pointer; user-select:none;
       color:var(--muted); font-weight:700;
       text-align:left; background:none; border:0;
-      font-size:clamp(16px, 3vw, 20px); line-height:1.5;
+      font-size:var(--body-size); line-height:1.5;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
-    /* Icon: same font style as title, fixed width to prevent shifts */
+    /* Icon: fixed width to prevent shifts */
     .acc-toggle{
+      --icon-w: 1.25rem;
       flex:0 0 var(--icon-w);
       text-align:center;
       font:inherit;
@@ -345,14 +340,14 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
     /* Animated panels: align with title text (not icon) */
     .acc-panel{
-      padding-left: calc(var(--icon-w) + var(--icon-gap));
+      padding-left: calc(1.25rem + 0.6rem);
       margin:0;
       display:block;
       height:0;
       overflow:hidden;
       overflow-anchor:none;
-      transition: height var(--panel-speed) var(--panel-ease);
-      font-size:clamp(16px, 3vw, 20px);
+      transition: height 220ms ease;
+      font-size:var(--body-size);
       line-height:1.5;
       color:var(--muted);
     }
@@ -382,7 +377,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .list{display:grid;gap:10px}
     .row{text-decoration:none;color:inherit}
     .row-line{display:flex;align-items:center;gap:.85rem}
-    .row-line.no-logo{ gap: 0; } /* no left gap when there’s no logo */
+    .row-line.no-logo{ gap: 0; }
     .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
     .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
     .meta{display:grid;gap:.15rem}
@@ -405,9 +400,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .photos4 img {
       width: 100%;
-      aspect-ratio: 1 / 1;      /* square */
+      aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 0 0 25% 0;  /* only bottom-right rounded (percentage-based) */
+      border-radius: 0 0 25% 0;
       display: block;
       box-shadow: 0 8px 24px rgba(0,0,0,.18);
 
@@ -420,12 +415,12 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     /* Strava tile overlay positions */
     .strava{position:relative;text-decoration:none;color:inherit}
     .strava-cta{
-      position:absolute;left:10px;bottom:10px; /* bottom-left */
+      position:absolute;left:10px;bottom:10px;
       color:#fff;font-weight:700;
       background:rgba(0,0,0,.35);padding:.25rem .5rem;border-radius:8px;
     }
     .stats{
-      position:absolute;right:10px;top:10px;   /* top-right */
+      position:absolute;right:10px;top:10px;
       display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
       background:rgba(0,0,0,.55);color:#fff;font-weight:600;
       padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);

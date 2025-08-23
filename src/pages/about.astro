@@ -27,7 +27,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <div class="acc" id="acc-about">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
           <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title h1-style">About Me</span>
+          <span class="acc-title">About Me</span>
         </button>
         <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
           <div class="block">
@@ -297,16 +297,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-
-    /* Accordions */
-    .acc-title {
-      margin: 0; 
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      color: var(--text);
-    }
 
     /* Panel: indent by the icon+gap so body aligns with title text column */
     .acc-panel{

@@ -92,32 +92,23 @@ a:hover{ text-decoration:underline; }
   color: var(--text);
 }
 
-/* Reset the span inside the button so it stops inheriting button styles */
+/* Reset then re-apply exact H1 styles */
 .acc-title {
-  all: unset;           /* wipe inherited button text styles */
-  display: block;       /* match <h1> block behavior */
+  all: unset;            /* wipe button inheritance */
+  display: block;        /* match <h1> block behavior */
+  font-family: inherit;  /* <- put the site font back! */
 }
 
-/* Now make h1 and .acc-title literally identical */
 h1,
 .acc-title {
   margin: 0 0 .25rem;
   font-size: var(--h1-size);
-  font-weight: 1000;
+  font-weight: 1000;     /* some UAs clamp to 900; change to 900 if you prefer */
   letter-spacing: -0.01em;
   line-height: calc(var(--line) - .15);
   color: var(--text);
 }
 
-/* Ensure the accordion button doesn't re-override the title */
-.acc-summary {
-  font: inherit;
-  color: inherit;       /* don't force muted here */
-  /* no font-weight here */
-}
-
-/* Keep the +/- icon on body scale */
-.acc-toggle {
-  font-size: var(--body-size);
-  color: var(--text);
-}
+/* Keep the button from overriding */
+.acc-summary { font: inherit; color: inherit; }
+.acc-toggle  { font-size: var(--body-size); color: var(--text); }

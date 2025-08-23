@@ -269,32 +269,44 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .acc{ width:100%; background:transparent; }
 
-    /* Header */
-    .acc-summary{
-      width:100%;
-      display:grid;
-      grid-template-columns: 1.25rem 1fr;
-      align-items:start;
-      justify-content:start;
-      gap:0.6rem;
-      padding:6px 0;
-      cursor:pointer; user-select:none;
-      color:var(--muted); font-weight:700;
-      text-align:left; background:none; border:0;
-      font-size:var(--body-size);
+    /* Header: grid so '+' aligns neatly with the title */
+    .acc-summary {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.25rem 1fr; /* toggle + title */
+      align-items: center;                /* vertical alignment */
+      justify-content: start;
+      gap: 0.6rem;
+      padding: 6px 0;
+      cursor: pointer; user-select: none;
+      color: var(--muted);
+      background: none; border: 0;
+      font-size: var(--body-size);
     }
-    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
-    .acc-toggle{
-      width:1.25rem;
-      text-align:center;
-      font:inherit;
-      line-height:1;
-      margin-top:0.1em;
+    /* Title = h1 look */
+    .acc-title {
+      display: block;
+      margin: 0 0 .25rem;
+      font-size: var(--h1-size);
+      font-weight: 1000;
+      letter-spacing: -0.01em;
+      line-height: calc(var(--line) - .15);
       color: var(--text);
     }
-    .acc-toggle::before{content:'+'}
-    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+
+    /* Toggle matches title font */
+    .acc-toggle {
+      font-size: var(--h1-size);
+      font-weight: 1000;
+      line-height: calc(var(--line) - .15);
+      color: var(--text);
+      text-align: center;
+    }
+
+    /* Toggle content */
+    .acc-toggle::before { content: '+'; }
+    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
 
     /* Panel */
     .acc-panel{

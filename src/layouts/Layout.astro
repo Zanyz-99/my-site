@@ -69,20 +69,17 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
 
       /* Content area; reserve space for fixed footer */
       main{
-        /* remove max-width so .content controls layout width */
         margin:0 auto;
         padding:2rem 1rem calc(var(--footer-h) + env(safe-area-inset-bottom));
         min-height:0;
-      }
-
-      /* Shared content width utility */
-      .content{
+      
+        /* constrain width to middle of the screen */
         width: min(var(--content-mob), var(--content-cap));
-        margin-inline: auto;
       }
+      
       @media (min-width: 900px){
-        .content{
-          width: min(var(--content-w), var(--content-cap)); /* 70vw up to cap */
+        main{
+          width: min(var(--content-w), var(--content-cap)); /* ~70vw, capped */
         }
       }
 

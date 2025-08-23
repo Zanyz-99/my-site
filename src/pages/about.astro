@@ -297,7 +297,14 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
 
-    .acc-title{line-height:1.2; font:inherit}
+    /* Accordions */
+    .acc-title {
+      margin: 0; 
+      font-size: var(--h1-size);
+      font-weight: 1000;
+      letter-spacing: -0.01em;
+      line-height: calc(var(--line) - .15);
+    }
 
     /* Panel: indent by the icon+gap so body aligns with title text column */
     .acc-panel{

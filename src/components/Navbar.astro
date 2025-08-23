@@ -96,35 +96,21 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
   .logo-link{ display:inline-flex; align-items:center; }
   .logo{ height:32px; width:auto; display:block; }
 
-  .menu {
-    list-style: none;
-    margin: 0;
-    padding: .2rem;
-    display: flex;
-    gap: .5rem;
-    align-items: center;
-    justify-self: center;
+  .menu{
+    list-style:none; margin:0; padding:.2rem;
+    display:flex; gap:.5rem; align-items:center; justify-self:center;
   }
-
-  .link {
-    font-family: var(--font-title);  /* match heading font */
-    font-weight: 700;                /* bold, consistent with h1 */
-    font-size: var(--h1-size);       /* same size as h1 */
-    line-height: calc(var(--line) - .15);
-    color: var(--muted);
-    padding: .5rem 1rem;
-    border-radius: 999px;
-    border: 1px solid transparent;
-    text-decoration: none;
+  .link{
+    font-weight:700; color:var(--muted);
+    padding:.5rem 1rem; border-radius:999px; border:1px solid transparent;
+    text-decoration:none;
   }
-
-  .link:hover { background: var(--hover); color: var(--text); }
-  .link.active {
+  .link:hover{ background:var(--hover); color:var(--text); }
+  .link.active{
     background: var(--pill-bg);
     border: none;
     color: var(--pill-text);
   }
-
 
   .toggle{
     justify-self:end;

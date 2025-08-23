@@ -3,46 +3,61 @@ import Layout from "../layouts/Layout.astro";
 ---
 <Layout title="Home — Zach Scholz" description="Navy Veteran">
   <section class="content home-wrap">
-    <!-- Use the SAME structure/classes as About's header -->
-    <div class="acc-summary acc-summary--static" aria-hidden="true">
+    <!-- IDENTICAL structure to About's header row -->
+    <button class="acc-summary acc-summary--home" type="button" disabled aria-hidden="true" tabindex="-1">
       <span class="acc-toggle" aria-hidden="true"></span>
-      <span class="acc-title home-title">Zach Scholz</span>
-    </div>
+      <span class="acc-title">Zach Scholz</span>
+    </button>
 
-    <!-- Subtitle aligned to start at the same x-position -->
-    <p class="home-sub">Navy Veteran</p>
+    <!-- Subtitle aligned to the same text start as the title -->
+    <p class="home-sub indent-acc">Navy Veteran</p>
   </section>
 
   <style>
-    /* Page spacing */
+    :root{
+      /* Keep these in one place so About and Home stay in lockstep */
+      --acc-toggle-w: 1.25rem;  /* width of the toggle column */
+      --acc-gap: 0.6rem;        /* gap between toggle and title */
+    }
+
     .home-wrap { width: 100%; margin: 0 auto; padding: 3rem 0; }
 
-    /* Reuse your About header layout exactly */
+    /* COPY of your About header styles (with UA resets for buttons) */
     .acc-summary {
+      appearance: none;
+      -webkit-appearance: none;
+      box-sizing: border-box;
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 0.6rem;            /* <-- same as About */
-      padding: 6px 0;         /* <-- same as About (vertical only) */
+      gap: var(--acc-gap);
+      padding: 6px 0;
+      cursor: pointer;
       user-select: none;
+      color: var(--muted);
       background: none;
       border: 0;
+      margin: 0;
+    }
+    .acc-summary--home {
+      /* Make it non-interactive and remove pointer cursor */
+      pointer-events: none;
+      cursor: default;
     }
 
     .acc-toggle {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 1.25rem;         /* <-- same as About */
+      width: var(--acc-toggle-w);
       font-size: calc(var(--h1-size) * 0.8);
       font-weight: 1000;
       line-height: 1;
       color: var(--text);
       text-align: center;
     }
-
-    /* Hide the +/– glyph on the Home page, keep the exact width */
-    .acc-summary--static .acc-toggle::before { content: ''; }
+    /* Hide glyph on Home but keep the exact box width */
+    .acc-summary--home .acc-toggle::before { content: ''; }
 
     .acc-title {
       margin: 0;
@@ -53,15 +68,13 @@ import Layout from "../layouts/Layout.astro";
       color: var(--text);
     }
 
-    /* Style hook if you want to tweak Home title separately later */
-    .home-title { }
+    /* Subtitle left edge = toggle width + gap (same as title start) */
+    .indent-acc { margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
 
-    /* Subtitle left edge = toggle width + gap (matches About header start) */
     .home-sub {
       margin: .25rem 0 0;
       color: var(--muted);
       font-size: clamp(16px, 2.2vw, 18px);
-      margin-left: calc(1.25rem + 0.6rem);
     }
   </style>
 </Layout>

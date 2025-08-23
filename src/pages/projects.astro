@@ -273,20 +273,23 @@ const projects: Project[] = [
 
     .about-row {
       display: flex;
-      align-items: flex-start;
+      align-items: stretch; /* equal height */
       gap: 1rem;
       margin: .1rem 0 .25rem 0;
     }
     .about-logo {
-      width: 64px;
-      height: 64px;
       border-radius: 12px;
-      flex-shrink: 0;
+      flex: 0 0 auto;
       display: block;
+      object-fit: contain;
+      height: 100%;   /* stretch to match content height */
+      width: auto;    /* preserve aspect ratio */
     }
     .about-content {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
       gap: .5rem;
     }
     .about-text {
@@ -305,11 +308,14 @@ const projects: Project[] = [
 
     .links{ margin-top:.25rem }
 
-    /* Mobile responsive tweak */
     @media (max-width: 600px) {
       .about-row {
         flex-direction: column;
         align-items: flex-start;
+      }
+      .about-logo {
+        width: 64px;
+        height: 64px;
       }
     }
   </style>

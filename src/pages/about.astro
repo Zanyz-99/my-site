@@ -19,18 +19,15 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
   <!-- Use shared width/alignment via .content -->
   <section class="content about-wrap">
-
-    <!-- Medium spacer so the accordion doesn't start at the very top -->
     <div class="spacer-md" aria-hidden="true"></div>
 
-    <!-- Accordion (custom dropdowns, one open at a time) -->
+    <!-- Accordion -->
     <section class="accordion" aria-label="About sections">
-
       <!-- ABOUT ME -->
       <div class="acc" id="acc-about">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
           <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title">About Me</span>
+          <h2 class="acc-title">About Me</h2>
         </button>
         <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
           <div class="block">
@@ -61,7 +58,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       <div class="acc" id="acc-connect">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
           <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title">Connect</span>
+          <h2 class="acc-title">Connect</h2>
         </button>
         <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
           <ul class="stack gray-hover" aria-label="Connect links">
@@ -72,11 +69,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
         </div>
       </div>
 
-      <!-- WORK (logos removed) -->
+      <!-- WORK -->
       <div class="acc" id="acc-work">
         <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
           <span class="acc-toggle" aria-hidden="true"></span>
-          <span class="acc-title">Work</span>
+          <h2 class="acc-title">Work</h2>
         </button>
         <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
           <div class="list dim-others" aria-label="Work history">
@@ -132,7 +129,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     </section>
   </section>
 
-  <!-- Accordion logic: pin top + one-open + animated panels -->
+  <!-- Accordion logic: one-open + animated panels (no auto-scroll) -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
@@ -141,21 +138,16 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
 
-    function getPinOffset() {
-      const fixedHeader = document.querySelector('.topbar'); // adjust if you have a fixed header
-      return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
-    }
+    // No-op: prevent auto scroll/pinning
+    function pinAccordionTop(){}
 
-    function pinAccordionTop(){ /* no-op: stop auto scroll */ }
-
-    // Smooth open/close helpers
     function openPanel(panel) {
       panel.hidden = false;
       panel.style.display = 'block';
-      const startHeight = panel.offsetHeight; // likely 0
+      const startHeight = panel.offsetHeight;
       const target = panel.scrollHeight;
       panel.style.height = startHeight + 'px';
-      panel.getBoundingClientRect(); // force reflow
+      panel.getBoundingClientRect();
       panel.style.height = target + 'px';
       panel.classList.add('animating');
       panel.addEventListener('transitionend', function done(ev){
@@ -199,11 +191,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
     function activate(i, evt) {
       if (evt) evt.preventDefault();
-      const next = (openIndex === i) ? -1 : i; // toggle same to close
+      const next = (openIndex === i) ? -1 : i; // toggle to close if clicking the same
       setOpen(next);
+      pinAccordionTop();
     }
 
-    // Wire up interactions
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => activate(i, e));
       btn.addEventListener('keydown', (e) => {
@@ -236,19 +228,19 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
         if (!r.ok) throw new Error(String(r.status));
         return r.json();
       };
-  
+
       let data;
       try { data = await load(sameOrigin); }
       catch { try { data = await load(pagesOrigin); } catch {} }
       if (!data) return;
-  
+
       const img = document.getElementById('strava-img');
       const statsEl = document.getElementById('strava-stats');
       const link = document.getElementById('strava-card');
-  
+
       if (data.photoUrl && img) img.src = data.photoUrl;
       if (data.activityUrl && link) link.href = data.activityUrl;
-  
+
       const s = data.stats;
       if (statsEl && s) {
         if (s.isRun && s.distance && s.pace && s.duration) {
@@ -266,58 +258,59 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     })();
   </script>
 
-
   <style>
-    /* Left-aligned content inside the shared column */
+    /* Wrapper */
     .about-wrap{
       display:grid;
       gap:12px;
       justify-items:start;
       align-items:start;
-      /* let .content own the width/centering; no extra centering here */
     }
 
-    /* Medium spacer above the accordion */
     .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
 
-    /* Accordion container — full width of .content and no extra margins */
+    /* Accordion container */
     .accordion{
       display:grid; gap:12px; justify-items:start;
       width:100%;
-      margin:0; /* normalize */
+      margin:0;
       overflow-anchor: none;
     }
     .acc{ width:100%; background:transparent; }
 
-    /* Section summary (button) */
+    /* Summary button with + / title grid */
     .acc-summary{
       width:100%;
       display:grid;
       grid-template-columns: 1.25rem 1fr;
-      align-items:start;
-      justify-content:start;
+      align-items:start;          /* aligns + with first line of title */
       gap:0.6rem;
       padding:6px 0;
       cursor:pointer; user-select:none;
-      color:var(--text); font-weight:700;
-      text-align:left; background:none; border:0;
-      font-size: inherit;
+      color:var(--text);
+      background:none; border:0; text-align:left;
+      font-size: var(--h2-size);  /* match site h2 size */
+      line-height: calc(var(--line) - .1);
+      font-weight: 750;           /* match your Layout h2 weight */
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-    
+
     .acc-toggle{
       width:1.25rem;
       text-align:center;
-      font:inherit;
       line-height:1;
       margin-top:0.1em;
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-    
-    .acc-title{line-height:1.2; font:inherit}
 
-    /* Animated panels: align with title text (not icon) */
+    /* h2 inside the button uses global typography; remove default margins */
+    .acc-title{
+      margin:0;                  /* kill default h2 margins inside the button */
+      letter-spacing:-0.01em;    /* optional: mirrors your h1 letter-spacing vibe */
+    }
+
+    /* Panels: only muted color; let global <p> sizing/line-height apply */
     .acc-panel{
       padding-left: calc(1.25rem + 0.6rem);
       margin:0;
@@ -326,7 +319,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       overflow:hidden;
       overflow-anchor:none;
       transition: height 220ms ease;
-      color:var(--muted);
+      color:var(--muted);        /* panels use muted tone */
     }
 
     /* Lists and rows */
@@ -335,7 +328,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
 
-    /* Grey-out container */
     .gray-hover:hover .hoverable {
       filter: grayscale(1) brightness(.8);
       opacity: .6;
@@ -355,12 +347,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .row{text-decoration:none;color:inherit}
     .row-line{display:flex;align-items:center;gap:.85rem}
     .row-line.no-logo{ gap: 0; }
-    .logo{width:56px;height:auto;display:block;flex:0 0 56px;border-radius:0}
-    .logo.ph{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg, color-mix(in oklab, var(--border) 30%, transparent), transparent)}
     .meta{display:grid;gap:.15rem}
     .title{line-height:1.15}
     .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
-    .dates{margin-left:auto;white-space:nowrap;color:var(--muted)}
 
     /* Photos 2×2 grid */
     .photos4 { 
@@ -382,8 +371,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       border-radius: 0 0 25% 0;
       display: block;
       box-shadow: 0 8px 24px rgba(0,0,0,.18);
-
-      /* B/W by default, color on hover */
       filter: grayscale(1);
       transition: filter 200ms ease;
     }
@@ -409,9 +396,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     /* Hide Strava text overlays on small screens */
     @media (max-width: 640px) {
       .strava-cta,
-      .stats {
-        display: none !important;
-      }
+      .stats { display: none !important; }
     }
 
     /* Hovering Strava dims the other photos */

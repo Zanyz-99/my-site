@@ -266,9 +266,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       justify-items:start;
       align-items:start;
     }
-
+  
     .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
-
+  
     /* Accordion container */
     .accordion{
       display:grid; gap:12px; justify-items:start;
@@ -277,7 +277,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       overflow-anchor: none;
     }
     .acc{ width:100%; background:transparent; }
-
+  
     /* Summary button with + / title grid */
     .acc-summary{
       width:100%;
@@ -289,12 +289,13 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       cursor:pointer; user-select:none;
       color:var(--text);
       background:none; border:0; text-align:left;
-      font-size: var(--h1-size);  /* match site h1 size */
-      line-height: calc(var(--line) - .1);
-      font-weight: 750;           /* match your Layout h1 weight */
     }
-    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
-
+    .acc-summary:focus-visible{
+      outline:2px solid var(--border);
+      outline-offset:4px;
+      border-radius:8px;
+    }
+  
     .acc-toggle{
       width:1.25rem;
       text-align:center;
@@ -303,13 +304,10 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-
-    /* h1 inside the button uses global typography; remove default margins */
-    .acc-title{
-      margin:0;                  /* kill default h1 margins inside the button */
-      letter-spacing:-0.01em;    /* optional: mirrors your h1 letter-spacing vibe */
-    }
-
+  
+    /* Use global h1 typography; just strip margins inside the button */
+    .acc-title{ margin:0; }
+  
     /* Panels: only muted color; let global <p> sizing/line-height apply */
     .acc-panel{
       padding-left: calc(1.25rem + 0.6rem);
@@ -319,15 +317,15 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       overflow:hidden;
       overflow-anchor:none;
       transition: height 220ms ease;
-      color:var(--muted);        /* panels use muted tone */
+      color:var(--muted);
     }
-
+  
     /* Lists and rows */
     .block, .stack, .list, .photos4{ width:100%; margin:6px 0 0; }
-
+  
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
-
+  
     .gray-hover:hover .hoverable {
       filter: grayscale(1) brightness(.8);
       opacity: .6;
@@ -337,11 +335,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       filter: none;
       opacity: 1;
     }
-
+  
     .accordion a,
     .accordion a:visited{ color:inherit; text-decoration:none; }
     .accordion a:hover{ text-decoration:underline; }
-
+  
     /* Work/Projects rows */
     .list{display:grid;gap:10px}
     .row{text-decoration:none;color:inherit}
@@ -350,7 +348,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .meta{display:grid;gap:.15rem}
     .title{line-height:1.15}
     .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
-
+  
     /* Photos 2×2 grid */
     .photos4 { 
       display: grid; 
@@ -375,7 +373,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       transition: filter 200ms ease;
     }
     .photos4 img:hover { filter: grayscale(0); }
-
+  
     /* Strava tile overlay positions */
     .strava{position:relative;text-decoration:none;color:inherit}
     .strava-cta{
@@ -392,16 +390,17 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .stats .dot{opacity:.6}
     .stats .metric{white-space:nowrap}
-
+  
     /* Hide Strava text overlays on small screens */
     @media (max-width: 640px) {
       .strava-cta,
       .stats { display: none !important; }
     }
-
+  
     /* Hovering Strava dims the other photos */
     .photos4.grey-others .ph:not(.strava) img{
       filter: grayscale(1) brightness(.75);
     }
   </style>
+
 </Layout>

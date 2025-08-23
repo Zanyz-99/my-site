@@ -7,7 +7,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 ---
 <Layout title="About | Zach Scholz" description="Background, focus areas, and interests.">
   <Fragment slot="head">
-    <!-- Preload above-the-fold images -->
+    <!-- Preload above-the-fold or “first-open” images -->
     <link rel="preload" as="image" href="/photos/about-1.webp" imagesrcset="/photos/about-1.jpg 1x, /photos/about-1.webp 1x" fetchpriority="high">
     <link rel="preload" as="image" href="/photos/about-2.webp" imagesrcset="/photos/about-2.jpg 1x, /photos/about-2.webp 1x">
     <link rel="preload" as="image" href="/photos/about-3.webp" imagesrcset="/photos/about-3.jpg 1x, /photos/about-3.webp 1x">
@@ -17,35 +17,35 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     <link rel="dns-prefetch" href="//images.strava.com">
   </Fragment>
 
-  <section class="content about-wrap" style="display:grid;gap:12px;justify-items:start;align-items:start;">
+  <!-- Use shared width/alignment via .content -->
+  <section class="content about-wrap">
     <div class="spacer-md" aria-hidden="true"></div>
 
+    <!-- Accordion -->
     <section class="accordion" aria-label="About sections">
       <!-- ABOUT ME -->
       <div class="acc" id="acc-about">
-        <div class="acc-header">
-          <button class="acc-btn" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
-            <span class="acc-toggle" aria-hidden="true"></span>
-            <span class="sr-only" style="position:absolute;left:-10000px;">Toggle About Me</span>
-          </button>
-          <h1 class="acc-title" id="title-about">About Me</h1>
-        </div>
-
-        <div class="acc-panel" id="panel-about" role="region" aria-labelledby="title-about">
-          <p>
-            Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
-            outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain‑aware travel‑time, and lean automations for
-            finance ops. Outside of work, I’m usually running or exploring trails.
-          </p>
+        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-about" id="btn-about">
+          <span class="acc-toggle" aria-hidden="true"></span>
+          <h1 class="acc-title">About Me</h1>
+        </button>
+        <div class="acc-panel" id="panel-about" role="region" aria-labelledby="btn-about">
+          <div class="block">
+            <p>
+              Naval Officer turned builder — optimization, data pipelines, and mapping. I design pragmatic tools with measurable
+              outcomes, ship quickly, and iterate. Interests: vehicle routing, terrain-aware travel-time, and lean automations for
+              finance ops. Outside of work, I’m usually running or exploring trails.
+            </p>
+          </div>
 
           <!-- Photos 2×2 -->
-          <div class="photos4" id="about-photos" style="display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:16px;margin:12px 0 0;">
+          <div class="photos4" id="about-photos">
             <figure class="ph"><img src="/photos/about-1.jpg" alt="Trail photo 1" loading="lazy" /></figure>
             <figure class="ph"><img src="/photos/about-2.jpg" alt="Trail photo 2" loading="lazy" /></figure>
             <figure class="ph"><img src="/photos/about-3.jpg" alt="Build / ship / iterate" loading="lazy" /></figure>
 
             <!-- Dynamic Strava tile -->
-            <a class="ph strava" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity" style="position:relative;text-decoration:none;color:inherit">
+            <a class="ph strava" id="strava-card" href={STRAVA_PROFILE} target="_blank" rel="noopener" aria-label="Latest Strava activity">
               <img id="strava-img" src="/photos/about-4.png" alt="Latest Strava activity" loading="lazy" />
               <span class="strava-cta">View on Strava ↗</span>
               <div class="stats" id="strava-stats" hidden></div>
@@ -56,16 +56,11 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
       <!-- CONNECT -->
       <div class="acc" id="acc-connect">
-        <div class="acc-header">
-          <button class="acc-btn" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
-            <span class="acc-toggle" aria-hidden="true"></span>
-            <span class="sr-only" style="position:absolute;left:-10000px;">Toggle Connect</span>
-          </button>
-          <h1 class="acc-title" id="title-connect">Connect</h1>
-        </div>
-
-        <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="title-connect">
-          <p>Find me on these platforms:</p>
+        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-connect" id="btn-connect">
+          <span class="acc-toggle" aria-hidden="true"></span>
+          <h1 class="acc-title">Connect</h1>
+        </button>
+        <div class="acc-panel" id="panel-connect" role="region" aria-labelledby="btn-connect">
           <ul class="stack gray-hover" aria-label="Connect links">
             <li class="stack-item hoverable"><a href="https://www.linkedin.com/in/zachary-scholz/" target="_blank" rel="noopener">LinkedIn</a></li>
             <li class="stack-item hoverable"><a href="mailto:ztscholz86@gmail.com">Email</a></li>
@@ -76,20 +71,15 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
 
       <!-- WORK -->
       <div class="acc" id="acc-work">
-        <div class="acc-header">
-          <button class="acc-btn" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
-            <span class="acc-toggle" aria-hidden="true"></span>
-            <span class="sr-only" style="position:absolute;left:-10000px;">Toggle Work</span>
-          </button>
-          <h1 class="acc-title" id="title-work">Work</h1>
-        </div>
-
-        <div class="acc-panel" id="panel-work" role="region" aria-labelledby="title-work">
-          <p>Selected roles:</p>
-          <div class="list dim-others" aria-label="Work history" style="display:grid;gap:10px">
+        <button class="acc-summary" type="button" aria-expanded="false" aria-controls="panel-work" id="btn-work">
+          <span class="acc-toggle" aria-hidden="true"></span>
+          <h1 class="acc-title">Work</h1>
+        </button>
+        <div class="acc-panel" id="panel-work" role="region" aria-labelledby="btn-work">
+          <div class="list dim-others" aria-label="Work history">
             <div class="row hoverable">
-              <div class="row-line no-logo" style="display:flex;align-items:center;gap:.85rem">
-                <div class="meta" style="display:grid;gap:.15rem">
+              <div class="row-line no-logo">
+                <div class="meta">
                   <div class="title">Foreign Affairs Officer</div>
                   <div class="sub">U.S. Naval Forces Europe, U.S. Naval Forces Africa · U.S. Navy</div>
                 </div>
@@ -97,35 +87,35 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
             </div>
 
             <div class="row hoverable">
-              <div class="row-line no-logo" style="display:flex;align-items:center;gap:.85rem">
-                <div class="meta" style="display:grid;gap:.15rem">
+              <div class="row-line no-logo">
+                <div class="meta">
                   <div class="title">Inactivation Coordinator</div>
-                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+                  <div class="sub">USS Chicago (SSN-721) · U.S. Navy</div>
                 </div>
               </div>
             </div>
 
             <div class="row hoverable">
-              <div class="row-line no-logo" style="display:flex;align-items:center;gap:.85rem">
-                <div class="meta" style="display:grid;gap:.15rem">
+              <div class="row-line no-logo">
+                <div class="meta">
                   <div class="title">Assistant Operations Officer</div>
-                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+                  <div class="sub">USS Chicago (SSN-721) · U.S. Navy</div>
                 </div>
               </div>
             </div>
 
             <div class="row hoverable">
-              <div class="row-line no-logo" style="display:flex;align-items:center;gap:.85rem">
-                <div class="meta" style="display:grid;gap:.15rem">
+              <div class="row-line no-logo">
+                <div class="meta">
                   <div class="title">Reactor Control Assistant</div>
-                  <div class="sub">USS Chicago (SSN‑721) · U.S. Navy</div>
+                  <div class="sub">USS Chicago (SSN-721) · U.S. Navy</div>
                 </div>
               </div>
             </div>
 
             <div class="row hoverable">
-              <div class="row-line no-logo" style="display:flex;align-items:center;gap:.85rem">
-                <div class="meta" style="display:grid;gap:.15rem">
+              <div class="row-line no-logo">
+                <div class="meta">
                   <div class="title">Graduate Student</div>
                   <div class="sub">Naval Postrgraduate School · U.S. Navy</div>
                 </div>
@@ -139,76 +129,85 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     </section>
   </section>
 
-  <!-- Accordion logic -->
+  <!-- Accordion logic: one-open + animated panels (no auto-scroll) -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
 
-    const accs = Array.from(accRoot.querySelectorAll('.acc'));
+    const items   = Array.from(accRoot.querySelectorAll('.acc'));
+    const buttons = items.map(i => i.querySelector('.acc-summary'));
+    const panels  = items.map(i => i.querySelector('.acc-panel'));
 
-    function openPanel(panel, btn){
+    // No-op: prevent auto scroll/pinning
+    function pinAccordionTop(){}
+
+    function openPanel(panel) {
+      panel.hidden = false;
       panel.style.display = 'block';
-      const start = panel.offsetHeight || 0; // should be 0
+      const startHeight = panel.offsetHeight;
       const target = panel.scrollHeight;
-      panel.style.height = start + 'px';
+      panel.style.height = startHeight + 'px';
       panel.getBoundingClientRect();
       panel.style.height = target + 'px';
-      btn.setAttribute('aria-expanded', 'true');
-
-      const onEnd = (ev) => {
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
         if (ev.propertyName !== 'height') return;
-        panel.removeEventListener('transitionend', onEnd);
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
         panel.style.height = 'auto';
-      };
-      panel.addEventListener('transitionend', onEnd);
+      });
     }
 
-    function closePanel(panel, btn){
+    function closePanel(panel) {
       const current = panel.offsetHeight;
       panel.style.height = current + 'px';
       panel.getBoundingClientRect();
       panel.style.height = '0px';
-
-      const onEnd = (ev) => {
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
         if (ev.propertyName !== 'height') return;
-        panel.removeEventListener('transitionend', onEnd);
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
         panel.style.display = 'none';
-        btn.setAttribute('aria-expanded', 'false');
-      };
-      panel.addEventListener('transitionend', onEnd);
-    }
-
-    function toggle(acc){
-      const btn = acc.querySelector('.acc-btn');
-      const panel = acc.querySelector('.acc-panel');
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      if (expanded){
-        closePanel(panel, btn);
-      } else {
-        openPanel(panel, btn);
-      }
-    }
-
-    accs.forEach(acc => {
-      const btn = acc.querySelector('.acc-btn');
-      const title = acc.querySelector('.acc-title');
-      const panel = acc.querySelector('.acc-panel');
-
-      // start closed
-      btn.setAttribute('aria-expanded', 'false');
-      panel.style.display = 'none';
-      panel.style.height = '0px';
-
-      btn.addEventListener('click', () => toggle(acc));
-      btn.addEventListener('keydown', (e) => {
-        if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggle(acc); }
+        panel.hidden = true;
       });
+    }
 
-      // Title click also toggles (but title stays semantic <h1>, not a button)
-      title.addEventListener('click', () => toggle(acc));
+    let openIndex = -1;
+
+    function setOpen(idx) {
+      items.forEach((_, i) => {
+        const shouldOpen = i === idx;
+        buttons[i].setAttribute('aria-expanded', String(shouldOpen));
+        const p = panels[i];
+        if (shouldOpen) {
+          if (p.hidden || p.style.display === 'none' || p.style.height === '0px') openPanel(p);
+        } else {
+          if (!p.hidden && p.style.display !== 'none' && p.style.height !== '0px') closePanel(p);
+        }
+      });
+      openIndex = idx;
+    }
+
+    function activate(i, evt) {
+      if (evt) evt.preventDefault();
+      const next = (openIndex === i) ? -1 : i; // toggle to close if clicking the same
+      setOpen(next);
+      pinAccordionTop();
+    }
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', (e) => activate(i, e));
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') activate(i, e);
+      });
     });
 
-    // Strava hover gray-out
+    // Initialize collapsed
+    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
+    openIndex = -1;
+
+    // Strava hover -> gray out other photos (JS toggles .grey-others for wide support)
     const photosWrap = document.getElementById('about-photos');
     const stravaCard = document.getElementById('strava-card');
     if (photosWrap && stravaCard) {
@@ -260,30 +259,141 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
   </script>
 
   <style>
-    /* Page-specific visuals */
+    /* Wrapper */
+    .about-wrap{
+      display:grid;
+      gap:12px;
+      justify-items:start;
+      align-items:start;
+    }
+  
+    .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
+  
+    /* Accordion */
+    .accordion{
+      display:grid; gap:12px; justify-items:start;
+      width:100%;
+      margin:0;
+      overflow-anchor: none;
+    }
+    .acc{ width:100%; background:transparent; }
+  
+    /* Summary button (+ and title) */
+    .acc-summary{
+      /* Make the button inherit *all* typography to match global h1/h2 */
+      font: inherit;
+      color: var(--text);
+  
+      appearance:none; -webkit-appearance:none; /* neutralize UA styles */
+      width:100%;
+      display:grid;
+      grid-template-columns: 1.25rem 1fr;
+      align-items:start;      /* aligns + with first line of title */
+      gap:0.6rem;
+      padding:6px 0;
+      cursor:pointer; user-select:none;
+      background:none; border:0; text-align:left;
+    }
+    .acc-summary:focus-visible{
+      outline:2px solid var(--border);
+      outline-offset:4px;
+      border-radius:8px;
+    }
+  
+    .acc-toggle{
+      width:1.25rem;
+      text-align:center;
+      line-height:1;
+      margin-top:0.1em;
+      font: inherit;          /* match text metrics for the + */
+    }
+    .acc-toggle::before{content:'+'}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+  
+    /* Let global h2/h1 styles apply; just remove default margins */
+    .acc-title{ margin:0; }
+  
+    /* Panels: only muted color; let global <p> sizing/line-height apply */
+    .acc-panel{
+      padding-left: calc(1.25rem + 0.6rem);
+      margin:0;
+      display:block;
+      height:0;
+      overflow:hidden;
+      overflow-anchor:none;
+      transition: height 220ms ease;
+      color:var(--muted);
+    }
+  
+    /* Lists and rows */
+    .block, .stack, .list, .photos4{ width:100%; margin:6px 0 0; }
+    .stack{list-style:none;padding:0}
+    .stack-item{padding:8px 0}
+  
+    .gray-hover:hover .hoverable {
+      filter: grayscale(1) brightness(.8);
+      opacity: .6;
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+    .gray-hover .hoverable:hover { filter: none; opacity: 1; }
+  
+    .accordion a, .accordion a:visited{ color:inherit; text-decoration:none; }
+    .accordion a:hover{ text-decoration:underline; }
+  
+    /* Work rows */
+    .list{display:grid;gap:10px}
+    .row{text-decoration:none;color:inherit}
+    .row-line{display:flex;align-items:center;gap:.85rem}
+    .row-line.no-logo{ gap: 0; }
+    .meta{display:grid;gap:.15rem}
+    .title{line-height:1.15}
+    .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
+  
+    /* Photos 2×2 */
+    .photos4{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      grid-template-rows:repeat(2,1fr);
+      gap:16px;
+    }
     .photos4 .ph{ margin:0; padding:0; display:block; position:relative; }
     .photos4 img{
-      width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:0 0 25% 0; display:block;
-      box-shadow:0 8px 24px rgba(0,0,0,.18); filter:grayscale(1); transition:filter 200ms ease;
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      border-radius:0 0 25% 0;
+      display:block;
+      box-shadow:0 8px 24px rgba(0,0,0,.18);
+      filter:grayscale(1);
+      transition:filter 200ms ease;
     }
     .photos4 img:hover{ filter:grayscale(0); }
-
+  
+    /* Strava overlays */
+    .strava{position:relative;text-decoration:none;color:inherit}
     .strava-cta{
-      position:absolute;left:10px;bottom:10px;color:#fff;font-weight:700;background:rgba(0,0,0,.35);padding:.25rem .5rem;border-radius:8px;
+      position:absolute;left:10px;bottom:10px;
+      color:#fff;font-weight:700;
+      background:rgba(0,0,0,.35);padding:.25rem .5rem;border-radius:8px;
     }
     .stats{
-      position:absolute;right:10px;top:10px;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;background:rgba(0,0,0,.55);color:#fff;font-weight:600;
-      padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);font-size:14px; line-height:1;
+      position:absolute;right:10px;top:10px;
+      display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
+      background:rgba(0,0,0,.55);color:#fff;font-weight:600;
+      padding:.4rem .6rem;border-radius:10px;backdrop-filter:blur(2px);
+      font-size:14px; line-height:1;
     }
     .stats .dot{opacity:.6}
     .stats .metric{white-space:nowrap}
-
+  
     @media (max-width: 640px){
       .strava-cta, .stats{ display:none !important; }
     }
-
-    .photos4.grey-others .ph:not(.strava) img{ filter: grayscale(1) brightness(.75); }
-    .title{line-height:1.15}
-    .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
+  
+    .photos4.grey-others .ph:not(.strava) img{
+      filter: grayscale(1) brightness(.75);
+    }
   </style>
+
+
 </Layout>

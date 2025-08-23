@@ -146,23 +146,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
     }
 
-    function pinAccordionTop({ settle = true } = {}) {
-      const targetTop = getPinOffset();
-      let tries = 0;
-      let last = null;
-
-      const step = () => {
-        const nowTop = accRoot.getBoundingClientRect().top;
-        const delta  = nowTop - targetTop;
-        if (delta) window.scrollBy({ top: delta, left: 0 });
-
-        if (!settle) return;
-        if (last !== null && Math.abs(nowTop - last) < 0.25) return;
-        last = nowTop;
-        if (++tries < 16) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }
+    function pinAccordionTop(){ /* no-op: stop auto scroll */ }
 
     // Smooth open/close helpers
     function openPanel(panel) {
@@ -230,20 +214,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     // Initialize collapsed
     panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
     openIndex = -1;
-
-    // Re-pin on image loads/resizes while open
-    const ro = new ResizeObserver(() => {
-      if (openIndex !== -1) pinAccordionTop({ settle: false });
-    });
-    ro.observe(accRoot);
-
-    accRoot.querySelectorAll('img').forEach(img => {
-      if (!img.complete) {
-        img.addEventListener('load', () => {
-          if (openIndex !== -1) pinAccordionTop({ settle: false });
-        });
-      }
-    });
 
     // Strava hover -> gray out other photos (JS toggles .grey-others for wide support)
     const photosWrap = document.getElementById('about-photos');
@@ -315,6 +285,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       display:grid; gap:12px; justify-items:start;
       width:100%;
       margin:0; /* normalize */
+      overflow-anchor: none;
     }
     .acc{ width:100%; background:transparent; }
 

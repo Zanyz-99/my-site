@@ -82,3 +82,12 @@ a:hover{ text-decoration:underline; }
   border-radius:999px; padding:.5rem .6rem; cursor:pointer;
 }
 .theme-toggle:hover{ background:var(--hover); }
+
+.h1-style {
+  font-size: var(--h1-size);
+  font-weight: 1000;
+  letter-spacing: -0.01em;
+  line-height: calc(var(--line) - .15);
+  margin: 0 0 .25rem;
+  color: var(--text);
+}

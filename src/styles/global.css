@@ -53,7 +53,7 @@ a:hover{ text-decoration:underline; }
 }
 
 .nav-left{ display:flex; align-items:center; gap:.5rem; }
-.logo{ height:32px; width:32px; border-radius:999px; display:block; }
+.logo{ height:32px; width:32px; display:block; }
 
 .menu{
   display:flex; gap:1rem; align-items:center; list-style:none; margin:0; padding:.2rem;
@@ -82,3 +82,33 @@ a:hover{ text-decoration:underline; }
   border-radius:999px; padding:.5rem .6rem; cursor:pointer;
 }
 .theme-toggle:hover{ background:var(--hover); }
+
+.h1-style {
+  font-size: var(--h1-size);
+  font-weight: 1000;
+  letter-spacing: -0.01em;
+  line-height: calc(var(--line) - .15);
+  margin: 0 0 .25rem;
+  color: var(--text);
+}
+
+/* Reset then re-apply exact H1 styles */
+.acc-title {
+  all: unset;            /* wipe button inheritance */
+  display: block;        /* match <h1> block behavior */
+  font-family: inherit;  /* <- put the site font back! */
+}
+
+h1,
+.acc-title {
+  margin: 0 0 .25rem;
+  font-size: var(--h1-size);
+  font-weight: 1000;     /* some UAs clamp to 900; change to 900 if you prefer */
+  letter-spacing: -0.01em;
+  line-height: calc(var(--line) - .15);
+  color: var(--text);
+}
+
+/* Keep the button from overriding */
+.acc-summary { font: inherit; color: inherit; }
+.acc-toggle  { font-size: var(--body-size); color: var(--text); }

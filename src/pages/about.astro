@@ -217,7 +217,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       if (evt) evt.preventDefault();
       const next = (openIndex === i) ? -1 : i; // toggle same to close
       setOpen(next);
-      pinAccordionTop({ settle: true });
     }
 
     // Wire up interactions

@@ -181,7 +181,7 @@ const papers = [
     }
     .acc{ width:100%; background:transparent; }
 
-    /* Header: grid so '+' aligns with the first line of a wrapped title */
+    /* Header */
     .acc-summary{
       width:100%;
       display:grid;
@@ -208,16 +208,7 @@ const papers = [
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
 
-    .acc-title {
-      margin: 0; 
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      color: var(--text);
-    }
-
-    /* Panel: indent by the icon+gap so body aligns with title text column */
+    /* Panel */
     .acc-panel{
       padding-left: calc(1.25rem + 0.6rem);
       margin:0;
@@ -240,15 +231,8 @@ const papers = [
     .accordion a:visited{ color:inherit; text-decoration:none; }
     .accordion a:hover{ text-decoration:underline; }
 
-    .gray-hover:hover .hoverable {
-      filter: grayscale(1) brightness(.88);
-      opacity: .7;
-      transition: filter 160ms ease, opacity 160ms ease;
-    }
-    .gray-hover .hoverable:hover {
-      filter: none;
-      opacity: 1;
-    }
+    .gray-hover:hover .hoverable { filter: grayscale(1) brightness(.88); opacity: .7; transition: filter 160ms ease, opacity 160ms ease; }
+    .gray-hover .hoverable:hover { filter: none; opacity: 1; }
 
     .links{ margin-top:.25rem }
   </style>

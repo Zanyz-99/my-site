@@ -14,11 +14,11 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     <link rel="icon" type="image/png" href="/icons/logo dark.png" />
     <link rel="apple-touch-icon" href="/icons/logo dark.png" />
 
-    <!-- Page-level additions (e.g., preloads) -->
+    <!-- Page head slot (preloads, etc.) -->
     <slot name="head" />
 
     <style>
-      /* ===== THEME TOKENS (global) ===== */
+      /* ===== THEME TOKENS ===== */
       :root{
         --bg:#ffffff; --text:#0b0b0b; --muted:#6b6b6b;
         --card:#f6f7f8; --border:#e8e8ee;
@@ -30,7 +30,7 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         --content-cap: 1100px;
         --content-mob: 95vw;
 
-        /* Typography — single source of truth */
+        /* Typography */
         --h1-size: clamp(28px, 5vw, 40px);
         --h2-size: clamp(22px, 4vw, 28px);
         --h3-size: clamp(18px, 3.5vw, 22px);
@@ -56,18 +56,18 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         -moz-osx-font-smoothing: grayscale;
       }
 
-      /* ===== TYPOGRAPHY (normalized across pages) ===== */
+      /* ===== TYPOGRAPHY (normalized) ===== */
       h1{ font-size:var(--h1-size); margin:0 0 .25rem 0; line-height:calc(var(--line) - .15); font-weight:1000; letter-spacing:-0.01em; }
       h2{ font-size:var(--h2-size); margin:1.25rem 0 .5rem; line-height:calc(var(--line) - .1); font-weight:750; }
       h3{ font-size:var(--h3-size); margin:1rem 0 .35rem; line-height:calc(var(--line) - .05); font-weight:700; }
       p{ color:var(--muted); font-size:var(--body-size); margin:.25rem 0 0 0; line-height:var(--line); }
 
-      /* Links inherit color — underline on hover only */
+      /* Links */
       a{ color:inherit; text-decoration:none; }
       a:visited{ color:inherit; }
       a:hover{ text-decoration:underline; text-decoration-thickness:from-font; }
 
-      /* Base content area */
+      /* Base content */
       main{
         margin:0 auto;
         padding:2rem 1rem calc(var(--footer-h) + env(safe-area-inset-bottom));
@@ -78,7 +78,7 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         main{ width: min(var(--content-w), var(--content-cap)); }
       }
 
-      /* Fixed footer */
+      /* Footer */
       footer{
         position:fixed; left:0; right:0; bottom:0;
         border-top:1px solid var(--border);
@@ -90,54 +90,52 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
       }
       .foot-wrap{ max-width:1200px; margin:0 auto; padding:1rem clamp(12px, 2vw, 16px) calc(1rem + env(safe-area-inset-bottom)); }
 
-      /* ===== Accordion (shared styling) ===== */
-      .accordion{
-        display:grid; gap:12px; justify-items:start;
-        width:100%; margin:0;
-        overflow-anchor:none;
-      }
+      /* ===== Accordion (shared) ===== */
+      .accordion{ display:grid; gap:12px; justify-items:start; width:100%; margin:0; overflow-anchor:none; }
       .acc{ width:100%; background:transparent; }
 
-      /* Button uses semantic <h1> for title; keep layout tidy */
-      .acc-summary{
-        font: inherit; color: var(--text);
-        appearance:none; -webkit-appearance:none;
+      /* Header layout: icon button + H1 title */
+      .acc-header{
         width:100%;
         display:grid;
         grid-template-columns: 1.25rem 1fr;
         align-items:start;
         gap:0.6rem;
         padding:6px 0;
-        cursor:pointer; user-select:none;
-        background:none; border:0; text-align:left;
       }
-      .acc-summary:focus-visible{
+
+      .acc-btn{
+        appearance:none; -webkit-appearance:none;
+        width:1.25rem; height:1.25rem;
+        display:inline-grid; place-items:center;
+        cursor:pointer; user-select:none;
+        background:none; border:0; padding:0; margin-top:.1em;
+      }
+      .acc-btn:focus-visible{
         outline:2px solid var(--border);
         outline-offset:4px;
         border-radius:8px;
       }
+      .acc-toggle{ width:1.25rem; text-align:center; line-height:1; font:inherit; }
+      .acc-toggle::before{ content:'+'; }
+      .acc-btn[aria-expanded="true"] .acc-toggle::before{ content:'–'; }
 
-      .acc-toggle{
-        width:1.25rem; text-align:center; line-height:1; margin-top:0.1em; font: inherit;
-      }
-      .acc-toggle::before{content:'+'}
-      .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
-
-      /* Remove default h1 margin inside the button; typography still inherited */
+      /* Remove default margin on the H1 inside header row */
       .acc-title{ margin:0; }
 
+      /* Panels (animated height) */
       .acc-panel{
         padding-left: calc(1.25rem + 0.6rem);
         margin:0;
-        display:block;
-        height:0;
+        display:none;            /* hidden by default */
+        height:0;                /* animated property */
         overflow:hidden;
         overflow-anchor:none;
         transition: height 220ms ease;
         color:var(--muted);
       }
 
-      /* Simple utilities shared by pages */
+      /* Utilities */
       .content{ width:100%; margin:0 auto; }
       .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
       .stack{list-style:none;padding:0;margin:0}

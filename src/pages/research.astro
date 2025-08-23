@@ -26,37 +26,36 @@ const papers = [
 ];
 ---
 <Layout title="Research — Zach Scholz" description="Optimization, geospatial analytics, decision-support.">
-  <section class="research-wrap content" style="display:grid;gap:12px;justify-items:start;align-items:start;margin-inline:auto">
+  <section class="research-wrap content">
     <div class="spacer-md" aria-hidden="true"></div>
 
     <section class="accordion" aria-label="Research papers">
       {papers.map((p, i) => (
         <div class="acc" id={`acc-paper-${i}`}>
-          <div class="acc-header">
-            <button
-              class="acc-btn"
-              type="button"
-              aria-expanded="false"
-              aria-controls={`panel-paper-${i}`}
-              id={`btn-paper-${i}`}
-            >
-              <span class="acc-toggle" aria-hidden="true"></span>
-              <span class="sr-only" style="position:absolute;left:-10000px;">Toggle {p.title}</span>
-            </button>
-            <h1 class="acc-title" id={`title-paper-${i}`}>{p.title}</h1>
-          </div>
+          <button
+            class="acc-summary"
+            type="button"
+            aria-expanded="false"
+            aria-controls={`panel-paper-${i}`}
+            id={`btn-paper-${i}`}
+          >
+            <span class="acc-toggle" aria-hidden="true"></span>
+            <span class="acc-title">{p.title}</span>
+          </button>
 
           <div
             class="acc-panel"
             id={`panel-paper-${i}`}
             role="region"
-            aria-labelledby={`title-paper-${i}`}
+            aria-labelledby={`btn-paper-${i}`}
           >
-            <p>{p.authors}</p>
-            <p><em>{p.venue}</em></p>
-            <p class="muted">{p.summary}</p>
+            <div class="block">
+              <p>{p.authors}</p>
+              <p><em>{p.venue}</em></p>
+              <p class="muted">{p.summary}</p>
+            </div>
 
-            <ul class="stack gray-hover links" aria-label="Paper links" style="margin-top:.25rem">
+            <ul class="stack gray-hover links" aria-label="Paper links">
               <li class="stack-item hoverable">
                 <a href={encodeURI(p.pdf)} target="_blank" rel="noopener">PDF</a>
               </li>
@@ -70,49 +69,179 @@ const papers = [
     </section>
   </section>
 
-  <!-- Accordion JS -->
+  <!-- Accordion JS: same as About/Projects -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
 
-    const accs = Array.from(accRoot.querySelectorAll('.acc'));
+    const items   = Array.from(accRoot.querySelectorAll('.acc'));
+    const buttons = items.map(i => i.querySelector('.acc-summary'));
+    const panels  = items.map(i => i.querySelector('.acc-panel'));
 
-    function openPanel(panel, btn){
+    function getPinOffset() {
+      const fixedHeader = document.querySelector('.topbar');
+      return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
+    }
+
+    function pinAccordionTop({ settle = true } = {}) {
+      const targetTop = getPinOffset();
+      let tries = 0;
+      let last = null;
+      const step = () => {
+        const nowTop = accRoot.getBoundingClientRect().top;
+        const delta  = nowTop - targetTop;
+        if (delta) window.scrollBy({ top: delta, left: 0 });
+        if (!settle) return;
+        if (last !== null && Math.abs(nowTop - last) < 0.25) return;
+        last = nowTop;
+        if (++tries < 16) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function openPanel(panel) {
+      panel.hidden = false;
       panel.style.display = 'block';
-      const start = panel.offsetHeight || 0;
+      const startHeight = panel.offsetHeight;
       const target = panel.scrollHeight;
-      panel.style.height = start + 'px';
+      panel.style.height = startHeight + 'px';
       panel.getBoundingClientRect();
       panel.style.height = target + 'px';
-      btn.setAttribute('aria-expanded', 'true');
-      const onEnd = (ev)=>{ if(ev.propertyName!=='height')return; panel.removeEventListener('transitionend', onEnd); panel.style.height='auto'; };
-      panel.addEventListener('transitionend', onEnd);
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.height = 'auto';
+      });
     }
-    function closePanel(panel, btn){
+
+    function closePanel(panel) {
       const current = panel.offsetHeight;
       panel.style.height = current + 'px';
       panel.getBoundingClientRect();
       panel.style.height = '0px';
-      const onEnd = (ev)=>{ if(ev.propertyName!=='height')return; panel.removeEventListener('transitionend', onEnd); panel.style.display='none'; btn.setAttribute('aria-expanded','false'); };
-      panel.addEventListener('transitionend', onEnd);
-    }
-    function toggle(acc){
-      const btn = acc.querySelector('.acc-btn');
-      const panel = acc.querySelector('.acc-panel');
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      if (expanded) closePanel(panel, btn); else openPanel(panel, btn);
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.display = 'none';
+        panel.hidden = true;
+      });
     }
 
-    accs.forEach(acc=>{
-      const btn = acc.querySelector('.acc-btn');
-      const title = acc.querySelector('.acc-title');
-      const panel = acc.querySelector('.acc-panel');
-      btn.setAttribute('aria-expanded','false');
-      panel.style.display='none';
-      panel.style.height='0px';
-      btn.addEventListener('click', ()=>toggle(acc));
-      btn.addEventListener('keydown', (e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggle(acc); } });
-      title.addEventListener('click', ()=>toggle(acc));
+    // INITIAL STATE: start collapsed
+    let openIndex = -1;
+    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
+
+    function setOpen(idx) {
+      items.forEach((_, i) => {
+        const shouldOpen = i === idx;
+        buttons[i].setAttribute('aria-expanded', String(shouldOpen));
+        const p = panels[i];
+        if (shouldOpen) {
+          if (p.hidden || p.style.display === 'none' || p.style.height === '0px') openPanel(p);
+        } else {
+          if (!p.hidden && p.style.display !== 'none' && p.style.height !== '0px') closePanel(p);
+        }
+      });
+      openIndex = idx;
+    }
+
+    function activate(i, evt) {
+      if (evt) evt.preventDefault();
+      const next = (openIndex === i) ? -1 : i;
+      setOpen(next);
+      pinAccordionTop({ settle: true });
+    }
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', (e) => activate(i, e));
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') activate(i, e);
+      });
     });
+
+    const ro = new ResizeObserver(() => {
+      if (openIndex !== -1) pinAccordionTop({ settle: false });
+    });
+    ro.observe(accRoot);
   </script>
+
+  <style>
+    .research-wrap{display:grid;gap:12px;justify-items:start;align-items:start;margin-inline:auto}
+
+    .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
+    .muted{color:var(--muted)}
+
+    .accordion{
+      display:grid; gap:12px; justify-items:start;
+      width:100%; margin:0;
+    }
+    .acc{ width:100%; background:transparent; }
+
+    /* Header: grid so '+' aligns with the first line of a wrapped title */
+    .acc-summary{
+      width:100%;
+      display:grid;
+      grid-template-columns: 1.25rem 1fr;
+      align-items:start;
+      justify-content:start;
+      gap:0.6rem;
+      padding:6px 0;
+      cursor:pointer; user-select:none;
+      color:var(--muted); font-weight:700;
+      text-align:left; background:none; border:0;
+      font-size:var(--body-size);
+    }
+    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
+
+    .acc-toggle{
+      width:1.25rem;
+      text-align:center;
+      font:inherit;
+      line-height:1;
+      margin-top:0.1em;
+    }
+    .acc-toggle::before{content:'+'}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+
+    .acc-title{line-height:1.2; font:inherit}
+
+    /* Panel: indent by the icon+gap so body aligns with title text column */
+    .acc-panel{
+      padding-left: calc(1.25rem + 0.6rem);
+      margin:0;
+      display:block;
+      height:0;
+      overflow:hidden;
+      overflow-anchor:none;
+      transition: height 220ms ease;
+      font-size:var(--body-size);
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .block{ width:100%; margin:0; display:grid; gap:.25rem }
+    .block p { margin:0 }
+
+    .stack{list-style:none;padding:0;margin:.25rem 0 0}
+    .stack-item{padding:0}
+    .accordion a,
+    .accordion a:visited{ color:inherit; text-decoration:none; }
+    .accordion a:hover{ text-decoration:underline; }
+
+    .gray-hover:hover .hoverable {
+      filter: grayscale(1) brightness(.88);
+      opacity: .7;
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+    .gray-hover .hoverable:hover {
+      filter: none;
+      opacity: 1;
+    }
+
+    .links{ margin-top:.25rem }
+  </style>
 </Layout>

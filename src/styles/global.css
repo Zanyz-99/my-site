@@ -5,6 +5,10 @@
   --card:#f6f7f8; --border:#e8e8ee;
   --header-bg: color-mix(in oklab, var(--bg) 92%, #000 8%);
   --hover: rgba(0,0,0,.05);
+
+  /* Optional: shared accordion indent helpers (match page-local values) */
+  --acc-toggle-w: 1.25rem;
+  --acc-gap: 0.6rem;
 }
 
 html[data-theme="dark"]{
@@ -83,32 +87,48 @@ a:hover{ text-decoration:underline; }
 }
 .theme-toggle:hover{ background:var(--hover); }
 
+/* ========== Headings (shared) ========== */
+/* Utility you can apply to any element to get the H1 look */
 .h1-style {
+  margin: 0 0 .25rem;
   font-size: var(--h1-size);
   font-weight: 1000;
   letter-spacing: -0.01em;
   line-height: calc(var(--line) - .15);
-  margin: 0 0 .25rem;
   color: var(--text);
 }
 
-/* Reset then re-apply exact H1 styles */
-.acc-title {
-  all: unset;            /* wipe button inheritance */
-  display: block;        /* match <h1> block behavior */
-  font-family: inherit;  /* <- put the site font back! */
-}
-
-h1,
-.acc-title {
+/* Make native <h1> use the same exact style */
+h1 { composes: h1-style; } /* if your tooling doesn't support `composes`, just duplicate: */
+h1 {
   margin: 0 0 .25rem;
   font-size: var(--h1-size);
-  font-weight: 1000;     /* some UAs clamp to 900; change to 900 if you prefer */
+  font-weight: 1000;
   letter-spacing: -0.01em;
   line-height: calc(var(--line) - .15);
   color: var(--text);
 }
 
-/* Keep the button from overriding */
-.acc-summary { font: inherit; color: inherit; }
+/* Accordion title: DO NOT use `all: unset;` — keep box metrics aligned with <h1> */
+.acc-title {
+  display: block;
+  margin: 0 0 .25rem;
+  font-family: inherit;
+  font-size: var(--h1-size);
+  font-weight: 1000;
+  letter-spacing: -0.01em;
+  line-height: calc(var(--line) - .15);
+  color: var(--text);
+}
+
+/* Keep the button from overriding text style via UA stylesheet */
+.acc-summary { font: inherit; color: inherit; background: none; border: 0; }
+
+/* Toggle glyph defaults (width/gap are usually set locally per page) */
 .acc-toggle  { font-size: var(--body-size); color: var(--text); }
+
+/* ========== Alignment helpers ========== */
+/* Indent content to start exactly where an accordion title starts */
+.align-with-acc { padding-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
+/* Or as margin if preferred: */
+/* .indent-with-acc { margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); } */

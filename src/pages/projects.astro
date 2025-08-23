@@ -1,0 +1,316 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+type Project = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  logo?: string;
+  about: string;
+  howto?: string;
+  store?: string | null;
+  play?: string | null;
+};
+
+const projects: Project[] = [
+  {
+    id: "foc",
+    title: "Furthest On Circle",
+    subtitle: "Unity WebGL tactical sim",
+    logo: "/icons/FOC.png",
+    about:
+      "A small tactics sandbox exploring positioning, timing, and resource trade‑offs in a minimalist battlefield.",
+    howto:
+      "Pick a scenario, deploy units, and try to control space efficiently. Use cover, timing, and arcs to survive longer.",
+    store: null, // No Play Store listing
+    play: "https://zachscholz.com/coding/foc/",
+  },
+  {
+    id: "tone",
+    title: "Tone — A Color Game",
+    subtitle: "CMYK color‑mixing puzzle",
+    logo: "/icons/Tone.png",
+    about:
+      "Guess the CMYK percentages to match the target color in as few guesses as possible. Simple rules, surprisingly deep intuition.",
+    howto:
+      "Enter your CMYK guess; compare against the target; iterate to minimize guesses. Learn how colors blend as you play.",
+    store:
+      "https://play.google.com/store/apps/details?id=com.ZanyInc.ToneRemastered&hl=en_US",
+    play: "https://zachscholz.com/coding/tone/",
+  },
+  {
+    id: "pantry",
+    title: "Pantry Planner",
+    subtitle: "Meal & inventory helper",
+    logo: "/icons/Pantry.png",
+    about:
+      "Lightweight pantry + meal planning utility to reduce waste and plan quick, repeatable meals from what you already have.",
+    howto:
+      "Add items you keep on hand, track low stock, and build quick meal templates that auto‑suggest a grocery list.",
+    store: null, // unknown / not published
+    play: "/coding/pantry-planner", // adjust if your route differs
+  },
+  {
+    id: "sheepshead",
+    title: "Sheepshead",
+    subtitle: "Trick‑taking card game (Unity WebGL)",
+    logo: "/icons/Sheepshead.png",
+    about:
+      "A remastered Sheepshead with clean visuals and crisp interactions. Play quick hands and practice strategy.",
+    howto:
+      "Win tricks using trump and follow suit when possible. Choose to pick or pass, then play out the hand to maximize points.",
+    store:
+      "https://play.google.com/store/apps/details?id=com.ZanyInc.SheepsheadRemastered&hl=en_US",
+    play: "https://zachscholz.com/coding/sheepshead/",
+  },
+];
+---
+
+<Layout title="Projects — Zach Scholz" description="Side projects: games, sims, and tools.">
+  <section class="projects-wrap">
+    <div class="spacer-md" aria-hidden="true"></div>
+
+    <section class="accordion" aria-label="Side projects">
+      {projects.map((p, i) => (
+        <div class="acc" id={`acc-proj-${p.id}`}>
+          <button
+            class="acc-summary"
+            type="button"
+            aria-expanded="false"
+            aria-controls={`panel-proj-${p.id}`}
+            id={`btn-proj-${p.id}`}
+          >
+            <span class="acc-toggle" aria-hidden="true"></span>
+            <span class="acc-title">
+              {p.title}{p.subtitle ? ` — ${p.subtitle}` : ""}
+            </span>
+          </button>
+
+          <div
+            class="acc-panel"
+            id={`panel-proj-${p.id}`}
+            role="region"
+            aria-labelledby={`btn-proj-${p.id}`}
+          >
+            <!-- About (logo next to heading) -->
+            <div class="block">
+              <div class="about-row">
+                {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
+                <h3 class="about-h">About this game</h3>
+              </div>
+              <p class="muted">{p.about}</p>
+            </div>
+
+            <!-- How to Play -->
+            {p.howto && (
+              <div class="block">
+                <h4 class="subhead">How to Play</h4>
+                <p class="muted">{p.howto}</p>
+              </div>
+            )}
+
+            <!-- Links -->
+            <ul class="stack gray-hover links" aria-label={`${p.title} links`}>
+              {p.store && (
+                <li class="stack-item hoverable">
+                  <a href={p.store} target="_blank" rel="noopener">Google Play</a>
+                </li>
+              )}
+              {p.play && (
+                <li class="stack-item hoverable">
+                  <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </section>
+  </section>
+
+  <!-- Accordion JS (same behavior as Research) -->
+  <script type="module">
+    const accRoot = document.querySelector('.accordion');
+    if (!accRoot) throw new Error('Accordion root not found');
+
+    const items   = Array.from(accRoot.querySelectorAll('.acc'));
+    const buttons = items.map(i => i.querySelector('.acc-summary'));
+    const panels  = items.map(i => i.querySelector('.acc-panel'));
+
+    function getPinOffset() {
+      const fixedHeader = document.querySelector('.topbar');
+      return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
+    }
+
+    function pinAccordionTop({ settle = true } = {}) {
+      const targetTop = getPinOffset();
+      let tries = 0;
+      let last = null;
+      const step = () => {
+        const nowTop = accRoot.getBoundingClientRect().top;
+        const delta  = nowTop - targetTop;
+        if (delta) window.scrollBy({ top: delta, left: 0 });
+        if (!settle) return;
+        if (last !== null && Math.abs(nowTop - last) < 0.25) return;
+        last = nowTop;
+        if (++tries < 16) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function openPanel(panel) {
+      panel.hidden = false;
+      panel.style.display = 'block';
+      const startHeight = panel.offsetHeight;
+      const target = panel.scrollHeight;
+      panel.style.height = startHeight + 'px';
+      panel.getBoundingClientRect();
+      panel.style.height = target + 'px';
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.height = 'auto';
+      });
+    }
+
+    function closePanel(panel) {
+      const current = panel.offsetHeight;
+      panel.style.height = current + 'px';
+      panel.getBoundingClientRect();
+      panel.style.height = '0px';
+      panel.classList.add('animating');
+      panel.addEventListener('transitionend', function done(ev){
+        if (ev.propertyName !== 'height') return;
+        panel.removeEventListener('transitionend', done);
+        panel.classList.remove('animating');
+        panel.style.display = 'none';
+        panel.hidden = true;
+      });
+    }
+
+    let openIndex = -1;
+    function setOpen(idx) {
+      items.forEach((_, i) => {
+        const shouldOpen = i === idx;
+        buttons[i].setAttribute('aria-expanded', String(shouldOpen));
+        const p = panels[i];
+        if (shouldOpen) {
+          if (p.hidden || p.style.display === 'none' || p.style.height === '0px') openPanel(p);
+        } else {
+          if (!p.hidden && p.style.display !== 'none' && p.style.height !== '0px') closePanel(p);
+        }
+      });
+      openIndex = idx;
+    }
+
+    function activate(i, evt) {
+      if (evt) evt.preventDefault();
+      const next = (openIndex === i) ? -1 : i;
+      setOpen(next);
+      pinAccordionTop({ settle: true });
+    }
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', (e) => activate(i, e));
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') activate(i, e);
+      });
+    });
+
+    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
+    openIndex = -1;
+
+    const ro = new ResizeObserver(() => {
+      if (openIndex !== -1) pinAccordionTop({ settle: false });
+    });
+    ro.observe(accRoot);
+  </script>
+
+  <style>
+    .projects-wrap{display:grid;gap:12px;justify-items:center;align-items:start;margin-inline:auto}
+
+    :root{
+      --content-w: min(816px, 78vw);
+      --icon-w: 1.25rem;
+      --icon-gap: 0.6rem;
+      --panel-speed: 220ms;
+      --panel-ease: ease;
+    }
+
+    .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
+    .muted{color:var(--muted)}
+
+    .accordion{
+      display:grid; gap:12px; justify-items:center;
+      width:var(--content-w); margin-inline:auto;
+    }
+    .acc{ width:100%; background:transparent; }
+
+    .acc-summary{
+      width:100%;
+      display:flex; align-items:center; justify-content:flex-start;
+      gap:var(--icon-gap);
+      padding:6px 0;
+      cursor:pointer; user-select:none;
+      color:var(--muted); font-weight:700;
+      text-align:left; background:none; border:0;
+      font-size:clamp(16px, 3vw, 20px);
+    }
+    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
+
+    .acc-toggle{ flex:0 0 var(--icon-w); text-align:center; font:inherit; }
+    .acc-toggle::before{content:'+'}
+    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+
+    .acc-title{line-height:1.2; font:inherit}
+
+    .acc-panel{
+      padding-left: calc(var(--icon-w) + var(--icon-gap));
+      margin:0;
+      display:block;
+      height:0;
+      overflow:hidden;
+      overflow-anchor:none;
+      transition: height var(--panel-speed) var(--panel-ease);
+      font-size:clamp(16px, 3vw, 20px);
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .block{ width:100%; margin:0; display:grid; gap:.35rem }
+    .block p { margin:0 }
+
+    .about-row{
+      display:flex; align-items:center; gap:.6rem;
+    }
+    .about-logo{
+      width:36px; height:36px; border-radius:8px; display:block;
+    }
+    .about-h{
+      margin:0; font-size:1.05em; line-height:1.2; color:var(--text);
+    }
+    .subhead{
+      margin:.25rem 0 0; font-size:1em; color:var(--text);
+    }
+
+    .stack{list-style:none;padding:0;margin:.35rem 0 0}
+    .stack-item{padding:0}
+    .accordion a,
+    .accordion a:visited{ color:inherit; text-decoration:none; }
+    .accordion a:hover{ text-decoration:underline; }
+
+    .gray-hover:hover .hoverable {
+      filter: grayscale(1) brightness(.88);
+      opacity: .7;
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+    .gray-hover .hoverable:hover {
+      filter: none;
+      opacity: 1;
+    }
+
+    .links{ margin-top:.25rem }
+  </style>
+</Layout>

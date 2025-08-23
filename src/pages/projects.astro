@@ -230,31 +230,45 @@ const projects: Project[] = [
     }
     .acc{ width:100%; background:transparent; }
 
-    /* Header */
-    .acc-summary{
-      width:100%;
-      display:grid;
-      grid-template-columns: 1.25rem 1fr;
-      align-items:start;
-      justify-content:start;
-      gap:0.6rem;
-      padding:6px 0;
-      cursor:pointer; user-select:none;
-      color:var(--muted); font-weight:700;
-      text-align:left; background:none; border:0;
-      font-size:var(--body-size);
+    /* Header: grid so '+' and title align */
+    .acc-summary {
+      width: 100%;
+      display: flex;                /* simpler: flex handles centering */
+      align-items: center;          /* vertical centering */
+      gap: 0.6rem;
+      padding: 6px 0;
+      cursor: pointer;
+      user-select: none;
+      color: var(--muted);
+      background: none;
+      border: 0;
     }
-    .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
+    /* Toggle: same font as title but adjusted size/line-height */
     .acc-toggle {
-      font-size: var(--h1-size);
+      display: flex;                /* center the glyph inside */
+      align-items: center;
+      justify-content: center;
+      width: 1.25rem;               /* fixed column width */
+      font-size: calc(var(--h1-size) * 0.8); /* a bit smaller so it optically matches */
       font-weight: 1000;
-      line-height: calc(var(--line) - .15);
+      line-height: 1;               /* prevents extra vertical offset */
       color: var(--text);
       text-align: center;
     }
-    .acc-toggle::before{content:'+'}
-    .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
+
+    .acc-toggle::before { content: '+'; }
+    .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
+
+    /* Title uses your h1 look */
+    .acc-title {
+      margin: 0;
+      font-size: var(--h1-size);
+      font-weight: 1000;
+      letter-spacing: -0.01em;
+      line-height: calc(var(--line) - .15);
+      color: var(--text);
+    }
 
     /* Panel */
     .acc-panel{

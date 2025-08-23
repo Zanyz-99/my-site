@@ -1,6 +1,6 @@
 ---
 import Navbar from "../components/Navbar.astro";
-import "../styles/global.css"; // ← add this (adjust path)
+import "../styles/global.css";
 interface Props { title?: string; description?: string; }
 const { title = "ZachScholz.com", description = "" } = Astro.props;
 ---
@@ -15,7 +15,12 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
     <link rel="icon" type="image/png" href="/icons/logo dark.png" />
     <link rel="apple-touch-icon" href="/icons/logo dark.png" />
 
-    <!-- Layout.astro (in <head>) -->
+    <!-- Global fonts: Title = Poppins (700); Body = Roboto (400/500) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Per-page head slot -->
     <slot name="head" />
 
     <style>
@@ -27,16 +32,20 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         --hover: rgba(0,0,0,.06);
 
         /* Content width */
-        --content-w: 60vw;        /* desktop/tablet preferred width */
-        --content-cap: 1100px;    /* max cap to keep line length readable */
-        --content-mob: 95vw;      /* near-full width on phones */
+        --content-w: 60vw;
+        --content-cap: 1100px;
+        --content-mob: 95vw;
 
-        /* Typography */
+        /* Typography sizes & line height */
         --h1-size: clamp(28px, 5vw, 40px);
         --h2-size: clamp(22px, 4vw, 28px);
         --h3-size: clamp(18px, 3.5vw, 22px);
         --body-size: clamp(16px, 3vw, 20px);
         --line: 1.5;
+
+        /* Font families (normalized site-wide) */
+        --font-title: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        --font-body: "Roboto", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
         /* Footer height (script will update to exact) */
         --footer-h: 72px;
@@ -51,17 +60,28 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
       html,body{
         margin:0; height:100%;
         background:var(--bg); color:var(--text);
-        font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+        font-family: var(--font-body);
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
 
       /* Typography — unified across pages */
-      h1{ font-size:var(--h1-size); margin:0 0 .25rem 0; line-height:calc(var(--line) - .15); font-weight:1000; letter-spacing:-0.01em; }
-      h2{ font-size:var(--h2-size); margin:1.25rem 0 .5rem; line-height:calc(var(--line) - .1); font-weight:750; }
+      h1, h2, h3, .acc-title, .title{
+        font-family: var(--font-title);
+        color: var(--text);
+      }
+      h1{ font-size:var(--h1-size); margin:0 0 .25rem 0; line-height:calc(var(--line) - .15); font-weight:700; letter-spacing:-0.01em; }
+      h2{ font-size:var(--h2-size); margin:1.25rem 0 .5rem; line-height:calc(var(--line) - .1); font-weight:700; }
       h3{ font-size:var(--h3-size); margin:1rem 0 .35rem; line-height:calc(var(--line) - .05); font-weight:700; }
-      p{ color:var(--muted); font-size:var(--body-size); margin:.25rem 0 0 0; line-height:var(--line); }
+
+      p, .sub, .muted, li, a, .acc-panel{
+        font-family: var(--font-body);
+        font-weight:400;
+        color:var(--muted);
+        font-size:var(--body-size);
+        line-height:var(--line);
+      }
 
       /* Links inherit color — underline on hover only */
       a{ color:inherit; text-decoration:none; }
@@ -73,15 +93,10 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         margin:0 auto;
         padding:2rem 1rem calc(var(--footer-h) + env(safe-area-inset-bottom));
         min-height:0;
-      
-        /* constrain width to middle of the screen */
         width: min(var(--content-mob), var(--content-cap));
       }
-      
       @media (min-width: 900px){
-        main{
-          width: min(var(--content-w), var(--content-cap)); /* ~70vw, capped */
-        }
+        main{ width: min(var(--content-w), var(--content-cap)); }
       }
 
       /* Fixed footer pinned to bottom */

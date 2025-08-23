@@ -138,7 +138,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
 
-    // No-op: prevent auto scroll/pinning
     function pinAccordionTop(){}
 
     function openPanel(panel) {
@@ -207,7 +206,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
     openIndex = -1;
 
-    // Strava hover -> gray out other photos (JS toggles .grey-others for wide support)
+    // Strava hover -> gray out other photos
     const photosWrap = document.getElementById('about-photos');
     const stravaCard = document.getElementById('strava-card');
     if (photosWrap && stravaCard) {
@@ -218,7 +217,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
   </script>
 
-  <!-- Strava hydrate -->
   <script type="module" define:vars={{ dataUrl }}>
     (async () => {
       const sameOrigin = dataUrl;
@@ -271,12 +269,12 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .acc{ width:100%; background:transparent; }
 
-    /* Header: grid so '+' aligns with the first line of a wrapped title */
+    /* Header */
     .acc-summary{
       width:100%;
       display:grid;
-      grid-template-columns: 1.25rem 1fr; /* icon + title */
-      align-items:start;                  /* align to first line */
+      grid-template-columns: 1.25rem 1fr;
+      align-items:start;
       justify-content:start;
       gap:0.6rem;
       padding:6px 0;
@@ -287,29 +285,18 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
-    /* Make .acc-title identical to <h1> */
-    .acc-title{
-      display:block;                 /* match <h1> block metrics */
-      margin:0 0 .25rem;
-      font-size:var(--h1-size);
-      font-weight:1000;              /* use 900 if your font clamps */
-      letter-spacing:-0.01em;
-      line-height:calc(var(--line) - .15);
-      color:var(--text);
-    }
-
     .acc-toggle{
       width:1.25rem;
       text-align:center;
       font:inherit;
       line-height:1;
-      margin-top:0.1em; /* tiny optical tweak */
+      margin-top:0.1em;
       color: var(--text);
     }
     .acc-toggle::before{content:'+'}
     .acc-summary[aria-expanded="true"] .acc-toggle::before{content:'–'}
 
-    /* Panel: indent by the icon+gap so body aligns with title text column */
+    /* Panel */
     .acc-panel{
       padding-left: calc(1.25rem + 0.6rem);
       margin:0;
@@ -327,18 +314,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .block, .stack, .list, .photos4{ width:100%; margin:6px 0 0; }
     .stack{list-style:none;padding:0}
     .stack-item{padding:8px 0}
-  
-    .gray-hover:hover .hoverable {
-      filter: grayscale(1) brightness(.8);
-      opacity: .6;
-      transition: filter 160ms ease, opacity 160ms ease;
-    }
-    .gray-hover .hoverable:hover { filter: none; opacity: 1; }
-  
-    .accordion a, .accordion a:visited{ color:inherit; text-decoration:none; }
-    .accordion a:hover{ text-decoration:underline; }
-  
-    /* Work rows */
+    .gray-hover:hover .hoverable { filter: grayscale(1) brightness(.8); opacity:.6; transition: filter 160ms ease, opacity 160ms ease; }
+    .gray-hover .hoverable:hover { filter:none; opacity:1; }
+
     .list{display:grid;gap:10px}
     .row{text-decoration:none;color:inherit}
     .row-line{display:flex;align-items:center;gap:.85rem}
@@ -346,7 +324,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .meta{display:grid;gap:.15rem}
     .title{line-height:1.15}
     .sub{color:inherit;font-size:clamp(15px, 2.5vw, 18px)}
-  
+
     /* Photos 2×2 */
     .photos4{
       display:grid;
@@ -366,7 +344,7 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       transition:filter 200ms ease;
     }
     .photos4 img:hover{ filter:grayscale(0); }
-  
+
     /* Strava overlays */
     .strava{position:relative;text-decoration:none;color:inherit}
     .strava-cta{
@@ -383,13 +361,10 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .stats .dot{opacity:.6}
     .stats .metric{white-space:nowrap}
-  
+
     @media (max-width: 640px){
       .strava-cta, .stats{ display:none !important; }
     }
-  
-    .photos4.grey-others .ph:not(.strava) img{
-      filter: grayscale(1) brightness(.75);
-    }
+    .photos4.grey-others .ph:not(.strava) img{ filter: grayscale(1) brightness(.75); }
   </style>
 </Layout>

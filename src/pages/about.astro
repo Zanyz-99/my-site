@@ -287,6 +287,17 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
 
+    /* Make .acc-title identical to <h1> */
+    .acc-title{
+      display:block;                 /* match <h1> block metrics */
+      margin:0 0 .25rem;
+      font-size:var(--h1-size);
+      font-weight:1000;              /* use 900 if your font clamps */
+      letter-spacing:-0.01em;
+      line-height:calc(var(--line) - .15);
+      color:var(--text);
+    }
+
     .acc-toggle{
       width:1.25rem;
       text-align:center;

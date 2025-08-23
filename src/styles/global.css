@@ -92,7 +92,13 @@ a:hover{ text-decoration:underline; }
   color: var(--text);
 }
 
-/* === Make Home <h1> and About .acc-title IDENTICAL === */
+/* Reset the span inside the button so it stops inheriting button styles */
+.acc-title {
+  all: unset;           /* wipe inherited button text styles */
+  display: block;       /* match <h1> block behavior */
+}
+
+/* Now make h1 and .acc-title literally identical */
 h1,
 .acc-title {
   margin: 0 0 .25rem;
@@ -101,16 +107,16 @@ h1,
   letter-spacing: -0.01em;
   line-height: calc(var(--line) - .15);
   color: var(--text);
-  display: block; /* <span> -> block to match <h1> metrics */
 }
 
-/* Ensure the accordion button doesn't override title typography */
+/* Ensure the accordion button doesn't re-override the title */
 .acc-summary {
-  font: inherit;        /* don't downscale the title */
-  color: inherit;
+  font: inherit;
+  color: inherit;       /* don't force muted here */
+  /* no font-weight here */
 }
 
-/* Keep the +/- icon on body scale so it doesn't look huge */
+/* Keep the +/- icon on body scale */
 .acc-toggle {
   font-size: var(--body-size);
   color: var(--text);

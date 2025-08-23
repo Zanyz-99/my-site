@@ -3,64 +3,58 @@ import Layout from "../layouts/Layout.astro";
 
 type Project = {
   id: string;
-  title: string;
-  subtitle?: string;
+  title: string;           // Section name shown in the accordion button
+  subtitle?: string;       // Optional subtitle if you want it later
   logo?: string;
-  about: string;
+  about: string;           // Text shown next to the logo (no "About this game" heading)
   howto?: string;
-  store?: string | null;
-  play?: string | null;
+  store?: string | null;   // Google Play link
+  play?: string | null;    // WebGL / detail page
 };
 
 const projects: Project[] = [
   {
     id: "foc",
     title: "Furthest On Circle",
-    subtitle: "Unity WebGL tactical sim",
     logo: "/icons/FOC.png",
     about:
       "A small tactics sandbox exploring positioning, timing, and resource trade‑offs in a minimalist battlefield.",
     howto:
       "Pick a scenario, deploy units, and try to control space efficiently. Use cover, timing, and arcs to survive longer.",
-    store: null, // No Play Store listing
+    store: "https://play.google.com/store/apps/details?id=com.ZanyInc.FOC",
     play: "https://zachscholz.com/coding/foc/",
   },
   {
     id: "tone",
-    title: "Tone — A Color Game",
-    subtitle: "CMYK color‑mixing puzzle",
+    title: "Tone - A Color Game",
     logo: "/icons/Tone.png",
     about:
       "Guess the CMYK percentages to match the target color in as few guesses as possible. Simple rules, surprisingly deep intuition.",
     howto:
       "Enter your CMYK guess; compare against the target; iterate to minimize guesses. Learn how colors blend as you play.",
-    store:
-      "https://play.google.com/store/apps/details?id=com.ZanyInc.ToneRemastered&hl=en_US",
+    store: "https://play.google.com/store/apps/details?id=com.ZanyInc.Toner&hl=en_US",
     play: "https://zachscholz.com/coding/tone/",
   },
   {
     id: "pantry",
     title: "Pantry Planner",
-    subtitle: "Meal & inventory helper",
     logo: "/icons/Pantry.png",
     about:
       "Lightweight pantry + meal planning utility to reduce waste and plan quick, repeatable meals from what you already have.",
     howto:
       "Add items you keep on hand, track low stock, and build quick meal templates that auto‑suggest a grocery list.",
-    store: null, // unknown / not published
+    store: "https://play.google.com/store/apps/details?id=com.zanyinc.pantrymealplanner.pantrymealplanner",
     play: "/coding/pantry-planner", // adjust if your route differs
   },
   {
     id: "sheepshead",
     title: "Sheepshead",
-    subtitle: "Trick‑taking card game (Unity WebGL)",
     logo: "/icons/Sheepshead.png",
     about:
       "A remastered Sheepshead with clean visuals and crisp interactions. Play quick hands and practice strategy.",
     howto:
       "Win tricks using trump and follow suit when possible. Choose to pick or pass, then play out the hand to maximize points.",
-    store:
-      "https://play.google.com/store/apps/details?id=com.ZanyInc.SheepsheadRemastered&hl=en_US",
+    store: "https://play.google.com/store/apps/details?id=com.ZanyInc.SheepsheadRemastered",
     play: "https://zachscholz.com/coding/sheepshead/",
   },
 ];
@@ -71,7 +65,7 @@ const projects: Project[] = [
     <div class="spacer-md" aria-hidden="true"></div>
 
     <section class="accordion" aria-label="Side projects">
-      {projects.map((p, i) => (
+      {projects.map((p) => (
         <div class="acc" id={`acc-proj-${p.id}`}>
           <button
             class="acc-summary"
@@ -81,9 +75,7 @@ const projects: Project[] = [
             id={`btn-proj-${p.id}`}
           >
             <span class="acc-toggle" aria-hidden="true"></span>
-            <span class="acc-title">
-              {p.title}{p.subtitle ? ` — ${p.subtitle}` : ""}
-            </span>
+            <span class="acc-title">{p.title}</span>
           </button>
 
           <div
@@ -92,13 +84,10 @@ const projects: Project[] = [
             role="region"
             aria-labelledby={`btn-proj-${p.id}`}
           >
-            <!-- About (logo next to heading) -->
-            <div class="block">
-              <div class="about-row">
-                {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
-                <h3 class="about-h">About this game</h3>
-              </div>
-              <p class="muted">{p.about}</p>
+            <!-- About row: big logo + about text inline -->
+            <div class="about-row">
+              {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
+              <p class="about-text">{p.about}</p>
             </div>
 
             <!-- How to Play -->
@@ -282,15 +271,18 @@ const projects: Project[] = [
     .block{ width:100%; margin:0; display:grid; gap:.35rem }
     .block p { margin:0 }
 
+    /* About row */
     .about-row{
-      display:flex; align-items:center; gap:.6rem;
+      display:flex; align-items:center; gap:.8rem;
+      margin: .1rem 0 .25rem 0;
     }
     .about-logo{
-      width:36px; height:36px; border-radius:8px; display:block;
+      width:64px; height:64px; border-radius:12px; display:block;
     }
-    .about-h{
-      margin:0; font-size:1.05em; line-height:1.2; color:var(--text);
+    .about-text{
+      margin:0; color:var(--text);
     }
+
     .subhead{
       margin:.25rem 0 0; font-size:1em; color:var(--text);
     }

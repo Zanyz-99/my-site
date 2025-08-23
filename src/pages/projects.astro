@@ -66,28 +66,33 @@ const projects: Project[] = [
     <section class="accordion" aria-label="Side projects">
       {projects.map((p) => (
         <div class="acc" id={`acc-proj-${p.id}`}>
-          <button
-            class="acc-summary"
-            type="button"
-            aria-expanded="false"
-            aria-controls={`panel-proj-${p.id}`}
-            id={`btn-proj-${p.id}`}
-          >
-            <span class="acc-toggle" aria-hidden="true"></span>
-            <h1 class="acc-title">{p.title}</h1>
-          </button>
+          <div class="acc-header">
+            <button
+              class="acc-btn"
+              type="button"
+              aria-expanded="false"
+              aria-controls={`panel-proj-${p.id}`}
+              id={`btn-proj-${p.id}`}
+            >
+              <span class="acc-toggle" aria-hidden="true"></span>
+              <span class="sr-only" style="position:absolute;left:-10000px;">Toggle {p.title}</span>
+            </button>
+            <h1 class="acc-title" id={`title-proj-${p.id}`}>{p.title}</h1>
+          </div>
 
           <div
             class="acc-panel"
             id={`panel-proj-${p.id}`}
             role="region"
-            aria-labelledby={`btn-proj-${p.id}`}
+            aria-labelledby={`title-proj-${p.id}`}
           >
+            <!-- About row: big logo + about text inline -->
             <div class="about-row" style="display:flex; align-items:center; gap:.8rem; margin:.1rem 0 .25rem 0;">
               {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} style="width:64px;height:64px;border-radius:12px;display:block;" /> : null}
               <p class="about-text" style="margin:0;color:var(--text)">{p.about}</p>
             </div>
 
+            <!-- How to Play -->
             {p.howto && (
               <div class="block" style="display:grid;gap:.35rem">
                 <h2 class="subhead" style="margin:.25rem 0 0;color:var(--text);font-size:var(--h3-size)">How to Play</h2>
@@ -95,6 +100,7 @@ const projects: Project[] = [
               </div>
             )}
 
+            <!-- Links -->
             <ul class="stack gray-hover links" aria-label={`${p.title} links`} style="margin-top:.25rem">
               {p.store && (
                 <li class="stack-item hoverable">
@@ -117,98 +123,44 @@ const projects: Project[] = [
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
+    const accs = Array.from(accRoot.querySelectorAll('.acc'));
 
-    const items   = Array.from(accRoot.querySelectorAll('.acc'));
-    const buttons = items.map(i => i.querySelector('.acc-summary'));
-    const panels  = items.map(i => i.querySelector('.acc-panel'));
-
-    function getPinOffset() {
-      const fixedHeader = document.querySelector('.topbar');
-      return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
-    }
-
-    function pinAccordionTop({ settle = true } = {}) {
-      const targetTop = getPinOffset();
-      let tries = 0;
-      let last = null;
-      const step = () => {
-        const nowTop = accRoot.getBoundingClientRect().top;
-        const delta  = nowTop - targetTop;
-        if (delta) window.scrollBy({ top: delta, left: 0 });
-        if (!settle) return;
-        if (last !== null && Math.abs(nowTop - last) < 0.25) return;
-        last = nowTop;
-        if (++tries < 16) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }
-
-    function openPanel(panel) {
-      panel.hidden = false;
+    function openPanel(panel, btn){
       panel.style.display = 'block';
-      const startHeight = panel.offsetHeight;
+      const start = panel.offsetHeight || 0;
       const target = panel.scrollHeight;
-      panel.style.height = startHeight + 'px';
+      panel.style.height = start + 'px';
       panel.getBoundingClientRect();
       panel.style.height = target + 'px';
-      panel.classList.add('animating');
-      panel.addEventListener('transitionend', function done(ev){
-        if (ev.propertyName !== 'height') return;
-        panel.removeEventListener('transitionend', done);
-        panel.classList.remove('animating');
-        panel.style.height = 'auto';
-      });
+      btn.setAttribute('aria-expanded', 'true');
+      const onEnd = (ev)=>{ if(ev.propertyName!=='height')return; panel.removeEventListener('transitionend', onEnd); panel.style.height='auto'; };
+      panel.addEventListener('transitionend', onEnd);
     }
-
-    function closePanel(panel) {
+    function closePanel(panel, btn){
       const current = panel.offsetHeight;
       panel.style.height = current + 'px';
       panel.getBoundingClientRect();
       panel.style.height = '0px';
-      panel.classList.add('animating');
-      panel.addEventListener('transitionend', function done(ev){
-        if (ev.propertyName !== 'height') return;
-        panel.removeEventListener('transitionend', done);
-        panel.classList.remove('animating');
-        panel.style.display = 'none';
-        panel.hidden = true;
-      });
+      const onEnd = (ev)=>{ if(ev.propertyName!=='height')return; panel.removeEventListener('transitionend', onEnd); panel.style.display='none'; btn.setAttribute('aria-expanded','false'); };
+      panel.addEventListener('transitionend', onEnd);
+    }
+    function toggle(acc){
+      const btn = acc.querySelector('.acc-btn');
+      const panel = acc.querySelector('.acc-panel');
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      if (expanded) closePanel(panel, btn); else openPanel(panel, btn);
     }
 
-    let openIndex = -1;
-    panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
-
-    function setOpen(idx) {
-      items.forEach((_, i) => {
-        const shouldOpen = i === idx;
-        buttons[i].setAttribute('aria-expanded', String(shouldOpen));
-        const p = panels[i];
-        if (shouldOpen) {
-          if (p.hidden || p.style.display === 'none' || p.style.height === '0px') openPanel(p);
-        } else {
-          if (!p.hidden && p.style.display !== 'none' && p.style.height !== '0px') closePanel(p);
-        }
-      });
-      openIndex = idx;
-    }
-
-    function activate(i, evt) {
-      if (evt) evt.preventDefault();
-      const next = (openIndex === i) ? -1 : i;
-      setOpen(next);
-      pinAccordionTop({ settle: true });
-    }
-
-    buttons.forEach((btn, i) => {
-      btn.addEventListener('click', (e) => activate(i, e));
-      btn.addEventListener('keydown', (e) => {
-        if (e.key === ' ' || e.key === 'Enter') activate(i, e);
-      });
+    accs.forEach(acc=>{
+      const btn = acc.querySelector('.acc-btn');
+      const title = acc.querySelector('.acc-title');
+      const panel = acc.querySelector('.acc-panel');
+      btn.setAttribute('aria-expanded','false');
+      panel.style.display='none';
+      panel.style.height='0px';
+      btn.addEventListener('click', ()=>toggle(acc));
+      btn.addEventListener('keydown', (e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggle(acc); } });
+      title.addEventListener('click', ()=>toggle(acc));
     });
-
-    const ro = new ResizeObserver(() => {
-      if (openIndex !== -1) pinAccordionTop({ settle: false });
-    });
-    ro.observe(accRoot);
   </script>
 </Layout>

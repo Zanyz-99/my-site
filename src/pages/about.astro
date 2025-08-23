@@ -299,9 +299,9 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       gap:0.6rem;
       padding:6px 0;
       cursor:pointer; user-select:none;
-      color:var(--muted); font-weight:700;
+      color:var(--text); font-weight:700;
       text-align:left; background:none; border:0;
-      font-size:var(--body-size);
+      font-size: inherit;
     }
     .acc-summary:focus-visible{outline:2px solid var(--border);outline-offset:4px;border-radius:8px}
     
@@ -326,8 +326,6 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
       overflow:hidden;
       overflow-anchor:none;
       transition: height 220ms ease;
-      font-size:var(--body-size);
-      line-height:1.45;
       color:var(--muted);
     }
 

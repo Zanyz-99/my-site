@@ -83,32 +83,34 @@ const projects: Project[] = [
             role="region"
             aria-labelledby={`btn-proj-${p.id}`}
           >
-            <!-- About row: big logo + about text inline -->
+            <!-- About row: logo left, text + links right -->
             <div class="about-row">
               {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
-              <p class="about-text">{p.about}</p>
-            </div>
 
-            <!-- Links -->
-            <ul class="stack gray-hover links" aria-label={`${p.title} links`}>
-              {p.store && (
-                <li class="stack-item hoverable">
-                  <a href={p.store} target="_blank" rel="noopener">Google Play</a>
-                </li>
-              )}
-              {p.play && (
-                <li class="stack-item hoverable">
-                  <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
-                </li>
-              )}
-            </ul>
+              <div class="about-content">
+                <p class="about-text">{p.about}</p>
+
+                <ul class="stack gray-hover links" aria-label={`${p.title} links`}>
+                  {p.store && (
+                    <li class="stack-item hoverable">
+                      <a href={p.store} target="_blank" rel="noopener">Google Play</a>
+                    </li>
+                  )}
+                  {p.play && (
+                    <li class="stack-item hoverable">
+                      <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       ))}
     </section>
   </section>
 
-  <!-- Accordion JS (same behavior as Research) -->
+  <!-- Accordion JS (same as before) -->
   <script type="module">
     const accRoot = document.querySelector('.accordion');
     if (!accRoot) throw new Error('Accordion root not found');
@@ -128,7 +130,7 @@ const projects: Project[] = [
       let last = null;
       const step = () => {
         const nowTop = accRoot.getBoundingClientRect().top;
-        theDelta  = nowTop - targetTop;
+        const theDelta  = nowTop - targetTop;
         if (theDelta) window.scrollBy({ top: theDelta, left: 0 });
         if (!settle) return;
         if (last !== null && Math.abs(nowTop - last) < 0.25) return;
@@ -170,7 +172,6 @@ const projects: Project[] = [
       });
     }
 
-    // INITIAL STATE: start collapsed
     let openIndex = -1;
     panels.forEach(p => { p.style.display = 'none'; p.hidden = true; p.style.height = '0px'; });
 
@@ -195,7 +196,6 @@ const projects: Project[] = [
       pinAccordionTop({ settle: true });
     }
 
-    // wire up interactions
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', (e) => activate(i, e));
       btn.addEventListener('keydown', (e) => {
@@ -203,7 +203,6 @@ const projects: Project[] = [
       });
     });
 
-    // keep pinned while resizing
     const ro = new ResizeObserver(() => {
       if (openIndex !== -1) pinAccordionTop({ settle: false });
     });
@@ -222,11 +221,10 @@ const projects: Project[] = [
     }
     .acc{ width:100%; background:transparent; }
 
-    /* Header: grid so '+' and title align */
     .acc-summary {
       width: 100%;
-      display: flex;                /* simpler: flex handles centering */
-      align-items: center;          /* vertical centering */
+      display: flex;
+      align-items: center;
       gap: 0.6rem;
       padding: 6px 0;
       cursor: pointer;
@@ -236,15 +234,14 @@ const projects: Project[] = [
       border: 0;
     }
 
-    /* Toggle: same font as title but adjusted size/line-height */
     .acc-toggle {
-      display: flex;                /* center the glyph inside */
+      display: flex;
       align-items: center;
       justify-content: center;
-      width: 1.25rem;               /* fixed column width */
-      font-size: calc(var(--h1-size) * 0.8); /* a bit smaller so it optically matches */
+      width: 1.25rem;
+      font-size: calc(var(--h1-size) * 0.8);
       font-weight: 1000;
-      line-height: 1;               /* prevents extra vertical offset */
+      line-height: 1;
       color: var(--text);
       text-align: center;
     }
@@ -252,7 +249,6 @@ const projects: Project[] = [
     .acc-toggle::before { content: '+'; }
     .acc-summary[aria-expanded="true"] .acc-toggle::before { content: '–'; }
 
-    /* Title uses your h1 look */
     .acc-title {
       margin: 0;
       font-size: var(--h1-size);
@@ -262,7 +258,6 @@ const projects: Project[] = [
       color: var(--text);
     }
 
-    /* Panel */
     .acc-panel{
       padding-left: calc(1.25rem + 0.6rem);
       margin:0;
@@ -276,17 +271,28 @@ const projects: Project[] = [
       color:var(--muted);
     }
 
-    .block{ width:100%; margin:0; display:grid; gap:.35rem }
-    .block p { margin:0 }
-
-    .about-row{
-      display:flex; align-items:center; gap:.8rem;
+    .about-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
       margin: .1rem 0 .25rem 0;
     }
-    .about-logo{ width:64px; height:64px; border-radius:12px; display:block; }
-    .about-text{ margin:0; color:var(--text); }
-
-    .subhead{ margin:.25rem 0 0; font-size:1em; color:var(--text); }
+    .about-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      display: block;
+    }
+    .about-content {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .about-text {
+      margin: 0;
+      color: var(--text);
+    }
 
     .stack{list-style:none;padding:0;margin:.35rem 0 0}
     .stack-item{padding:0}
@@ -298,5 +304,13 @@ const projects: Project[] = [
     .gray-hover .hoverable:hover { filter: none; opacity: 1; }
 
     .links{ margin-top:.25rem }
+
+    /* Mobile responsive tweak */
+    @media (max-width: 600px) {
+      .about-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </Layout>

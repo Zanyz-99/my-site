@@ -42,6 +42,14 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
     }
     .about-col ul { padding-left: 1.25rem; }
 
+    .about-col a {
+      color: var(--text);
+      text-decoration: underline;
+    }
+    .about-col a:hover {
+      color: var(--muted);
+    }
+
     .btnrow {
       display: flex;
       flex-wrap: wrap;
@@ -76,7 +84,6 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
     }
 
     .btn.primary {
-      /* keep muted look; rely on border + weight, not solid fill */
       background: var(--card);
       color: var(--text);
       border-color: var(--border);
@@ -130,12 +137,10 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
         <li>The fewer guesses you take, the better your score!</li>
       </ul>
 
-      <!-- Google Play link above the buttons -->
-      <div class="btnrow" style="margin-top:.75rem">
-        <a class="btn h2 primary" href={playStoreUrl} target="_blank" rel="noopener noreferrer">
-          Google Play ↗
-        </a>
-      </div>
+      <!-- Google Play link (inline p link style) -->
+      <p>
+        <a href={playStoreUrl} target="_blank" rel="noopener noreferrer">Google Play ↗</a>
+      </p>
 
       <!-- Button row: Enter Fullscreen + Reload side by side -->
       <div class="btnrow">

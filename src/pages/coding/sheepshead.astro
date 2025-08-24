@@ -4,6 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 
 const pageTitle = "Sheepshead — Play Online";
 const gamePath = "/games/Sheepshead/index.html";
+const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.SheepsheadRemastered";
 ---
 
 <Layout title={pageTitle} description="Play Sheepshead Remastered (portrait 9:16) — Unity WebGL.">
@@ -41,11 +42,19 @@ const gamePath = "/games/Sheepshead/index.html";
     }
     .about-col ul { padding-left: 1.25rem; }
 
+    .about-col a {
+      color: var(--text);
+      text-decoration: underline;
+    }
+    .about-col a:hover {
+      color: var(--muted);
+    }
+
     .btnrow {
       display: flex;
       flex-wrap: wrap;
-      gap: .75rem;
-      margin-top: .25rem;
+      gap: .5rem;
+      margin-top: .5rem;
     }
 
     /* Buttons */
@@ -53,30 +62,31 @@ const gamePath = "/games/Sheepshead/index.html";
       display: inline-flex;
       align-items: center;
       gap: .5rem;
-      padding: .65rem .9rem;
+      padding: .55rem .8rem;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: var(--card);   /* theme-aware background */
-      color: var(--text);        /* theme-aware text */
+      background: var(--card);   /* muted theme-aware background */
+      color: var(--text);
       cursor: pointer;
       text-decoration: none;
+      transition: transform .02s ease, background .15s ease;
     }
     .btn:hover { background: var(--hover); }
+    .btn:active { transform: translateY(1px); }
 
-    .btn.primary {
-      background: var(--text);   /* primary = solid text color */
-      color: var(--bg);          /* invert text */
-      border-color: var(--text);
+    /* H2-style button */
+    .btn.h2 {
+      font-size: var(--h2-size);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      border-radius: 12px;
     }
 
-    /* H1-style button */
-    .btn.h1 {
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      padding: .4rem .8rem; /* keep reasonable padding with large type */
-      border-radius: 12px;
+    .btn.primary {
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--border);
     }
 
     .stage {
@@ -101,7 +111,7 @@ const gamePath = "/games/Sheepshead/index.html";
 
     .actions {
       display: flex;
-      justify-content: flex-end; /* tip removed; align buttons to the right */
+      justify-content: flex-end;
       align-items: center;
       gap: .75rem;
       margin-top: .75rem;
@@ -116,11 +126,11 @@ const gamePath = "/games/Sheepshead/index.html";
       <h1 class="game-title">Sheepshead</h1>
       <p>A trick-taking card game of German origin. This is a single player version with computer controlled opponents.</p>
 
-      <h3>How to play</h3>
+      <h2>How to play</h2>
       <ul>
         <li>Deck: 24 cards — A, K, Q, J, 10, 9 of each suit.</li>
         <li>Partners: the two players who hold the black queens. If you hold both, go
-            <em>alone</em> or call <em>First Trick</em> (first non‑you trick winner becomes your partner).</li>
+            <em>alone</em> or call <em>First Trick</em> (first non-you trick winner becomes your partner).</li>
         <li>Trump: all Queens (♣, ♠, ♥, ♦), then all Jacks (♣, ♠, ♥, ♦), then all Diamonds (A, 10, K, 9).</li>
         <li>Other suits (♠ ♣ ♥): follow suit order A, 10, K, 9. You must follow suit if able; otherwise play trump.</li>
         <li>Trick-taking: highest trump wins; if no trump is played, highest of the led suit wins.</li>
@@ -129,8 +139,15 @@ const gamePath = "/games/Sheepshead/index.html";
             opponents 31–59 (“cutter”)=3; opponents 61–89=6 to opponents; opponents ≥90=9 to opponents.</li>
       </ul>
 
+      <!-- Google Play link (inline p link style) -->
+      <p>
+        <a href={playStoreUrl} target="_blank" rel="noopener noreferrer">Google Play ↗</a>
+      </p>
+
+      <!-- Buttons: fullscreen + reload -->
       <div class="btnrow">
-        <button class="btn primary h1" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <button class="btn h2 primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <button class="btn h2 primary" id="btn-reload" type="button">Reload</button>
       </div>
     </div>
 
@@ -145,11 +162,6 @@ const gamePath = "/games/Sheepshead/index.html";
           loading="eager"
           title="Sheepshead game"
         ></iframe>
-      </div>
-      <div class="actions">
-        <div class="btnrow">
-          <button class="btn primary h1" id="btn-reload" type="button">Reload</button>
-        </div>
       </div>
     </aside>
   </section>

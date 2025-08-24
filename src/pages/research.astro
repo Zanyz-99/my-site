@@ -216,7 +216,47 @@ const papers = [
     .accordion a,
     .accordion a:visited { color: inherit; text-decoration: none; }
     .accordion a:hover { text-decoration: underline; }
-
-    /* Hover effect same as projects */
+    
+    /* Paper meta hierarchy (block = authors, venue, summary in that order) */
+    .block p:nth-child(1){              /* Authors */
+      font-weight: 600;
+      font-size: clamp(16px, 1.6vw, 18px);
+      letter-spacing: 0.005em;
+      color: var(--text);
+    }
+    
+    .block p:nth-child(2){              /* Venue */
+      color: var(--text);
+      font-weight: 500;
+      font-size: clamp(15px, 1.4vw, 17px);
+      margin-top: 2px;
+    }
+    
+    .block p:nth-child(3){              /* Summary */
+      margin-top: .4rem;
+      color: var(--text);
+      font-weight: 400;
+      font-size: clamp(15px, 1.5vw, 17px);
+      line-height: 1.6;
+      /* optional subtle contrast boost for readability */
+      opacity: .95;
+    }
+    
+    /* Optional: add a soft divider between summary and link row */
+    .block + .links {
+      margin-top: .6rem;
+      padding-top: .6rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* Finish your gray-hover effect (the snippet was cut off) */
     .gray-hover:hover .hoverable { 
-      filter: grayscale(
+      filter: grayscale(1) brightness(.85);
+      opacity: .7;
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+    .gray-hover .hoverable:hover {
+      filter: none;
+      opacity: 1;
+    }
+</style>

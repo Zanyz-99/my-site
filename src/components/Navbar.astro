@@ -163,11 +163,14 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   }
   .link{
     font-weight:700; color:var(--muted);
-    padding:.5rem 1rem; border-radius:999px; border:1px solid transparent;
+    padding:.5rem .75rem;
     text-decoration:none;
   }
-  .link:hover{ background:var(--hover); color:var(--text); }
-  .link.active{ background: var(--pill-bg); color: var(--pill-text); }
+  .link:hover{ color:var(--text); }
+  .link.active{ 
+    color: var(--text); 
+    font-weight:800; /* keep emphasis without pill */
+  }
   
   /* Icon buttons (toggle + hamburger) — plain, no circle */
   .toggle,
@@ -177,7 +180,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     padding:.35rem; margin:0;
     display:inline-flex; align-items:center; justify-content:center;
     line-height:0; cursor:pointer;
-    color: var(--text);         /* dark-on-light, light-on-dark */
+    color: var(--text);
   }
   .toggle svg, .hamburger svg{ display:block; }
   
@@ -230,7 +233,6 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .toggle{ justify-self:end; }
     .hamburger{ justify-self:end; }        /* sits to the right of toggle */
   
-    /* keep both icons same visual weight on dark/light */
     .toggle:hover, .hamburger:hover{ opacity:.85; }
   }
   
@@ -239,4 +241,5 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .mobile-menu,
     .hamburger{ display:none !important; }
   }
+
 </style>

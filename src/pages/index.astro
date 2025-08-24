@@ -3,8 +3,14 @@ import Layout from "../layouts/Layout.astro";
 ---
 <Layout title="Home — Zach Scholz" description="Navy Veteran">
   <section class="content home-wrap">
-    <!-- IDENTICAL structure to About's header row -->
-    <button class="acc-summary acc-summary--home" type="button" disabled aria-hidden="true" tabindex="-1">
+    <!-- Match About’s header row exactly (toggle column preserved, glyph hidden) -->
+    <button
+      class="acc-summary acc-summary--home"
+      type="button"
+      disabled
+      aria-hidden="true"
+      tabindex="-1"
+    >
       <span class="acc-toggle" aria-hidden="true"></span>
       <span class="acc-title">Zach Scholz</span>
     </button>
@@ -15,14 +21,14 @@ import Layout from "../layouts/Layout.astro";
 
   <style>
     :root{
-      /* Keep these in one place so About and Home stay in lockstep */
+      /* Keep these in sync with About to guarantee alignment */
       --acc-toggle-w: 1.25rem;  /* width of the toggle column */
       --acc-gap: 0.6rem;        /* gap between toggle and title */
     }
 
     .home-wrap { width: 100%; margin: 0 auto; padding: 3rem 0; }
 
-    /* COPY of your About header styles (with UA resets for buttons) */
+    /* Copied from About’s header button (with UA resets) */
     .acc-summary {
       appearance: none;
       -webkit-appearance: none;
@@ -32,15 +38,15 @@ import Layout from "../layouts/Layout.astro";
       align-items: center;
       gap: var(--acc-gap);
       padding: 6px 0;
-      cursor: pointer;
       user-select: none;
       color: var(--muted);
       background: none;
       border: 0;
       margin: 0;
+      cursor: pointer;
     }
+    /* Make Home’s header non-interactive but identical in layout */
     .acc-summary--home {
-      /* Make it non-interactive and remove pointer cursor */
       pointer-events: none;
       cursor: default;
     }
@@ -56,7 +62,7 @@ import Layout from "../layouts/Layout.astro";
       color: var(--text);
       text-align: center;
     }
-    /* Hide glyph on Home but keep the exact box width */
+    /* Hide the toggle glyph but keep the exact box width for alignment */
     .acc-summary--home .acc-toggle::before { content: ''; }
 
     .acc-title {

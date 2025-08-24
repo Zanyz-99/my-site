@@ -2,20 +2,30 @@
 const raw = Astro.url.pathname || '/';
 const normalize = (p: string) => {
   if (!p) return '/';
-  // keep root as "/", strip trailing slashes elsewhere
   return p === '/' ? '/' : p.replace(/\/+$/, '');
 };
 const pathname = normalize(raw);
 const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
+
+const titleMap: Record<string, string> = {
+  '/': 'Home',
+  '/about': 'About',
+  '/projects': 'Projects',
+  '/research': 'Research',
+};
+const pageTitle = titleMap[pathname] ?? 'Page';
 ---
 <nav class="topbar" aria-label="Primary">
   <div class="row">
-    <!-- Left: Logo (no crop) -->
+    <!-- Left: Logo -->
     <a href="/" class="logo-link" aria-label="Home">
       <img id="logoImg" class="logo" src="/icons/logo dark.png" alt="Logo" />
     </a>
 
-    <!-- Center: Menu (perfectly centered) -->
+    <!-- Center: Page title (shown only on mobile) -->
+    <div class="page-title" aria-hidden="true">{pageTitle}</div>
+
+    <!-- Center: Full menu (hidden on mobile) -->
     <ul class="menu" role="menubar" aria-label="Main">
       <li role="none"><a role="menuitem" class={`link ${active('/')}`} href="/">Home</a></li>
       <li role="none"><a role="menuitem" class={`link ${active('/about')}`} href="/about">About</a></li>
@@ -27,6 +37,31 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
     <button class="toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
       <span id="themeIcon" aria-hidden="true"></span>
     </button>
+
+    <!-- Right: Hamburger (mobile only) -->
+    <button
+      class="hamburger"
+      id="mobileMenuBtn"
+      aria-label="Open navigation menu"
+      aria-haspopup="menu"
+      aria-expanded="false"
+      aria-controls="mobileMenu"
+    >
+      <!-- 3 bars -->
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+        <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile dropdown menu -->
+  <div class="mobile-menu" id="mobileMenu" hidden>
+    <ul class="mobile-list" role="menu" aria-label="Mobile">
+      <li role="none"><a role="menuitem" class={`mlink ${active('/')}`} href="/">Home</a></li>
+      <li role="none"><a role="menuitem" class={`mlink ${active('/about')}`} href="/about">About</a></li>
+      <li role="none"><a role="menuitem" class={`mlink ${active('/projects')}`} href="/projects">Projects</a></li>
+      <li role="none"><a role="menuitem" class={`mlink ${active('/research')}`} href="/research">Research</a></li>
+    </ul>
   </div>
 </nav>
 
@@ -62,11 +97,37 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
       const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       apply(next);
     });
+
+    // Mobile menu logic
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const menu = document.getElementById('mobileMenu');
+
+    function closeMenu(){
+      if (!menu.hasAttribute('hidden')) {
+        menu.setAttribute('hidden', '');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      }
+    }
+    function openMenu(){
+      menu.removeAttribute('hidden');
+      menuBtn.setAttribute('aria-expanded', 'true');
+    }
+
+    menuBtn?.addEventListener('click', () => {
+      const open = menuBtn.getAttribute('aria-expanded') === 'true';
+      open ? closeMenu() : openMenu();
+    });
+
+    // Close on outside click / ESC / link click
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
   })();
 </script>
 
 <style>
-  /* Pill colors by theme (adds to your global tokens) */
   :root{
     --pill-bg:#eceef2;
     --pill-border:#d9dbe3;
@@ -80,13 +141,11 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
 
   .topbar{
     position: sticky; top: 0; z-index: 1000; width: 100%;
-    background: var(--bg);            /* match page background in light/dark */
-    border-bottom: none; /* optional: subtle divider */
-    backdrop-filter: none;            /* remove translucency/blur */
-    -webkit-backdrop-filter: none;
+    background: var(--bg);
+    border-bottom: none;
   }
 
-  /* Three-column grid = logo | centered menu | toggle */
+  /* Grid: logo | menu/title | toggle/hamburger */
   .row{
     max-width:1200px; margin:0 auto; padding:.6rem 1rem;
     display:grid; align-items:center; column-gap:1rem;
@@ -96,6 +155,7 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
   .logo-link{ display:inline-flex; align-items:center; }
   .logo{ height:32px; width:auto; display:block; }
 
+  /* Desktop menu */
   .menu{
     list-style:none; margin:0; padding:.2rem;
     display:flex; gap:.5rem; align-items:center; justify-self:center;
@@ -106,14 +166,75 @@ const active = (p: string) => (pathname === normalize(p) ? 'active' : '');
     text-decoration:none;
   }
   .link:hover{ background:var(--hover); color:var(--text); }
-  .link.active{
-    background: var(--pill-bg);
-    border: none;
-    color: var(--pill-text);
-  }
+  .link.active{ background: var(--pill-bg); color: var(--pill-text); }
 
   .toggle{
     justify-self:end;
     display:inline-flex; align-items:center; justify-content:center;
     border:1px solid var(--border); background:var(--card);
-    border-radius:999px; padding:.45rem .6rem; cursor:
+    border-radius:999px; padding:.45rem .6rem; cursor:pointer;
+  }
+
+  /* Mobile bits */
+  .page-title{
+    display:none;
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  .hamburger{
+    display:none;
+    justify-self:end;
+    border:1px solid var(--border);
+    background:var(--card);
+    border-radius:999px;
+    padding:.4rem .5rem;
+    line-height:0;
+    cursor:pointer;
+    margin-left:.4rem;
+  }
+
+  .mobile-menu{
+    position:relative;
+  }
+  .mobile-list{
+    position:absolute;
+    right:1rem;
+    left:1rem;
+    margin:0.25rem auto 0;
+    max-width:calc(1200px - 2rem);
+    list-style:none;
+    padding:.4rem;
+    border:1px solid var(--border);
+    background:var(--bg);
+    border-radius:12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  }
+  .mobile-list li{ margin:0; }
+  .mlink{
+    display:block;
+    padding:.75rem 1rem;
+    text-decoration:none;
+    color:var(--text);
+    border-radius:8px;
+  }
+  .mlink:hover{ background:var(--hover); }
+  .mlink.active{ font-weight:800; }
+
+  /* --- RESPONSIVE LOGIC --- */
+  @media (max-width: 768px){
+    .menu{ display:none; }           /* hide big menu */
+    .page-title{ display:block; justify-self:center; }
+    .hamburger{ display:inline-flex; }
+    .toggle{ justify-self:end; }     /* keep theme toggle visible */
+    .row{
+      grid-template-columns: auto 1fr auto; /* logo | title | toggles */
+    }
+  }
+
+  @media (min-width: 769px){
+    /* Hide mobile-only elements on desktop */
+    .page-title,
+    .mobile-menu,
+    .hamburger{ display:none !important; }
+  }
+</style>

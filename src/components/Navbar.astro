@@ -146,29 +146,33 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     max-width:1200px; margin:0 auto; padding:.6rem 1rem;
     display:grid; align-items:center; column-gap:1rem;
     grid-template-columns: 1fr auto 1fr;
-    min-width: 0; /* avoid weird wrapping */
+    min-width: 0;
   }
   
   .logo-link{ display:inline-flex; align-items:center; }
   .logo{ height:32px; width:auto; display:block; }
   
-  /* Desktop menu */
+  /* Desktop menu (plain text links) */
   .menu{
     list-style:none; margin:0; padding:.2rem;
-    display:flex; gap:.5rem; align-items:center; justify-self:center;
+    display:flex; gap:.75rem; align-items:center; justify-self:center;
   }
   .link{
-    font-weight:700; color:var(--muted);
-    padding:.5rem .75rem;
+    font-weight:600;
+    color:var(--muted);
     text-decoration:none;
+    transition: color .18s ease;
+    padding: 0;            /* no pill padding */
+    border-radius: 0;      /* ensure no rounding */
+    background: none;      /* ensure no bg */
   }
   .link:hover{ color:var(--text); }
-  .link.active{ 
-    color: var(--text); 
-    font-weight:800; /* keep emphasis without pill */
+  .link.active{
+    color:var(--text);
+    font-weight:700;       /* subtle emphasis, still text-only */
   }
   
-  /* Icon buttons (toggle + hamburger) — plain, no circle */
+  /* Icon buttons (toggle + hamburger) — plain */
   .toggle,
   .hamburger{
     appearance:none; -webkit-appearance:none;
@@ -180,7 +184,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   }
   .toggle svg, .hamburger svg{ display:block; }
   
-  /* Mobile extras */
+  /* Mobile center title */
   .page-title{
     display:none;
     font-weight:800;
@@ -188,8 +192,10 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
   
-  /* Mobile dropdown */
+  /* Mobile dropdown container */
   .mobile-menu{ position:relative; }
+  
+  /* Mobile list (no pill backgrounds) */
   .mobile-list{
     position:absolute;
     right:1rem; left:1rem;
@@ -203,19 +209,36 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     box-shadow: 0 6px 18px rgba(0,0,0,.08);
   }
   .mobile-list li{ margin:0; }
+  
+  /* Mobile links: text-only states */
   .mlink{
     display:block;
-    padding:.75rem 1rem;
+    padding:.75rem 1rem;      /* keep tap target, but no bg */
     text-decoration:none;
-    color:var(--text);
-    border-radius:8px;
+    color:var(--muted);
+    border-radius:0;
+    background:none;
+    transition: color .18s ease;
   }
-  .mlink:hover{ background:var(--hover); }
-  .mlink.active{ font-weight:800; }
+  .mlink:hover{ color:var(--text); }
+  .mlink.active{
+    font-weight:700;
+    color:var(--text);
+  }
   
-  /* --- RESPONSIVE LOGIC --- */
+  /* Focus-visible for a11y (no pills) */
+  .link:focus-visible,
+  .mlink:focus-visible,
+  .toggle:focus-visible,
+  .hamburger:focus-visible,
+  .logo-link:focus-visible{
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  
+  /* --- RESPONSIVE --- */
   @media (max-width: 768px){
-    .menu{ display:none; }                 /* hide full menu */
+    .menu{ display:none; }                 /* hide full menu on mobile */
     .page-title{ display:block; }          /* show page title */
   
     /* Four columns: logo | title | toggle | hamburger */
@@ -227,7 +250,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .logo-link{ justify-self:start; }
     .page-title{ justify-self:center; }
     .toggle{ justify-self:end; }
-    .hamburger{ justify-self:end; }        /* sits to the right of toggle */
+    .hamburger{ justify-self:end; }        /* stays visible on mobile */
   
     .toggle:hover, .hamburger:hover{ opacity:.85; }
   }
@@ -235,7 +258,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   @media (min-width: 769px){
     .page-title,
     .mobile-menu,
-    .hamburger{ display:none !important; }
+    .hamburger{ display:none !important; } /* hide hamburger on desktop */
   }
 
 </style>

@@ -104,14 +104,22 @@ const gamePath = "/games/Sheepshead/index.html";
     <div class="about-col">
       <h1 class="game-title">Sheepshead</h1>
       <h2>About this game</h2>
-      <p>A remastered take on the classic trick‑taking card game. Best in portrait (9:16). Works on mobile and desktop.</p>
+      <p>A trick-taking card game of German origin. This is a single player version with computer controlled opponents.</p>
 
       <h3>How to play</h3>
       <ul>
-        <li>Follow the suit/rules shown in‑game.</li>
-        <li>Win tricks to score points.</li>
-        <li>Use fullscreen for focus.</li>
+        <li>Deck: 24 cards — A, K, Q, J, 10, 9 of each suit.</li>
+        <li>Partners: the two players who hold the black queens. If you hold both, go
+            <em>alone</em> or call <em>First Trick</em> (first non‑you trick winner becomes your partner).</li>
+        <li>Trump: all Queens (♣, ♠, ♥, ♦), then all Jacks (♣, ♠, ♥, ♦), then all Diamonds (A, 10, K, 9).</li>
+        <li>Other suits (♠ ♣ ♥): follow suit order A, 10, K, 9. You must follow suit if able; otherwise play trump.</li>
+        <li>Trick-taking: highest trump wins; if no trump is played, highest of the led suit wins.</li>
+        <li>Points per card: A=11, 10=10, K=4, Q=3, J=2, 9=0 (120 total per hand).</li>
+        <li>Scoring (quick gist): Queen partners sweep=12; opponents take any trick=6;
+            opponents 31–59 (“cutter”)=3; opponents 61–89=6 to opponents; opponents ≥90=9 to opponents.</li>
+        <li>Tip: use fullscreen for focus.</li>
       </ul>
+
 
       <div class="btnrow">
         <button class="btn primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>

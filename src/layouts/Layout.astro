@@ -7,7 +7,7 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
 <!doctype html>
 <html lang="en" data-theme="light">
   <head>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
@@ -45,8 +45,8 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         --line: 1.5;
 
         /* Font families (normalized site-wide) */
-        --font-title: 'Inter', system-ui, sans-serif;
-        --font-body: 'Inter', system-ui, sans-serif;
+        --font-title: 'Montserrat', system-ui, sans-serif;
+        --font-body: 'Inter', system-ui, sans-serif; /* keep body more readable */
 
         /* Footer height (script will update to exact) */
         --footer-h: 72px;

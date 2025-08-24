@@ -157,31 +157,56 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     list-style:none; margin:0; padding:.2rem;
     display:flex; gap:.75rem; align-items:center; justify-self:center;
   }
+
+  /* Kill any li hover/selection backgrounds just in case */
+  .topbar .menu > li,
+  .topbar .menu > li:hover,
+  .topbar .menu > li:active,
+  .topbar .menu > li:focus-within{
+    background: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
   .link{
     font-weight:600;
     color:var(--muted);
     text-decoration:none;
     transition: color .18s ease;
-    padding: 0;
-    background: none;
-    border: none;
-    box-shadow: none;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent; /* mobile */
   }
-  .link:hover{ color:var(--text); }
+  .link:hover{ color:var(--text); background: none !important; }
+  .link:active,
+  .link:focus,
+  .link:focus-visible{
+    color: var(--text);
+    background: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
   .link.active{
     color:var(--text);
     font-weight:700;
+    background: none !important;
   }
+  .link:visited{ color: var(--muted); }  /* keep visited from turning purple */
   
   /* Icon buttons (toggle + hamburger) */
   .toggle,
   .hamburger{
     appearance:none; -webkit-appearance:none;
-    background:none; border:none;
+    background:none !important; border:none !important;
     padding:.35rem; margin:0;
     display:inline-flex; align-items:center; justify-content:center;
     line-height:0; cursor:pointer;
     color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
   }
   .toggle svg, .hamburger svg{ display:block; }
   
@@ -209,33 +234,42 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     border-radius:12px;
     box-shadow: 0 6px 18px rgba(0,0,0,.08);
   }
-  .mobile-list li{ margin:0; }
+  .mobile-list li,
+  .mobile-list li:hover,
+  .mobile-list li:active,
+  .mobile-list li:focus-within{
+    background: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
   
   .mlink{
     display:block;
-    padding:.75rem 1rem;
+    padding:.75rem 1rem; /* keep tap target */
     text-decoration:none;
     color:var(--muted);
-    background:none;
-    border:none;
-    box-shadow:none;
+    background:none !important;
+    border:none !important;
+    box-shadow:none !important;
     transition: color .18s ease;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
   }
-  .mlink:hover{ color:var(--text); }
+  .mlink:hover{ color:var(--text); background: none !important; }
+  .mlink:active,
+  .mlink:focus,
+  .mlink:focus-visible{
+    color: var(--text);
+    background: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
   .mlink.active{
     font-weight:700;
     color:var(--text);
+    background: none !important;
   }
-  
-  /* Remove all outlines/boxes from links/buttons */
-  .link:focus, .link:active,
-  .mlink:focus, .mlink:active,
-  .toggle:focus, .hamburger:focus,
-  .logo-link:focus{
-    outline: none;
-    background: none;
-    box-shadow: none;
-  }
+  .mlink:visited{ color: var(--muted); }
   
   /* --- RESPONSIVE --- */
   @media (max-width: 768px){

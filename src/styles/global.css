@@ -157,3 +157,14 @@ h1 {
 .align-with-acc { padding-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
 /* Or as margin if preferred: */
 /* .indent-with-acc { margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); } */
+
+/* Prevent layout shift when vertical scrollbar toggles */
+html{
+  /* Modern browsers */
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Fallback for older browsers */
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; }
+}

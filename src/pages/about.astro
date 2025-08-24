@@ -387,6 +387,30 @@ const dataUrl = new URL('/data/strava-latest.json', Astro.url).pathname;
     .stats .dot{opacity:.6}
     .stats .metric{white-space:nowrap}
 
+    /* Work meta hierarchy */
+    .meta .title {             /* Job title */
+      font-weight: 600;
+      font-size: clamp(16px, 1.6vw, 18px);
+      letter-spacing: 0.005em;
+      color: var(--text);
+    }
+    
+    .meta .sub:first-of-type { /* Organization / unit */
+      font-weight: 500;
+      font-size: clamp(15px, 1.4vw, 17px);
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    
+    .meta .sub:last-of-type {  /* Location / dates */
+      font-weight: 400;
+      font-size: clamp(15px, 1.5vw, 17px);
+      line-height: 1.6;
+      color: var(--muted);     /* slightly toned down for contrast */
+      margin-top: .25rem;
+    }
+
+
     @media (max-width: 640px){
       .strava-cta, .stats{ display:none !important; }
     }

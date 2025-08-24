@@ -170,6 +170,6 @@ html{
 }
 
 /* Make all links italic */
-a {
+.content a {
   font-style: italic;
 }

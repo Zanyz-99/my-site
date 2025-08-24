@@ -3,7 +3,6 @@ import Layout from "../layouts/Layout.astro";
 ---
 <Layout title="Home — Zach Scholz" description="Navy Veteran">
   <section class="content home-wrap">
-    <!-- Spacer to match About -->
     <div class="spacer-md" aria-hidden="true"></div>
 
     <!-- Header row identical to About (toggle column preserved, glyph hidden) -->
@@ -18,15 +17,17 @@ import Layout from "../layouts/Layout.astro";
       <span class="acc-title">Zach Scholz</span>
     </button>
 
-    <!-- Subtitle aligned to the same text start as the title -->
+    <!-- Subtitle MUST carry the indent class -->
     <p class="home-sub indent-acc">Navy Veteran</p>
   </section>
 
   <style>
     :root{
       /* Keep in sync with About */
-      --acc-toggle-w: 1.25rem;  /* width of the toggle column */
-      --acc-gap: 0.6rem;        /* gap between toggle and title */
+      --acc-toggle-w: 1.25rem;   /* toggle column width */
+      --acc-gap: 0.6rem;         /* gap between toggle and title */
+      /* Fallback single var to mirror About's panel padding-left (1.25rem + 0.6rem) */
+      --acc-indent: calc(var(--acc-toggle-w) + var(--acc-gap));
     }
 
     /* Match About’s container behavior */
@@ -39,19 +40,15 @@ import Layout from "../layouts/Layout.astro";
       width:100%;
     }
 
-    /* Same spacer used on About */
-    .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
+    .spacer-md{ height: clamp(24px, 6vh, 64px); width:100%; }
 
-    /* Copied from About’s header button (with UA resets) */
     .acc-summary{
       appearance:none; -webkit-appearance:none; box-sizing:border-box;
       width:100%;
       display:flex; align-items:center; gap:var(--acc-gap);
-      padding:6px 0;               /* no left padding */
-      user-select:none; color:var(--muted);
+      padding:6px 0; user-select:none; color:var(--muted);
       background:none; border:0; margin:0; cursor:pointer;
     }
-    /* Make Home’s header non-interactive but identical in layout */
     .acc-summary--home{ pointer-events:none; cursor:default; }
 
     .acc-toggle{
@@ -61,7 +58,6 @@ import Layout from "../layouts/Layout.astro";
       font-weight:1000; line-height:1;
       color:var(--text); text-align:center;
     }
-    /* Hide the toggle glyph but keep the exact box width for alignment */
     .acc-summary--home .acc-toggle::before{ content:''; }
 
     .acc-title{
@@ -73,13 +69,18 @@ import Layout from "../layouts/Layout.astro";
       color:var(--text);
     }
 
-    /* Subtitle left edge = toggle width + gap (same as title text start) */
-    .indent-acc{ margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
-
     .home-sub{
       margin:.25rem 0 0;
       color:var(--muted);
       font-size:clamp(16px, 2.2vw, 18px);
+      /* defensively reset any left margin from globals */
+      margin-left: 0;
+      padding-left: 0;
+    }
+
+    /* 🔒 High-specificity indent: aligns subtitle's left edge with title text start */
+    .home-wrap .home-sub.indent-acc{
+      margin-left: var(--acc-indent);
     }
   </style>
 </Layout>

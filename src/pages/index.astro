@@ -46,7 +46,7 @@ import Layout from "../layouts/Layout.astro";
       appearance:none; -webkit-appearance:none; box-sizing:border-box;
       width:100%;
       display:flex; align-items:center; gap:var(--acc-gap);
-      padding:6px 0; user-select:none; color:var(--muted);
+      padding:6px 0; user-select:none; color:var(--text);
       background:none; border:0; margin:0; cursor:pointer;
     }
     .acc-summary--home{ pointer-events:none; cursor:default; }
@@ -71,7 +71,7 @@ import Layout from "../layouts/Layout.astro";
 
     .home-sub{
       margin:.25rem 0 0;
-      color:var(--muted);
+      color:var(--text);
       font-size:clamp(16px, 2.2vw, 18px);
       /* defensively reset any left margin from globals */
       margin-left: 0;

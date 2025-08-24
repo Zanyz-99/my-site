@@ -175,21 +175,32 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     -webkit-tap-highlight-color: transparent !important;
   }
 
-  .link{
-    font-weight:600;
-    color:var(--muted);
-    text-decoration:none;
+  /* Navbar links (desktop + mobile) */
+  .link,
+  .mlink {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 600; /* Semibold */
+    color: var(--muted);
+    text-decoration: none;
     transition: color .18s ease;
     padding: 0 !important;
   }
-  /* Hover: only text color */
-  .link:hover{ color:var(--text) !important; }
-  /* Current page: only text color (optionally slightly bolder) */
-  .link.active{
-    color:var(--text) !important;
-    font-weight:700;
+
+  .link:hover,
+  .mlink:hover {
+    color: var(--text) !important;
   }
-  .link:visited{ color: var(--muted); }  /* keep visited from turning purple */
+
+  .link.active,
+  .mlink.active {
+    font-weight: 700; /* Bold when active */
+    color: var(--text) !important;
+  }
+
+  .link:visited,
+  .mlink:visited {
+    color: var(--muted);
+  }
   
   /* Icon buttons (toggle + hamburger) */
   .toggle,
@@ -243,20 +254,11 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   .mlink{
     display:block;
     padding:.75rem 1rem; /* keep tap target */
-    text-decoration:none;
-    color:var(--muted);
     background:transparent !important;
     border:none !important;
-    transition: color .18s ease;
     outline: none !important;
     -webkit-tap-highlight-color: transparent !important;
   }
-  .mlink:hover{ color:var(--text) !important; }
-  .mlink.active{
-    font-weight:700;
-    color:var(--text) !important;
-  }
-  .mlink:visited{ color: var(--muted); }
   
   /* --- RESPONSIVE --- */
   @media (max-width: 768px){
@@ -272,7 +274,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .logo-link{ justify-self:start; }
     .page-title{ justify-self:center; }
     .toggle{ justify-self:end; }
-    .hamburger{ justify-self=end; }
+    .hamburger{ justify-self:end; }
   
     .toggle:hover, .hamburger:hover{ opacity:.85; }
   }
@@ -283,3 +285,4 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .hamburger{ display:none !important; }
   }
 </style>
+

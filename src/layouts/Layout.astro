@@ -7,6 +7,7 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
 <!doctype html>
 <html lang="en" data-theme="light">
   <head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
@@ -44,8 +45,8 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         --line: 1.5;
 
         /* Font families (normalized site-wide) */
-        --font-title: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,"Helvetica Neue", Arial, "Noto Sans", sans-serif;
-        --font-body:  system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,"Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        --font-title: 'Inter', system-ui, sans-serif;
+        --font-body: 'Inter', system-ui, sans-serif;
 
         /* Footer height (script will update to exact) */
         --footer-h: 72px;
@@ -71,9 +72,9 @@ const { title = "ZachScholz.com", description = "" } = Astro.props;
         font-family: var(--font-title);
         color: var(--text);
       }
-      h1{ font-size:var(--h1-size); margin:0 0 .25rem 0; line-height:calc(var(--line) - .15); font-weight:700; letter-spacing:-0.01em; }
-      h2{ font-size:var(--h2-size); margin:1.25rem 0 .5rem; line-height:calc(var(--line) - .1); font-weight:700; }
-      h3{ font-size:var(--h3-size); margin:1rem 0 .35rem; line-height:calc(var(--line) - .05); font-weight:700; }
+      h1{ font-size:var(--h1-size); margin:0 0 .25rem 0; line-height:calc(var(--line) - .15); font-weight:600; letter-spacing:-0.01em; }
+      h2{ font-size:var(--h2-size); margin:1.25rem 0 .5rem; line-height:calc(var(--line) - .1); font-weight:600; }
+      h3{ font-size:var(--h3-size); margin:1rem 0 .35rem; line-height:calc(var(--line) - .05); font-weight:600; }
 
       p, .sub, .muted, li, a, .acc-panel{
         font-family: var(--font-body);

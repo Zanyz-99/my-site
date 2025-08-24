@@ -46,6 +46,7 @@ const gamePath = "/games/Sheepshead/index.html";
       gap: .75rem;
       margin-top: .25rem;
     }
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -53,12 +54,20 @@ const gamePath = "/games/Sheepshead/index.html";
       padding: .65rem .9rem;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: #1a1a1a;
-      color: var(--text);
+      background: var(--card);   /* theme-aware background */
+      color: var(--text);        /* theme-aware text */
       cursor: pointer;
     }
-    .btn:hover { background: #222; }
-    .btn.primary { background: #2a2a2a; border-color: #2f2f2f; }
+    
+    .btn:hover {
+      background: var(--hover);
+    }
+    
+    .btn.primary {
+      background: var(--text);   /* primary = solid text color */
+      color: var(--bg);          /* invert text */
+      border-color: var(--text);
+    }
 
     .stage {
       height: min(90dvh, 980px);

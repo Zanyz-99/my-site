@@ -31,6 +31,26 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
       color: var(--text);
     }
 
+    /* Logo + description row */
+    .logo-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      margin: .75rem 0 1rem;
+    }
+    .logo-row img {
+      width: 96px;
+      height: 96px;
+      border-radius: none;
+      flex-shrink: 0;
+    }
+    .logo-row p {
+      margin: 0;
+      font-size: var(--body-size);
+      line-height: 1.5;
+      color: var(--text);
+    }
+
     .about-col p,
     .about-col ul {
       margin: 0 0 1rem 0;
@@ -40,12 +60,14 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
     }
     .about-col ul { padding-left: 1.25rem; }
 
+    /* Link: underline only on hover */
     .about-col a {
       color: var(--text);
-      text-decoration: underline;
+      text-decoration: none;
     }
     .about-col a:hover {
       color: var(--muted);
+      text-decoration: underline;
     }
 
     /* ========== Game Stage (fills viewport height, preserves 9:16) ========== */
@@ -55,14 +77,14 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
       overflow: hidden;
       max-width: 100%;
       background: #000;
-      border-radius: none;
+      border-radius: 5%;
       border: none;
-    
-      /* Fit within viewport height, no scroll */
-      height: calc(80svh - 2rem); /* subtract small padding for header/footer */
+
+      /* Fit within viewport height, no scroll (adjust 80svh if desired) */
+      height: calc(80svh - 2rem);
       max-height: 100%;
       aspect-ratio: 9 / 16;
-    
+
       /* Width auto-calculated from aspect-ratio */
       width: auto;
     }
@@ -98,7 +120,7 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
       padding: .55rem .8rem;
       border-radius: none;
       border: none;
-      background: var(--card);   /* muted theme-aware background */
+      background: var(--card);
       color: var(--text);
       cursor: pointer;
       text-decoration: none;
@@ -129,11 +151,18 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
     <!-- Left column: About -->
     <div class="about-col">
       <h1 class="game-title">Furthest On Circle</h1>
-      <p>An arcade style game that will test your skills. The only challenge is how well you can aim the ball and how quickly you can shoot!</p>
-       <!-- Google Play link -->
+
+      <!-- Logo + description side by side -->
+      <div class="logo-row">
+        <img src="/icons/FOC.png" alt="FOC logo" />
+        <p>An arcade style game that will test your skills. The only challenge is how well you can aim the ball and how quickly you can shoot!</p>
+      </div>
+
+      <!-- Google Play link -->
       <p>
         <a href={playStoreUrl} target="_blank" rel="noopener noreferrer">Google Play ↗</a>
       </p>
+
       <h2>How to play</h2>
       <p>
         Beat the expanding circles and get the ball to the other end of the screen to
@@ -142,6 +171,7 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
       <p>◉ Easy - Two expanding circles.</p>
       <p>◉ Medium - Three expanding circles and a moving target.</p>
       <p>◉ Hard - Infinite expanding circles!</p>
+
       <!-- Buttons: fullscreen + reload -->
       <div class="btnrow">
         <!--<button class="btn h2 primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>-->

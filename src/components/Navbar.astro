@@ -152,7 +152,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   .logo-link{ display:inline-flex; align-items:center; }
   .logo{ height:32px; width:auto; display:block; }
   
-  /* Desktop menu (plain text links) */
+  /* Desktop menu */
   .menu{
     list-style:none; margin:0; padding:.2rem;
     display:flex; gap:.75rem; align-items:center; justify-self:center;
@@ -162,21 +162,22 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     color:var(--muted);
     text-decoration:none;
     transition: color .18s ease;
-    padding: 0;            /* no pill padding */
-    border-radius: 0;      /* ensure no rounding */
-    background: none;      /* ensure no bg */
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
   }
   .link:hover{ color:var(--text); }
   .link.active{
     color:var(--text);
-    font-weight:700;       /* subtle emphasis, still text-only */
+    font-weight:700;
   }
   
-  /* Icon buttons (toggle + hamburger) — plain */
+  /* Icon buttons (toggle + hamburger) */
   .toggle,
   .hamburger{
     appearance:none; -webkit-appearance:none;
-    background:none; border:none; border-radius:0;
+    background:none; border:none;
     padding:.35rem; margin:0;
     display:inline-flex; align-items:center; justify-content:center;
     line-height:0; cursor:pointer;
@@ -195,7 +196,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   /* Mobile dropdown container */
   .mobile-menu{ position:relative; }
   
-  /* Mobile list (no pill backgrounds) */
+  /* Mobile list */
   .mobile-list{
     position:absolute;
     right:1rem; left:1rem;
@@ -210,14 +211,14 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   }
   .mobile-list li{ margin:0; }
   
-  /* Mobile links: text-only states */
   .mlink{
     display:block;
-    padding:.75rem 1rem;      /* keep tap target, but no bg */
+    padding:.75rem 1rem;
     text-decoration:none;
     color:var(--muted);
-    border-radius:0;
     background:none;
+    border:none;
+    box-shadow:none;
     transition: color .18s ease;
   }
   .mlink:hover{ color:var(--text); }
@@ -226,14 +227,14 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     color:var(--text);
   }
   
-  /* Focus-visible for a11y (no pills) */
-  .link:focus-visible,
-  .mlink:focus-visible,
-  .toggle:focus-visible,
-  .hamburger:focus-visible,
-  .logo-link:focus-visible{
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
+  /* Remove all outlines/boxes from links/buttons */
+  .link:focus, .link:active,
+  .mlink:focus, .mlink:active,
+  .toggle:focus, .hamburger:focus,
+  .logo-link:focus{
+    outline: none;
+    background: none;
+    box-shadow: none;
   }
   
   /* --- RESPONSIVE --- */
@@ -250,7 +251,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .logo-link{ justify-self:start; }
     .page-title{ justify-self:center; }
     .toggle{ justify-self:end; }
-    .hamburger{ justify-self:end; }        /* stays visible on mobile */
+    .hamburger{ justify-self:end; }
   
     .toggle:hover, .hamburger:hover{ opacity:.85; }
   }
@@ -258,7 +259,6 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   @media (min-width: 769px){
     .page-title,
     .mobile-menu,
-    .hamburger{ display:none !important; } /* hide hamburger on desktop */
+    .hamburger{ display:none !important; }
   }
-
 </style>

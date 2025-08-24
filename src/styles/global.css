@@ -63,17 +63,43 @@ a:hover{ text-decoration:underline; }
   display:flex; gap:1rem; align-items:center; list-style:none; margin:0; padding:.2rem;
   background: transparent;
 }
-.menu a{
-  font-weight:700; text-decoration:none;
-  padding:.55rem 1.1rem; border-radius:999px; border:1px solid transparent;
+
+/* TEXT-ONLY NAV LINKS (no pills, no boxes) */
+.nav .menu a{
+  font-weight:700;
   color: var(--muted);
+  text-decoration: none;           /* kill global underline */
+  padding: 0;                      /* no pill padding */
+  border: 0;                       /* no borders */
+  border-radius: 0;                /* no rounded background */
+  background: transparent;         /* no bg ever */
+  box-shadow: none;                /* no inner shadow */
+  transition: color .18s ease;
 }
-.menu a:hover{ background:var(--hover); color:var(--text); }
-.menu a.active{
-  background: color-mix(in oklab, var(--bg) 70%, #000 30%);
-  border: 1px solid var(--border);
+
+/* Hover: ONLY text color changes */
+.nav .menu a:hover{
   color: var(--text);
-  box-shadow: 0 1px 0 rgba(0,0,0,.06) inset;
+  background: transparent !important;
+  text-decoration: none;           /* override global a:hover underline */
+}
+
+/* Active/current page: ONLY text color */
+.nav .menu a.active{
+  color: var(--text);
+  font-weight: 800;
+  background: transparent !important;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Prevent li hover backgrounds */
+.nav .menu > li,
+.nav .menu > li:hover,
+.nav .menu > li:focus-within{
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
 }
 
 .nav-right{
@@ -99,7 +125,6 @@ a:hover{ text-decoration:underline; }
 }
 
 /* Make native <h1> use the same exact style */
-h1 { composes: h1-style; } /* if your tooling doesn't support `composes`, just duplicate: */
 h1 {
   margin: 0 0 .25rem;
   font-size: var(--h1-size);

@@ -1,86 +1,66 @@
----
-import Layout from "../layouts/Layout.astro";
----
-<Layout title="Home — Zach Scholz" description="Navy Veteran">
-  <section class="content home-wrap">
-    <!-- Match About’s header row exactly (toggle column preserved, glyph hidden) -->
-    <button
-      class="acc-summary acc-summary--home"
-      type="button"
-      disabled
-      aria-hidden="true"
-      tabindex="-1"
-    >
-      <span class="acc-toggle" aria-hidden="true"></span>
-      <span class="acc-title">Zach Scholz</span>
-    </button>
+<section class="content home-wrap">
+  <!-- spacer to match About -->
+  <div class="spacer-md" aria-hidden="true"></div>
 
-    <!-- Subtitle aligned to the same text start as the title -->
-    <p class="home-sub indent-acc">Navy Veteran</p>
-  </section>
+  <!-- identical header row (toggle column preserved, glyph hidden) -->
+  <button
+    class="acc-summary acc-summary--home"
+    type="button"
+    disabled
+    aria-hidden="true"
+    tabindex="-1"
+  >
+    <span class="acc-toggle" aria-hidden="true"></span>
+    <span class="acc-title">Zach Scholz</span>
+  </button>
 
-  <style>
-    :root{
-      /* Keep these in sync with About to guarantee alignment */
-      --acc-toggle-w: 1.25rem;  /* width of the toggle column */
-      --acc-gap: 0.6rem;        /* gap between toggle and title */
-    }
+  <!-- subtitle aligned to the same text start as the title -->
+  <p class="home-sub indent-acc">Navy Veteran</p>
+</section>
 
-    .home-wrap { width: 100%; margin: 0 auto; padding: 3rem 0; }
+<style>
+  :root{
+    /* keep in sync with About */
+    --acc-toggle-w: 1.25rem;
+    --acc-gap: 0.6rem;
+  }
 
-    /* Copied from About’s header button (with UA resets) */
-    .acc-summary {
-      appearance: none;
-      -webkit-appearance: none;
-      box-sizing: border-box;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: var(--acc-gap);
-      padding: 6px 0;
-      user-select: none;
-      color: var(--muted);
-      background: none;
-      border: 0;
-      margin: 0;
-      cursor: pointer;
-    }
-    /* Make Home’s header non-interactive but identical in layout */
-    .acc-summary--home {
-      pointer-events: none;
-      cursor: default;
-    }
+  /* match About’s container behavior */
+  .home-wrap{
+    display:grid;
+    gap:12px;
+    justify-items:start;
+    align-items:start;
+    margin-inline:auto;
+  }
 
-    .acc-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: var(--acc-toggle-w);
-      font-size: calc(var(--h1-size) * 0.8);
-      font-weight: 1000;
-      line-height: 1;
-      color: var(--text);
-      text-align: center;
-    }
-    /* Hide the toggle glyph but keep the exact box width for alignment */
-    .acc-summary--home .acc-toggle::before { content: ''; }
+  /* same spacer used on About */
+  .spacer-md{ height: clamp(24px, 6vh, 64px); width: 100%; }
 
-    .acc-title {
-      margin: 0;
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      color: var(--text);
-    }
+  /* same header styles */
+  .acc-summary{
+    appearance:none; -webkit-appearance:none; box-sizing:border-box;
+    width:100%; display:flex; align-items:center; gap:var(--acc-gap);
+    padding:6px 0; user-select:none; color:var(--muted);
+    background:none; border:0; margin:0; cursor:pointer;
+  }
+  .acc-summary--home{ pointer-events:none; cursor:default; }
 
-    /* Subtitle left edge = toggle width + gap (same as title start) */
-    .indent-acc { margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
+  .acc-toggle{
+    display:flex; align-items:center; justify-content:center;
+    width:var(--acc-toggle-w);
+    font-size:calc(var(--h1-size) * 0.8);
+    font-weight:1000; line-height:1; color:var(--text); text-align:center;
+  }
+  /* hide glyph but keep column width */
+  .acc-summary--home .acc-toggle::before{ content:''; }
 
-    .home-sub {
-      margin: .25rem 0 0;
-      color: var(--muted);
-      font-size: clamp(16px, 2.2vw, 18px);
-    }
-  </style>
-</Layout>
+  .acc-title{
+    margin:0; font-size:var(--h1-size); font-weight:1000;
+    letter-spacing:-0.01em; line-height:calc(var(--line) - .15); color:var(--text);
+  }
+
+  /* subtitle starts where the title text starts */
+  .indent-acc{ margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
+  .home-sub{ margin:.25rem 0 0; color:var(--muted); font-size:clamp(16px, 2.2vw, 18px); }
+</style>

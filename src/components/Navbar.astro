@@ -138,23 +138,24 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     --pill-border:#2f2f36;
     --pill-text:#e7e7e7;
   }
-
+  
   .topbar{
     position: sticky; top: 0; z-index: 1000; width: 100%;
     background: var(--bg);
     border-bottom: none;
   }
-
-  /* Grid: logo | menu/title | toggle/hamburger */
+  
+  /* Grid: logo | menu/title | toggle/hamburger (desktop) */
   .row{
     max-width:1200px; margin:0 auto; padding:.6rem 1rem;
     display:grid; align-items:center; column-gap:1rem;
     grid-template-columns: 1fr auto 1fr;
+    min-width: 0; /* avoid weird wrapping */
   }
-
+  
   .logo-link{ display:inline-flex; align-items:center; }
   .logo{ height:32px; width:auto; display:block; }
-
+  
   /* Desktop menu */
   .menu{
     list-style:none; margin:0; padding:.2rem;
@@ -167,39 +168,32 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   }
   .link:hover{ background:var(--hover); color:var(--text); }
   .link.active{ background: var(--pill-bg); color: var(--pill-text); }
-
-  .toggle{
-    justify-self:end;
+  
+  /* Icon buttons (toggle + hamburger) — plain, no circle */
+  .toggle,
+  .hamburger{
+    appearance:none; -webkit-appearance:none;
+    background:none; border:none; border-radius:0;
+    padding:.35rem; margin:0;
     display:inline-flex; align-items:center; justify-content:center;
-    border:1px solid var(--border); background:var(--card);
-    border-radius:999px; padding:.45rem .6rem; cursor:pointer;
+    line-height:0; cursor:pointer;
+    color: var(--text);         /* dark-on-light, light-on-dark */
   }
-
-  /* Mobile bits */
+  .toggle svg, .hamburger svg{ display:block; }
+  
+  /* Mobile extras */
   .page-title{
     display:none;
     font-weight:800;
     letter-spacing:-0.01em;
+    min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
-  .hamburger{
-    display:none;
-    justify-self:end;
-    border:1px solid var(--border);
-    background:var(--card);
-    border-radius:999px;
-    padding:.4rem .5rem;
-    line-height:0;
-    cursor:pointer;
-    margin-left:.4rem;
-  }
-
-  .mobile-menu{
-    position:relative;
-  }
+  
+  /* Mobile dropdown */
+  .mobile-menu{ position:relative; }
   .mobile-list{
     position:absolute;
-    right:1rem;
-    left:1rem;
+    right:1rem; left:1rem;
     margin:0.25rem auto 0;
     max-width:calc(1200px - 2rem);
     list-style:none;
@@ -219,20 +213,28 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   }
   .mlink:hover{ background:var(--hover); }
   .mlink.active{ font-weight:800; }
-
+  
   /* --- RESPONSIVE LOGIC --- */
   @media (max-width: 768px){
-    .menu{ display:none; }           /* hide big menu */
-    .page-title{ display:block; justify-self:center; }
-    .hamburger{ display:inline-flex; }
-    .toggle{ justify-self:end; }     /* keep theme toggle visible */
+    .menu{ display:none; }                 /* hide full menu */
+    .page-title{ display:block; }          /* show page title */
+  
+    /* Four columns: logo | title | toggle | hamburger */
     .row{
-      grid-template-columns: auto 1fr auto; /* logo | title | toggles */
+      grid-template-columns: auto 1fr auto auto;
+      column-gap:.5rem;
     }
+  
+    .logo-link{ justify-self:start; }
+    .page-title{ justify-self:center; }
+    .toggle{ justify-self:end; }
+    .hamburger{ justify-self:end; }        /* sits to the right of toggle */
+  
+    /* keep both icons same visual weight on dark/light */
+    .toggle:hover, .hamburger:hover{ opacity:.85; }
   }
-
+  
   @media (min-width: 769px){
-    /* Hide mobile-only elements on desktop */
     .page-title,
     .mobile-menu,
     .hamburger{ display:none !important; }

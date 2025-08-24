@@ -41,7 +41,7 @@ const projects: Project[] = [
       "A meal-planning app that helps you use what’s already in your pantry. Allows you to integrate recipes into your shopping easily and plan meals with ease.",
     howto: "-",
     store: "https://play.google.com/store/apps/details?id=com.zanyinc.pantrymealplanner.pantrymealplanner",
-    play: null, // ← no Play Now link
+    play: null, // no Play Now link
   },
   {
     id: "sheepshead",
@@ -79,7 +79,7 @@ const projects: Project[] = [
             role="region"
             aria-labelledby={`btn-proj-${p.id}`}
           >
-            <!-- Stacked layout: logo + links (top), about (below) -->
+            <!-- Logo + links (inline), about below -->
             <div class="about-row">
               <div class="logo-col">
                 {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
@@ -269,37 +269,37 @@ const projects: Project[] = [
       color:var(--muted);
     }
 
-    /* Stacked layout */
+    /* Logo + links inline, about below */
     .about-row {
       display: flex;
-      flex-direction: column;   /* always stacked: logo+links, then about */
+      flex-direction: column;
       align-items: flex-start;
       gap: .75rem;
       margin: .1rem 0 .25rem 0;
       width: 100%;
     }
+
     .logo-col {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: .4rem;
+      flex-direction: row;   /* inline */
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
       width: 100%;
     }
+
     .about-logo {
       width: 64px;
       height: 64px;
       border-radius: 12px;
       display: block;
-    }
-    .about-col {
-      width: 100%;
-    }
-    .about-text {
-      margin: 0;
-      color: var(--text);
+      flex-shrink: 0;
     }
 
-    .stack{list-style:none;padding:0;margin:0}
+    .about-col { width: 100%; }
+    .about-text { margin: 0; color: var(--text); }
+
+    .stack{list-style:none;padding:0;margin:0; display:flex; gap:.75rem;}
     .stack-item{padding:0}
     .accordion a,
     .accordion a:visited{ color:inherit; text-decoration:none; }
@@ -308,6 +308,6 @@ const projects: Project[] = [
     .gray-hover:hover .hoverable { filter: grayscale(1) brightness(.88); opacity: .7; transition: filter 160ms ease, opacity 160ms ease; }
     .gray-hover .hoverable:hover { filter: none; opacity: 1; }
 
-    .links{ margin-top:.25rem }
+    .links{ margin-top:0 }
   </style>
 </Layout>

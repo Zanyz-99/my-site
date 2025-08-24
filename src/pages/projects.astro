@@ -19,8 +19,7 @@ const projects: Project[] = [
     logo: "/icons/FOC.png",
     about:
       "An arcade style game that will test your skills. The only challenge is how well you can aim the ball and how quickly you can shoot!",
-    howto:
-      "-",
+    howto: "-",
     store: "https://play.google.com/store/apps/details?id=com.ZanyInc.FOC",
     play: "https://zachscholz.com/coding/foc/",
   },
@@ -30,8 +29,7 @@ const projects: Project[] = [
     logo: "/icons/Tone.png",
     about:
       "A puzzle game based on the colors Cyan, Magenta, Yellow, and Black (CMYK) that challenges your knowledge of color mixing.",
-    howto:
-      "-",
+    howto: "-",
     store: "https://play.google.com/store/apps/details?id=com.ZanyInc.ToneRemastered",
     play: "https://zachscholz.com/coding/tone/",
   },
@@ -41,8 +39,7 @@ const projects: Project[] = [
     logo: "/icons/Pantry.png",
     about:
       "A meal-planning app that helps you use what’s already in your pantry. Allows you to integrate recipes into your shopping easily and plan meals with ease.",
-    howto:
-      "-",
+    howto: "-",
     store: "https://play.google.com/store/apps/details?id=com.zanyinc.pantrymealplanner.pantrymealplanner",
     play: "/coding/pantry-planner",
   },
@@ -52,8 +49,7 @@ const projects: Project[] = [
     logo: "/icons/Sheepshead.png",
     about:
       "A trick-taking card game of German origin. This is a single player version with computer controlled opponents.",
-    howto:
-      "-",
+    howto: "-",
     store: "https://play.google.com/store/apps/details?id=com.ZanyInc.SheepsheadRemastered",
     play: "https://zachscholz.com/coding/sheepshead/",
   },
@@ -83,7 +79,7 @@ const projects: Project[] = [
             role="region"
             aria-labelledby={`btn-proj-${p.id}`}
           >
-            <!-- About row: logo+links left, about text right -->
+            <!-- Stacked layout: logo + links (top), about (below) -->
             <div class="about-row">
               <div class="logo-col">
                 {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
@@ -273,19 +269,21 @@ const projects: Project[] = [
       color:var(--muted);
     }
 
-    /* Two-column layout: logo+links left, about right */
+    /* Stacked layout */
     .about-row {
       display: flex;
+      flex-direction: column;   /* always stacked: logo+links, then about */
       align-items: flex-start;
-      gap: 1rem;
+      gap: .75rem;
       margin: .1rem 0 .25rem 0;
+      width: 100%;
     }
     .logo-col {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: .4rem;
-      flex-shrink: 0;
+      width: 100%;
     }
     .about-logo {
       width: 64px;
@@ -294,7 +292,7 @@ const projects: Project[] = [
       display: block;
     }
     .about-col {
-      flex: 1;
+      width: 100%;
     }
     .about-text {
       margin: 0;
@@ -311,13 +309,5 @@ const projects: Project[] = [
     .gray-hover .hoverable:hover { filter: none; opacity: 1; }
 
     .links{ margin-top:.25rem }
-
-    @media (max-width: 600px) {
-      .about-row {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .about-col { width: 100%; }
-    }
   </style>
 </Layout>

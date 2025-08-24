@@ -1,4 +1,5 @@
 ---
+// src/pages/games/tone.astro
 import Layout from "../../layouts/Layout.astro";
 
 const pageTitle = "Tone — Play Online";
@@ -46,6 +47,7 @@ const gamePath = "/games/Tone/index.html";
       gap: .75rem;
       margin-top: .25rem;
     }
+
     .btn {
       display: inline-flex;
       align-items: center;
@@ -56,16 +58,24 @@ const gamePath = "/games/Tone/index.html";
       background: var(--card);   /* theme-aware background */
       color: var(--text);        /* theme-aware text */
       cursor: pointer;
+      text-decoration: none;
     }
-    
-    .btn:hover {
-      background: var(--hover);
-    }
-    
+    .btn:hover { background: var(--hover); }
+
     .btn.primary {
       background: var(--text);   /* primary = solid text color */
       color: var(--bg);          /* invert text */
       border-color: var(--text);
+    }
+
+    /* H1-style button */
+    .btn.h1 {
+      font-size: var(--h1-size);
+      font-weight: 1000;
+      letter-spacing: -0.01em;
+      line-height: calc(var(--line) - .15);
+      padding: .4rem .8rem;
+      border-radius: 12px;
     }
 
     .stage {
@@ -90,11 +100,12 @@ const gamePath = "/games/Tone/index.html";
 
     .actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end; /* tip removed */
       align-items: center;
       gap: .75rem;
       margin-top: .75rem;
     }
+
     .muted { color: var(--muted); }
   </style>
 
@@ -114,7 +125,7 @@ const gamePath = "/games/Tone/index.html";
       </ul>
 
       <div class="btnrow">
-        <button class="btn primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <button class="btn primary h1" id="btn-fullscreen" type="button">Enter Fullscreen</button>
       </div>
     </div>
 
@@ -131,9 +142,8 @@ const gamePath = "/games/Tone/index.html";
         ></iframe>
       </div>
       <div class="actions">
-        <span class="muted">Tip: fullscreen removes borders.</span>
         <div class="btnrow">
-          <button class="btn" id="btn-reload" type="button">Reload</button>
+          <button class="btn primary h1" id="btn-reload" type="button">Reload</button>
         </div>
       </div>
     </aside>

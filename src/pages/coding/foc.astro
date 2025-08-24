@@ -4,6 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 
 const pageTitle = "FOC — Play Online";
 const gamePath = "/games/FOC/index.html";
+const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.FOC";
 ---
 
 <Layout title={pageTitle} description="Play FOC (portrait 9:16) — Unity WebGL.">
@@ -39,6 +40,14 @@ const gamePath = "/games/FOC/index.html";
     }
     .about-col ul { padding-left: 1.25rem; }
 
+    .about-col a {
+      color: var(--text);
+      text-decoration: underline;
+    }
+    .about-col a:hover {
+      color: var(--muted);
+    }
+
     .stage {
       height: min(90dvh, 980px);
       aspect-ratio: 9/16;
@@ -61,7 +70,7 @@ const gamePath = "/games/FOC/index.html";
 
     .actions {
       display: flex;
-      justify-content: flex-end; /* tip removed */
+      justify-content: flex-end;
       align-items: center;
       gap: .75rem;
       margin-top: .75rem;
@@ -70,7 +79,8 @@ const gamePath = "/games/FOC/index.html";
     .btnrow {
       display: flex;
       flex-wrap: wrap;
-      gap: .75rem;
+      gap: .5rem;
+      margin-top: .5rem;
     }
 
     /* Buttons */
@@ -78,30 +88,31 @@ const gamePath = "/games/FOC/index.html";
       display: inline-flex;
       align-items: center;
       gap: .5rem;
-      padding: .65rem .9rem;
+      padding: .55rem .8rem;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: var(--card);   /* theme-aware background */
-      color: var(--text);        /* theme-aware text */
+      background: var(--card);   /* muted theme-aware background */
+      color: var(--text);
       cursor: pointer;
       text-decoration: none;
+      transition: transform .02s ease, background .15s ease;
     }
     .btn:hover { background: var(--hover); }
+    .btn:active { transform: translateY(1px); }
 
-    .btn.primary {
-      background: var(--text);   /* primary = solid text color */
-      color: var(--bg);          /* invert text */
-      border-color: var(--text);
+    /* H2-style button */
+    .btn.h2 {
+      font-size: var(--h2-size);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      border-radius: 12px;
     }
 
-    /* H1-style button */
-    .btn.h1 {
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      padding: .4rem .8rem;
-      border-radius: 12px;
+    .btn.primary {
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--border);
     }
 
     .muted { color: var(--muted); }
@@ -113,7 +124,7 @@ const gamePath = "/games/FOC/index.html";
       <h1 class="game-title">Furthest On Circle</h1>
       <p>An arcade style game that will test your skills. The only challenge is how well you can aim the ball and how quickly you can shoot!</p>
 
-      <h3>How to play</h3>
+      <h2>How to play</h2>
       <p>
         Beat the expanding circles and get the ball to the other end of the screen to
         hit the target. Think quick and pull and drag the ball to aim and shoot!
@@ -122,8 +133,15 @@ const gamePath = "/games/FOC/index.html";
       <p>◉ Medium - Three expanding circles and a moving target.</p>
       <p>◉ Hard - Infinite expanding circles!</p>
 
+      <!-- Google Play link -->
+      <p>
+        <a href={playStoreUrl} target="_blank" rel="noopener noreferrer">Google Play ↗</a>
+      </p>
+
+      <!-- Buttons: fullscreen + reload -->
       <div class="btnrow">
-        <button class="btn primary h1" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <button class="btn h2 primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <button class="btn h2 primary" id="btn-reload" type="button">Reload</button>
       </div>
     </div>
 
@@ -138,11 +156,6 @@ const gamePath = "/games/FOC/index.html";
           loading="eager"
           title="FOC game"
         ></iframe>
-      </div>
-      <div class="actions">
-        <div class="btnrow">
-          <button class="btn primary h1" id="btn-reload" type="button">Reload</button>
-        </div>
       </div>
     </aside>
   </section>

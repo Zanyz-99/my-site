@@ -158,49 +158,28 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     display:flex; gap:.75rem; align-items:center; justify-self:center;
   }
 
-  /* Kill any li hover/selection backgrounds just in case */
-  .topbar .menu > li,
-  .topbar .menu > li:hover,
-  .topbar .menu > li:active,
-  .topbar .menu > li:focus-within{
-    background: none !important;
-    box-shadow: none !important;
-    border: 0 !important;
-  }
-
   .link{
     font-weight:600;
     color:var(--muted);
     text-decoration:none;
     transition: color .18s ease;
-    padding: 0 !important;
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    -webkit-tap-highlight-color: transparent; /* mobile */
+    padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
   }
-  .link:hover{ color:var(--text); background: none !important; }
-  .link:active,
-  .link:focus,
-  .link:focus-visible{
-    color: var(--text);
-    background: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-  }
+  .link:hover{ color:var(--text); }
   .link.active{
     color:var(--text);
     font-weight:700;
-    background: none !important;
   }
-  .link:visited{ color: var(--muted); }  /* keep visited from turning purple */
   
   /* Icon buttons (toggle + hamburger) */
   .toggle,
   .hamburger{
     appearance:none; -webkit-appearance:none;
-    background:none !important; border:none !important;
+    background:none; border:none;
     padding:.35rem; margin:0;
     display:inline-flex; align-items:center; justify-content:center;
     line-height:0; cursor:pointer;
@@ -234,42 +213,24 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     border-radius:12px;
     box-shadow: 0 6px 18px rgba(0,0,0,.08);
   }
-  .mobile-list li,
-  .mobile-list li:hover,
-  .mobile-list li:active,
-  .mobile-list li:focus-within{
-    background: none !important;
-    box-shadow: none !important;
-    border: 0 !important;
-  }
+  .mobile-list li{ margin:0; }
   
   .mlink{
     display:block;
     padding:.75rem 1rem; /* keep tap target */
     text-decoration:none;
     color:var(--muted);
-    background:none !important;
-    border:none !important;
-    box-shadow:none !important;
+    background:none;
+    border:none;
     transition: color .18s ease;
-    outline: none !important;
+    outline: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .mlink:hover{ color:var(--text); background: none !important; }
-  .mlink:active,
-  .mlink:focus,
-  .mlink:focus-visible{
-    color: var(--text);
-    background: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-  }
+  .mlink:hover{ color:var(--text); }
   .mlink.active{
     font-weight:700;
     color:var(--text);
-    background: none !important;
   }
-  .mlink:visited{ color: var(--muted); }
   
   /* --- RESPONSIVE --- */
   @media (max-width: 768px){
@@ -296,3 +257,4 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .hamburger{ display:none !important; }
   }
 </style>
+

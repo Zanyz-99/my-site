@@ -74,6 +74,7 @@ const gamePath = "/games/FOC/index.html";
       flex-wrap: wrap;
       gap: .75rem;
     }
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -81,28 +82,41 @@ const gamePath = "/games/FOC/index.html";
       padding: .65rem .9rem;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: #1a1a1a;
-      color: var(--text);
+      background: var(--card);   /* theme-aware background */
+      color: var(--text);        /* theme-aware text */
       cursor: pointer;
     }
-    .btn:hover { background: #222; }
-    .btn.primary { background: #2a2a2a; border-color: #2f2f2f; }
-    .muted { color: var(--muted); }
+    
+    .btn:hover {
+      background: var(--hover);
+    }
+    
+    .btn.primary {
+      background: var(--text);   /* primary = solid text color */
+      color: var(--bg);          /* invert text */
+      border-color: var(--text);
+    }
+    
+    .muted {
+      color: var(--muted);
+    }
   </style>
 
   <section class="content foc-wrap">
     <!-- Left column: About -->
     <div class="about-col">
-      <h1 class="game-title">FOC</h1>
+      <h1 class="game-title">Furthest On Circle</h1>
       <h2 style="margin-top:.75rem">About this game</h2>
-      <p>A quick-hit ear & reaction trainer rebuilt for the web. Best in portrait (9:16). Works on mobile and desktop.</p>
+      <p>An arcade style game that will test your skills. The only challenge is how well you can aim the ball and how quickly you can shoot!</p>
 
       <h3>How to play</h3>
-      <ul>
-        <li>Tap the correct tone before the timer runs out.</li>
-        <li>Streaks make it faster and harder.</li>
-        <li>Use fullscreen for focus.</li>
-      </ul>
+        <p>
+          Beat the expanding circles and get the ball to the other end of the screen to
+          hit the target. Think quick and pull and drag the ball to aim and shoot!
+        </p>
+        <p>◉ Easy - Two expanding circles.</p>
+        <p>◉ Medium - Three expanding circles and a moving target.</p>
+        <p>◉ Hard - Infinite expanding circles!</p>
 
       <div class="btnrow">
         <button class="btn primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>

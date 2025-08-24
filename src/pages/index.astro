@@ -18,8 +18,8 @@ import Layout from "../layouts/Layout.astro";
       <span class="acc-title">Zach Scholz</span>
     </button>
 
-    <!-- Subtitle aligned to the same text start as the title -->
-    <p class="home-sub indent-acc">Navy Veteran</p>
+    <!-- Subtitle aligned directly under the title -->
+    <p class="home-sub">Navy Veteran</p>
   </section>
 
   <style>
@@ -71,9 +71,6 @@ import Layout from "../layouts/Layout.astro";
       line-height:calc(var(--line) - .15);
       color:var(--text);
     }
-
-    /* Subtitle left edge = toggle width + gap (same as title start) */
-    .indent-acc{ margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
 
     .home-sub{
       margin:.25rem 0 0;

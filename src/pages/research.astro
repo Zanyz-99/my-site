@@ -78,27 +78,6 @@ const papers = [
     const buttons = items.map(i => i.querySelector('.acc-summary'));
     const panels  = items.map(i => i.querySelector('.acc-panel'));
 
-    function getPinOffset() {
-      const fixedHeader = document.querySelector('.topbar');
-      return fixedHeader ? Math.max(0, fixedHeader.getBoundingClientRect().bottom) : 0;
-    }
-
-    function pinAccordionTop({ settle = true } = {}) {
-      const targetTop = getPinOffset();
-      let tries = 0;
-      let last = null;
-      const step = () => {
-        const nowTop = accRoot.getBoundingClientRect().top;
-        const delta  = nowTop - targetTop;
-        if (delta) window.scrollBy({ top: delta, left: 0 });
-        if (!settle) return;
-        if (last !== null && Math.abs(nowTop - last) < 0.25) return;
-        last = nowTop;
-        if (++tries < 16) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }
-
     function openPanel(panel) {
       panel.hidden = false;
       panel.style.display = 'block';
@@ -152,7 +131,6 @@ const papers = [
       if (evt) evt.preventDefault();
       const next = (openIndex === i) ? -1 : i;
       setOpen(next);
-      pinAccordionTop({ settle: true });
     }
 
     buttons.forEach((btn, i) => {
@@ -161,11 +139,6 @@ const papers = [
         if (e.key === ' ' || e.key === 'Enter') activate(i, e);
       });
     });
-
-    const ro = new ResizeObserver(() => {
-      if (openIndex !== -1) pinAccordionTop({ settle: false });
-    });
-    ro.observe(accRoot);
   </script>
 
   <style>
@@ -246,15 +219,4 @@ const papers = [
 
     /* Hover effect same as projects */
     .gray-hover:hover .hoverable { 
-      filter: grayscale(1) brightness(.88); 
-      opacity: .7; 
-      transition: filter 160ms ease, opacity 160ms ease; 
-    }
-    .gray-hover .hoverable:hover { 
-      filter: none; 
-      opacity: 1; 
-    }
-
-    .links{ margin-top:.25rem }
-  </style>
-</Layout>
+      filter: grayscale(

@@ -228,18 +228,21 @@ const pageTitle = titleMap[pathname] ?? '';
   .mobile-menu{ position:relative; }
   
   /* Mobile list container (kept, but links are still text-only) */
-  .mobile-list{
-    position:absolute;
-    right:1rem; left:1rem;
-    margin:0.25rem auto 0;
-    max-width:calc(1200px - 2rem);
-    list-style:none;
-    padding:.4rem;
-    border:1px solid var(--border);
-    background:var(--bg);
-    border-radius:12px;
+  .mobile-list {
+    position: absolute;
+    top: 100%;               /* make it drop below the bar */
+    right: 1rem;             /* stick to the right */
+    margin: 0.25rem 0 0 0;   /* just top margin */
+    width: max-content;      /* shrink to fit links */
+    list-style: none;
+    padding: .4rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,.08);
-    gap: .25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;             /* space between items */
   }
 
   .mobile-list li,

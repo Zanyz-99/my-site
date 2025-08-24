@@ -135,3 +135,83 @@ const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.
     }
 
     .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      margin-top: .75rem;
+    }
+
+    .muted { color: var(--muted); }
+  </style>
+
+  <section class="content game-wrap">
+    <!-- Left column: About -->
+    <div class="about-col">
+      <h1 class="game-title">Tone - A Color Puzzle</h1>
+
+      <!-- Logo + description side by side -->
+      <div class="logo-row">
+        <img src="/icons/Tone.png" alt="Tone logo" />
+        <p>
+          A CMYK color-matching puzzle that challenges your knowledge of color mixing.
+          Guess the Cyan, Magenta, Yellow, and Black percentages to match the target color.
+        </p>
+      </div>
+
+      <!-- Google Play link -->
+      <p>
+        <a href={playStoreUrl} target="_blank" rel="noopener noreferrer">Google Play ↗</a>
+      </p>
+
+      <h2>How to play</h2>
+      <ul>
+        <li>You’ll be shown a color block made from CMYK values.</li>
+        <li>Enter your guess for the percentages of Cyan, Magenta, Yellow, and Black.</li>
+        <li>Submit as many guesses as you need until you find the exact match.</li>
+        <li>The fewer guesses you take, the better your score!</li>
+      </ul>
+
+      <div class="btnrow">
+        <!--<button class="btn h2 primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>-->
+        <button class="btn h2 primary" id="btn-reload" type="button">Reload</button>
+      </div>
+    </div>
+
+    <!-- Right column: Game -->
+    <aside>
+      <div class="stage">
+        <iframe
+          id="gameframe"
+          src={gamePath}
+          allow="fullscreen; gamepad; xr-spatial-tracking"
+          scrolling="no"
+          loading="eager"
+          title="Tone game"
+        ></iframe>
+      </div>
+    </aside>
+  </section>
+
+  <script>
+    const frame = document.getElementById("gameframe");
+    const fsBtn = document.getElementById("btn-fullscreen");
+    const reloadBtn = document.getElementById("btn-reload");
+
+    fsBtn?.addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+          fsBtn.textContent = "Enter Fullscreen";
+        } else {
+          await frame.requestFullscreen();
+          fsBtn.textContent = "Exit Fullscreen";
+        }
+      } catch (e) { console.error(e); }
+    });
+
+    reloadBtn?.addEventListener("click", () => {
+      frame.src = frame.src; // hard reload
+    });
+  </script>
+</Layout>

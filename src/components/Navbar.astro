@@ -158,33 +158,49 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     display:flex; gap:.75rem; align-items:center; justify-self:center;
   }
 
+  /* Hard reset: NO background/box on anything clickable in the topbar */
+  .topbar a,
+  .topbar a:hover,
+  .topbar a:active,
+  .topbar a:focus,
+  .topbar a:focus-visible,
+  .topbar .menu > li,
+  .topbar .menu > li:hover,
+  .topbar .menu > li:active,
+  .topbar .menu > li:focus-within{
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
   .link{
     font-weight:600;
     color:var(--muted);
     text-decoration:none;
     transition: color .18s ease;
-    padding: 0;
-    background: none;
-    border: none;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
+    padding: 0 !important;
   }
-  .link:hover{ color:var(--text); }
+  /* Hover: only text color */
+  .link:hover{ color:var(--text) !important; }
+  /* Current page: only text color (optionally slightly bolder) */
   .link.active{
-    color:var(--text);
+    color:var(--text) !important;
     font-weight:700;
   }
+  .link:visited{ color: var(--muted); }  /* keep visited from turning purple */
   
   /* Icon buttons (toggle + hamburger) */
   .toggle,
   .hamburger{
     appearance:none; -webkit-appearance:none;
-    background:none; border:none;
+    background:transparent !important; border:none !important;
     padding:.35rem; margin:0;
     display:inline-flex; align-items:center; justify-content:center;
     line-height:0; cursor:pointer;
     color: var(--text);
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent !important;
     outline: none;
   }
   .toggle svg, .hamburger svg{ display:block; }
@@ -200,7 +216,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
   /* Mobile dropdown container */
   .mobile-menu{ position:relative; }
   
-  /* Mobile list */
+  /* Mobile list container (kept, but links are still text-only) */
   .mobile-list{
     position:absolute;
     right:1rem; left:1rem;
@@ -213,24 +229,34 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     border-radius:12px;
     box-shadow: 0 6px 18px rgba(0,0,0,.08);
   }
-  .mobile-list li{ margin:0; }
+
+  .mobile-list li,
+  .mobile-list li:hover,
+  .mobile-list li:active,
+  .mobile-list li:focus-within{
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
   
   .mlink{
     display:block;
     padding:.75rem 1rem; /* keep tap target */
     text-decoration:none;
     color:var(--muted);
-    background:none;
-    border:none;
+    background:transparent !important;
+    border:none !important;
     transition: color .18s ease;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
-  .mlink:hover{ color:var(--text); }
+  .mlink:hover{ color:var(--text) !important; }
   .mlink.active{
     font-weight:700;
-    color:var(--text);
+    color:var(--text) !important;
   }
+  .mlink:visited{ color: var(--muted); }
   
   /* --- RESPONSIVE --- */
   @media (max-width: 768px){
@@ -246,7 +272,7 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .logo-link{ justify-self:start; }
     .page-title{ justify-self:center; }
     .toggle{ justify-self:end; }
-    .hamburger{ justify-self:end; }
+    .hamburger{ justify-self=end; }
   
     .toggle:hover, .hamburger:hover{ opacity:.85; }
   }
@@ -257,4 +283,3 @@ const pageTitle = titleMap[pathname] ?? 'Page';
     .hamburger{ display:none !important; }
   }
 </style>
-

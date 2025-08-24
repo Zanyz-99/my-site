@@ -53,12 +53,20 @@ const gamePath = "/games/Tone/index.html";
       padding: .65rem .9rem;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: #1a1a1a;
-      color: var(--text);
+      background: var(--card);   /* theme-aware background */
+      color: var(--text);        /* theme-aware text */
       cursor: pointer;
     }
-    .btn:hover { background: #222; }
-    .btn.primary { background: #2a2a2a; border-color: #2f2f2f; }
+    
+    .btn:hover {
+      background: var(--hover);
+    }
+    
+    .btn.primary {
+      background: var(--text);   /* primary = solid text color */
+      color: var(--bg);          /* invert text */
+      border-color: var(--text);
+    }
 
     .stage {
       height: min(90dvh, 980px);
@@ -94,14 +102,15 @@ const gamePath = "/games/Tone/index.html";
     <!-- Left column: About -->
     <div class="about-col">
       <h1 class="game-title">Tone</h1>
-      <h2>About this game</h2>
-      <p>A quick-hit ear & reaction trainer rebuilt for the web. Best in portrait (9:16). Works on mobile and desktop.</p>
+      <p>A puzzle game based on the colors Cyan, Magenta, Yellow, and Black (CMYK) that challenges your knowledge of color mixing.</p>
 
       <h3>How to play</h3>
       <ul>
-        <li>Tap the correct tone before the timer runs out.</li>
-        <li>Streaks make it faster and harder.</li>
-        <li>Use fullscreen for focus.</li>
+        <li>You’ll be shown a color block made from CMYK values.</li>
+        <li>Enter your guess for the percentages of Cyan, Magenta, Yellow, and Black.</li>
+        <li>Submit as many guesses as you need until you find the exact match.</li>
+        <li>The fewer guesses you take, the better your score!</li>
+        <li>Tip: use fullscreen for focus.</li>
       </ul>
 
       <div class="btnrow">

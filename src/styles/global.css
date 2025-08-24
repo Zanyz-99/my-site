@@ -168,3 +168,8 @@ html{
 @supports not (scrollbar-gutter: stable) {
   html { overflow-y: scroll; }
 }
+
+/* Make all links italic */
+a {
+  font-style: italic;
+}

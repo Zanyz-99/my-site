@@ -18,8 +18,8 @@ import Layout from "../layouts/Layout.astro";
       <span class="acc-title">Zach Scholz</span>
     </button>
 
-    <!-- Subtitle aligned directly under the title -->
-    <p class="home-sub">Navy Veteran</p>
+    <!-- Subtitle aligned to the same text start as the title -->
+    <p class="home-sub indent-acc">Navy Veteran</p>
   </section>
 
   <style>
@@ -47,7 +47,8 @@ import Layout from "../layouts/Layout.astro";
       appearance:none; -webkit-appearance:none; box-sizing:border-box;
       width:100%;
       display:flex; align-items:center; gap:var(--acc-gap);
-      padding:6px 0; user-select:none; color:var(--muted);
+      padding:6px 0;               /* no left padding */
+      user-select:none; color:var(--muted);
       background:none; border:0; margin:0; cursor:pointer;
     }
     /* Make Home’s header non-interactive but identical in layout */
@@ -71,6 +72,9 @@ import Layout from "../layouts/Layout.astro";
       line-height:calc(var(--line) - .15);
       color:var(--text);
     }
+
+    /* Subtitle left edge = toggle width + gap (same as title text start) */
+    .indent-acc{ margin-left: calc(var(--acc-toggle-w) + var(--acc-gap)); }
 
     .home-sub{
       margin:.25rem 0 0;

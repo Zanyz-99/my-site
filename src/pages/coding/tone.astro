@@ -4,9 +4,10 @@ import Layout from "../../layouts/Layout.astro";
 
 const pageTitle = "Tone — Play Online";
 const gamePath = "/games/Tone/index.html";
+const playStoreUrl = "https://play.google.com/store/apps/details?id=com.ZanyInc.ToneRemastered";
 ---
 
-<Layout title={pageTitle} description="Play Tone (portrait 9:16) — a quick ear-training game built with Unity WebGL.">
+<Layout title={pageTitle} description="Play Tone (portrait 9:16) — a CMYK color-matching puzzle built with Unity WebGL.">
   <style>
     .game-wrap {
       display: grid;
@@ -44,38 +45,41 @@ const gamePath = "/games/Tone/index.html";
     .btnrow {
       display: flex;
       flex-wrap: wrap;
-      gap: .75rem;
-      margin-top: .25rem;
+      gap: .5rem;
+      margin-top: .5rem;
     }
 
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
       gap: .5rem;
-      padding: .65rem .9rem;
+      padding: .55rem .8rem;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: var(--card);   /* theme-aware background */
-      color: var(--text);        /* theme-aware text */
+      background: var(--card);   /* muted theme-aware background */
+      color: var(--text);
       cursor: pointer;
       text-decoration: none;
+      transition: transform .02s ease, background .15s ease;
     }
     .btn:hover { background: var(--hover); }
+    .btn:active { transform: translateY(1px); }
 
-    .btn.primary {
-      background: var(--text);   /* primary = solid text color */
-      color: var(--bg);          /* invert text */
-      border-color: var(--text);
+    /* H2-style button */
+    .btn.h2 {
+      font-size: var(--h2-size);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      border-radius: 12px;
     }
 
-    /* H1-style button */
-    .btn.h1 {
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      padding: .4rem .8rem;
-      border-radius: 12px;
+    .btn.primary {
+      /* keep muted look; rely on border + weight, not solid fill */
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--border);
     }
 
     .stage {
@@ -100,7 +104,7 @@ const gamePath = "/games/Tone/index.html";
 
     .actions {
       display: flex;
-      justify-content: flex-end; /* tip removed */
+      justify-content: space-between;
       align-items: center;
       gap: .75rem;
       margin-top: .75rem;
@@ -113,19 +117,30 @@ const gamePath = "/games/Tone/index.html";
     <!-- Left column: About -->
     <div class="about-col">
       <h1 class="game-title">Tone - A Color Puzzle</h1>
-      <p>A puzzle game based on the colors Cyan, Magenta, Yellow, and Black (CMYK) that challenges your knowledge of color mixing.</p>
+      <p>
+        A CMYK color-matching puzzle that challenges your knowledge of color mixing.
+        Guess the Cyan, Magenta, Yellow, and Black percentages to match the target color.
+      </p>
 
-      <h3>How to play</h3>
+      <h2>How to play</h2>
       <ul>
         <li>You’ll be shown a color block made from CMYK values.</li>
         <li>Enter your guess for the percentages of Cyan, Magenta, Yellow, and Black.</li>
         <li>Submit as many guesses as you need until you find the exact match.</li>
         <li>The fewer guesses you take, the better your score!</li>
-        <li>Tip: use fullscreen for focus.</li>
       </ul>
 
+      <!-- Google Play link above the buttons -->
+      <div class="btnrow" style="margin-top:.75rem">
+        <a class="btn h2 primary" href={playStoreUrl} target="_blank" rel="noopener noreferrer">
+          Google Play ↗
+        </a>
+      </div>
+
+      <!-- Button row: Enter Fullscreen + Reload side by side -->
       <div class="btnrow">
-        <button class="btn primary h1" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <button class="btn h2 primary" id="btn-fullscreen" type="button">Enter Fullscreen</button>
+        <button class="btn h2 primary" id="btn-reload" type="button">Reload</button>
       </div>
     </div>
 
@@ -140,11 +155,6 @@ const gamePath = "/games/Tone/index.html";
           loading="eager"
           title="Tone game"
         ></iframe>
-      </div>
-      <div class="actions">
-        <div class="btnrow">
-          <button class="btn primary h1" id="btn-reload" type="button">Reload</button>
-        </div>
       </div>
     </aside>
   </section>

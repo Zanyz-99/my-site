@@ -1,3 +1,71 @@
+Skip to content
+Zanyz-99
+my-site
+Repository navigation
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+my-site/src/pages/coding
+/
+metro-north.astro
+in
+main
+
+Edit
+
+Preview
+Indent mode
+
+Spaces
+Indent size
+
+2
+Line wrap mode
+
+No wrap
+Editing metro-north.astro file contents
+  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
 ---
 // src/pages/coding/metro-north.astro
 import Layout from "../../layouts/Layout.astro";
@@ -34,355 +102,5 @@ import Layout from "../../layouts/Layout.astro";
       font-size: var(--body-size);
       color: var(--muted);
     }
-
-    .mn-clock-col {
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .mn-clock {
-      font-size: var(--h1-size);
-      font-weight: 300;
-      font-variant-numeric: tabular-nums;
-      color: var(--text);
-      line-height: 1;
-    }
-
-    .mn-date {
-      font-size: var(--body-size);
-      color: var(--muted);
-      margin-top: .2rem;
-    }
-
-    /* ── Hero card ── */
-    .hero-label {
-      font-size: var(--body-size);
-      color: var(--muted);
-      margin-bottom: .5rem;
-    }
-
-    .hero-card {
-      border-left: 3px solid var(--text);
-      padding: .75rem 0 .75rem 1rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1rem;
-      align-items: center;
-      transition: border-color .3s;
-    }
-
-    .hero-card.ok     { border-color: var(--text); }
-    .hero-card.soon   { border-color: var(--muted); }
-    .hero-card.urgent { border-color: var(--text); }
-    .hero-card.missed { border-color: var(--muted); opacity: .5; }
-
-    .hero-leave-time {
-      font-size: calc(var(--h1-size) * 1.5);
-      font-weight: 1000;
-      letter-spacing: -0.02em;
-      line-height: 1;
-      color: var(--text);
-    }
-
-    .hero-leave-time.urgent { color: var(--text); }
-    .hero-leave-time.missed { color: var(--muted); }
-
-    .hero-countdown {
-      font-size: var(--body-size);
-      color: var(--muted);
-      margin-top: .35rem;
-    }
-
-    .hero-countdown strong { color: var(--text); }
-
-    .hero-right {
-      text-align: right;
-    }
-
-    .hero-dep {
-      font-size: var(--h2-size, 1.25rem);
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .hero-meta {
-      font-size: var(--body-size);
-      color: var(--muted);
-      margin-top: .2rem;
-    }
-
-    .next-catchable {
-      margin-top: .75rem;
-      padding: .5rem .75rem;
-      background: var(--card, rgba(255,255,255,.04));
-      font-size: var(--body-size);
-      color: var(--muted);
-    }
-
-    .next-catchable strong { color: var(--text); }
-
-    /* ── Trains table ── */
-    .trains-label {
-      font-size: var(--body-size);
-      color: var(--muted);
-      margin-bottom: .5rem;
-    }
-
-    .train-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .train-row {
-      display: grid;
-      grid-template-columns: 90px 1fr 90px 80px;
-      align-items: center;
-      gap: .75rem;
-      padding: .6rem 0;
-      border-bottom: 1px solid var(--border, rgba(255,255,255,.08));
-      font-size: var(--body-size);
-    }
-
-    .train-row:first-child { border-top: 1px solid var(--border, rgba(255,255,255,.08)); }
-    .train-row.is-next .t-dep { color: var(--text); font-weight: 700; }
-    .train-row.is-missed { opacity: .35; }
-
-    .t-dep {
-      font-weight: 400;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .t-meta { color: var(--muted); font-size: calc(var(--body-size) * .9); }
-
-    .t-gct {
-      text-align: right;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .t-badge {
-      text-align: right;
-      font-size: calc(var(--body-size) * .85);
-      color: var(--muted);
-    }
-
-    .t-badge.ok     { color: var(--text); }
-    .t-badge.urgent { color: var(--text); font-weight: 700; }
-    .t-badge.missed { color: var(--muted); }
-
-    /* ── Status line ── */
-    .mn-status {
-      font-size: calc(var(--body-size) * .85);
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--text);
-      flex-shrink: 0;
-      animation: blink 2s infinite;
-    }
-
-    .status-dot.error { background: var(--muted); animation: none; }
-
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-
-    /* ── Loading / error ── */
-    .mn-loading {
-      color: var(--muted);
-      font-size: var(--body-size);
-      padding: .5rem 0;
-    }
-
-    .mn-error {
-      color: var(--muted);
-      font-size: var(--body-size);
-      padding: .75rem 1rem;
-      border-left: 3px solid var(--muted);
-    }
-
-    .mn-error code {
-      font-size: calc(var(--body-size) * .9);
-      background: var(--card, rgba(255,255,255,.05));
-      padding: .1em .35em;
-    }
-  </style>
-
-  <section class="content mn-wrap">
-
-    <!-- Header -->
-    <div class="mn-header">
-      <div>
-        <h1 class="mn-title">Metro North</h1>
-        <p class="mn-sub">Port Chester → Grand Central · New Haven Line</p>
-      </div>
-      <div class="mn-clock-col">
-        <div class="mn-clock" id="mn-clock">--:--:--</div>
-        <div class="mn-date" id="mn-date">---</div>
-      </div>
-    </div>
-
-    <!-- Hero -->
-    <div>
-      <div class="hero-label">Next train — leave by</div>
-      <div id="mn-hero"><div class="mn-loading">Loading...</div></div>
-    </div>
-
-    <!-- Upcoming -->
-    <div>
-      <div class="trains-label">Upcoming departures</div>
-      <div class="train-list" id="mn-trains"></div>
-    </div>
-
-    <!-- Status -->
-    <div class="mn-status">
-      <span class="status-dot" id="mn-dot"></span>
-      <span id="mn-status">Connecting...</span>
-    </div>
-
-  </section>
-
-  <script>
-    const API = "/api/trains";
-    const REFRESH = 30_000;
-
-    // ── Clock ──────────────────────────────────────────────
-    function tickClock() {
-      const now = new Date();
-      document.getElementById("mn-clock").textContent =
-        now.toLocaleTimeString("en-US", { hour12: false });
-      document.getElementById("mn-date").textContent =
-        now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
-    }
-    setInterval(tickClock, 1000);
-    tickClock();
-
-    // ── Utils ──────────────────────────────────────────────
-    function fmtDur(sec) {
-      sec = Math.floor(sec);
-      if (sec < 0)  return `${Math.floor(-sec / 60)}m ago`;
-      if (sec < 60) return `${sec}s`;
-      const m = Math.floor(sec / 60);
-      return m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
-    }
-
-    function urgency(leaveInSec) {
-      if (leaveInSec < 0)   return "missed";
-      if (leaveInSec < 120) return "urgent";
-      if (leaveInSec < 480) return "soon";
-      return "ok";
-    }
-
-    // ── Hero ───────────────────────────────────────────────
-    function renderHero(trains, data) {
-      const el = document.getElementById("mn-hero");
-      if (!trains.length) {
-        el.innerHTML = `<div class="mn-loading">No upcoming trains found.</div>`;
-        return;
-      }
-
-      const now = Date.now() / 1000;
-      const catchable   = trains.find(t => t.dep_ts > now);
-      const comfortable = trains.find(t => t.leave_ts > now);
-      const t    = catchable || trains[0];
-      const next = (catchable && comfortable && comfortable.trip_id !== catchable.trip_id) ? comfortable : null;
-
-      const leaveInSec = t.leave_ts - now;
-      const depInSec   = t.dep_ts   - now;
-      const urg = (leaveInSec < 0 && depInSec > 0) ? "urgent" : urgency(leaveInSec);
-
-      let countdownHTML;
-      if (depInSec <= 0) {
-        countdownHTML = `Train departed <strong>${fmtDur(depInSec)}</strong>`;
-      } else if (leaveInSec < 60) {
-        countdownHTML = `<strong>LEAVE NOW</strong> — departs in ${fmtDur(depInSec)}`;
-      } else {
-        countdownHTML = `Leave in <strong>${fmtDur(leaveInSec)}</strong> — departs ${t.dep_time}`;
-      }
-
-      const nextHTML = next
-        ? `<div class="next-catchable">Next catchable &nbsp;·&nbsp; departs <strong>${next.dep_time}</strong> &nbsp;·&nbsp; leave by <strong>${next.leave_time}</strong> &nbsp;·&nbsp; in ${fmtDur(next.leave_ts - now)}</div>`
-        : "";
-
-      el.innerHTML = `
-        <div class="hero-card ${urg}">
-          <div>
-            <div class="hero-leave-time ${urg}">${t.leave_time}</div>
-            <div class="hero-countdown">${countdownHTML}</div>
-            ${nextHTML}
-          </div>
-          <div class="hero-right">
-            <div class="hero-dep">${t.dep_time}</div>
-            <div class="hero-meta">→ Grand Central${t.gct_arr_time ? "<br>arr " + t.gct_arr_time : ""}</div>
-            <div class="hero-meta" style="margin-top:.35rem">🚶 ${data.walk_minutes + data.buffer_minutes} min</div>
-          </div>
-        </div>`;
-    }
-
-    // ── Table ──────────────────────────────────────────────
-    function renderTable(trains) {
-      const el = document.getElementById("mn-trains");
-      if (!trains.length) {
-        el.innerHTML = `<div class="mn-loading">No trains found.</div>`;
-        return;
-      }
-
-      const now = Date.now() / 1000;
-      el.innerHTML = trains.slice(0, 8).map((t, i) => {
-        const leaveInSec = t.leave_ts - now;
-        const urg        = urgency(leaveInSec);
-        const isNext     = i === 0 && urg !== "missed";
-        const isMissed   = urg === "missed";
-
-        let badge;
-        if (urg === "missed")  badge = "missed";
-        else if (urg === "urgent") badge = "leave now";
-        else if (urg === "soon")   badge = `leave in ${fmtDur(leaveInSec)}`;
-        else badge = `leave by ${t.leave_time}`;
-
-        return `
-          <div class="train-row ${isNext ? "is-next" : ""} ${isMissed ? "is-missed" : ""}">
-            <div class="t-dep">${t.dep_time}</div>
-            <div class="t-meta">Trip ${t.trip_id}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}</div>
-            <div class="t-gct">${t.gct_arr_time || "—"}</div>
-            <div class="t-badge ${urg}">${badge}</div>
-          </div>`;
-      }).join("");
-    }
-
-    // ── Fetch ──────────────────────────────────────────────
-    async function fetchAndRender() {
-      const dot    = document.getElementById("mn-dot");
-      const status = document.getElementById("mn-status");
-
-      try {
-        const res  = await fetch(API);
-        if (!res.ok) throw new Error(`Server error ${res.status}`);
-        const data = await res.json();
-        if (data.status === "error") throw new Error(data.message);
-
-        renderHero(data.trains, data);
-        renderTable(data.trains);
-
-        dot.className = "status-dot";
-        const t = new Date(data.updated).toLocaleTimeString("en-US", { hour12: false });
-        status.textContent = `Live · updated ${t} · ${data.trains.length} trains`;
-      } catch (err) {
-        dot.className = "status-dot error";
-        status.textContent = `Error: ${err.message}`;
-        document.getElementById("mn-hero").innerHTML =
-          `<div class="mn-error">Could not load feed.<br><code>${err.message}</code></div>`;
-      }
-    }
-
-    fetchAndRender();
-    setInterval(fetchAndRender, REFRESH);
-  </script>
-</Layout>
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
+ 

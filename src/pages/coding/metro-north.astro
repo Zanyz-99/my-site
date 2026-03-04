@@ -642,7 +642,7 @@ import "../../styles/global.css";
       el.innerHTML = `
         <div class="leave-card ${urg}">
           <div>
-            <div class="leave-sublabel">Leave apartment by</div>
+            <div class="leave-sublabel">${fromEl.value === "1" ? "Leave work by" : "Leave apartment by"}</div>
             <div class="leave-time ${urg}">${t.leave_time}</div>
             <div class="leave-countdown">${countdownHTML}</div>
             ${nextHTML}

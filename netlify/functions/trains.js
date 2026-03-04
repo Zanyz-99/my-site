@@ -155,30 +155,35 @@ export default async () => {
   try {
     const resp = await fetch(FEED_URL);
     if (!resp.ok) throw new Error(`MTA feed returned ${resp.status}`);
-    const buffer  = await resp.arrayBuffer();
-    const trains  = parseGtfsRt(buffer);
+    const buffer = await resp.arrayBuffer();
+    const u8 = new Uint8Array(buffer);
+    const root = parseMsg(u8, 0, u8.length);
+    const entities = root[2] || [];
 
-    return new Response(JSON.stringify({
-      status:         "ok",
-      station:        STATION_NAME,
-      stop_id:        STOP_ID,
-      walk_minutes:   WALK_MINUTES,
-      buffer_minutes: BUFFER_MINUTES,
-      trains,
-      updated:        new Date().toISOString(),
-    }), {
+    const sample = [];
+    for (const eRef of entities.slice(0, 3)) {
+      const e = parseMsg(u8, eRef.start, eRef.end);
+      const tuRef = first(e, 3);
+      if (!tuRef) continue;
+      const tu = parseMsg(u8, tuRef.start, tuRef.end);
+      const stus = tu[2] || [];
+      const firstStops = stus.slice(0, 3).map(sRef => {
+        const s = parseMsg(u8, sRef.start, sRef.end);
+        return str(u8, first(s, 3));
+      });
+      const lastStops = stus.slice(-3).map(sRef => {
+        const s = parseMsg(u8, sRef.start, sRef.end);
+        return str(u8, first(s, 3));
+      });
+      sample.push({ totalStops: stus.length, firstStops, lastStops });
+    }
+
+    return new Response(JSON.stringify({ entityCount: entities.length, sample }, null, 2), {
       status: 200,
-      headers: {
-        "Content-Type":                "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control":               "no-store",
-      },
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ status: "error", message: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 };
 

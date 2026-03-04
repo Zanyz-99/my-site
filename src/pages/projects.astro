@@ -38,10 +38,10 @@ const projects: Project[] = [
     title: "Pantry Planner",
     logo: "/icons/Pantry.png",
     about:
-      "A meal-planning app that helps you use what’s already in your pantry. Allows you to integrate recipes you find online into your grocery list and plan meals with ease.",
+      "A meal-planning app that helps you use what's already in your pantry. Allows you to integrate recipes you find online into your grocery list and plan meals with ease.",
     howto: "-",
     store: "https://play.google.com/store/apps/details?id=com.zanyinc.pantrymealplanner.pantrymealplanner",
-    play: null, // no Play Now link
+    play: null,
   },
   {
     id: "sheepshead",
@@ -52,6 +52,16 @@ const projects: Project[] = [
     howto: "-",
     store: "https://play.google.com/store/apps/details?id=com.ZanyInc.SheepsheadRemastered",
     play: "https://zachscholz.com/coding/sheepshead/",
+  },
+  {
+    id: "metro-north",
+    title: "Metro North Tracker",
+    logo: null,
+    about:
+      "A live departure board for Metro-North's Port Chester station. Shows upcoming trains to Grand Central, leave-by times based on a 10-minute walk, and auto-refreshes every 30 seconds using the MTA's real-time GTFS feed.",
+    howto: "-",
+    store: null,
+    play: "https://zachscholz.com/coding/metro-north/",
   },
 ];
 ---
@@ -79,7 +89,6 @@ const projects: Project[] = [
             role="region"
             aria-labelledby={`btn-proj-${p.id}`}
           >
-            <!-- Logo + links (inline), about below -->
             <div class="about-row">
               <div class="logo-col">
                 {p.logo ? <img class="about-logo" src={p.logo} alt={`${p.title} logo`} /> : null}
@@ -92,7 +101,7 @@ const projects: Project[] = [
                   )}
                   {p.play && (
                     <li class="stack-item hoverable">
-                      <a href={p.play} target="_blank" rel="noopener">Play Now ↗</a>
+                      <a href={p.play} target="_blank" rel="noopener">Open ↗</a>
                     </li>
                   )}
                 </ul>
@@ -269,7 +278,6 @@ const projects: Project[] = [
       color:var(--muted);
     }
 
-    /* Logo + links inline, about below */
     .about-row {
       display: flex;
       flex-direction: column;
@@ -281,7 +289,7 @@ const projects: Project[] = [
 
     .logo-col {
       display: flex;
-      flex-direction: row;   /* inline */
+      flex-direction: row;
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;

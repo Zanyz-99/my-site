@@ -8,11 +8,14 @@
 // FeedEntity:     field 1=id, field 2=is_deleted, field 3=trip_update
 
 const FEED_URL       = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/mnr%2Fgtfs-mnr";
-const STATION_NAME   = "Port Chester";
-const STOP_ID        = "115";
-const GCT_STOP_ID    = "1";
 const WALK_MINUTES   = 10;
 const BUFFER_MINUTES = 2;
+
+const STATIONS = {
+  "115": "Port Chester",
+  "111": "Mamaroneck",
+  "1":   "Grand Central",
+};
 
 const td = new TextDecoder();
 
@@ -68,7 +71,7 @@ function scalarIn(u8, ref, fieldNum) {
   return typeof v === 'number' ? v : 0;
 }
 
-function parseGtfsRt(buffer) {
+function parseGtfsRt(buffer, fromId, toId) {
   const u8   = new Uint8Array(buffer);
   const now  = Math.floor(Date.now() / 1000);
   const root = scanMsg(u8, 0, u8.length);
@@ -112,11 +115,11 @@ function parseGtfsRt(buffer) {
 
     if (!stops.length) continue;
 
-    // Only inbound: last stop must be GCT
-    if (stops[stops.length - 1].stopId !== GCT_STOP_ID) continue;
+    // Last stop must be destination
+    if (stops[stops.length - 1].stopId !== toId) continue;
 
-    // Find Port Chester
-    const pcIdx = stops.findIndex(s => s.stopId === STOP_ID);
+    // Find origin stop
+    const pcIdx = stops.findIndex(s => s.stopId === fromId);
     if (pcIdx < 0) continue;
 
     const pc    = stops[pcIdx];
@@ -153,13 +156,24 @@ function fmtTime(ts) {
   });
 }
 
-export default async () => {
+export default async (req) => {
   try {
+    const url    = new URL(req.url);
+    const fromId = url.searchParams.get("from") || "115";
+    const toId   = url.searchParams.get("to")   || "1";
+
+    if (!STATIONS[fromId] || !STATIONS[toId]) {
+      return new Response(JSON.stringify({ status: "error", message: "Invalid stop ID" }), {
+        status: 400, headers: { "Content-Type": "application/json" }
+      });
+    }
+
     const resp = await fetch(FEED_URL);
     if (!resp.ok) throw new Error(`MTA feed returned ${resp.status}`);
-    const trains = parseGtfsRt(await resp.arrayBuffer());
+    const trains = parseGtfsRt(await resp.arrayBuffer(), fromId, toId);
     return new Response(JSON.stringify({
-      status: "ok", station: STATION_NAME, stop_id: STOP_ID,
+      status: "ok", station: STATIONS[fromId], stop_id: fromId,
+      to_station: STATIONS[toId], to_stop_id: toId,
       walk_minutes: WALK_MINUTES, buffer_minutes: BUFFER_MINUTES,
       trains, updated: new Date().toISOString(),
     }), {

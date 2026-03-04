@@ -94,7 +94,7 @@ function parseGtfsRt(buffer) {
 
       const pc = stops[pcIdx];
       const depTs = pc.depTs || pc.arrTs;
-      if (!depTs || depTs < now - 300) return;
+      if (!depTs) return;
 
       const gctArr = stops[stops.length - 1].arrTs || null;
       const lvTs = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;

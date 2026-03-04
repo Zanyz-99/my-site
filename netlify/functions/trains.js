@@ -115,8 +115,15 @@ function parseGtfsRt(buffer, fromId, toId) {
 
     if (!stops.length) continue;
 
-    // Last stop must be destination
-    if (stops[stops.length - 1].stopId !== toId) continue;
+    const fromGCT = fromId === "1";
+
+    if (fromGCT) {
+      // Outbound: train starts at GCT, we find our destination anywhere in trip
+      if (stops[0].stopId !== "1") continue;
+    } else {
+      // Inbound: train must terminate at destination (GCT)
+      if (stops[stops.length - 1].stopId !== toId) continue;
+    }
 
     // Find origin stop
     const pcIdx = stops.findIndex(s => s.stopId === fromId);
@@ -126,8 +133,11 @@ function parseGtfsRt(buffer, fromId, toId) {
     const depTs = pc.depTs || pc.arrTs;
     if (!depTs || depTs < now - 60) continue;
 
-    const gct    = stops[stops.length - 1];
-    const gctArr = gct.arrTs || gct.depTs || null;
+    // For inbound: last stop is GCT. For outbound: find destination stop.
+    const destStop = fromGCT
+      ? stops.find(s => s.stopId === toId)
+      : stops[stops.length - 1];
+    const gctArr = destStop ? (destStop.arrTs || destStop.depTs || null) : null;
     const lvTs   = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;
 
     trains.push({

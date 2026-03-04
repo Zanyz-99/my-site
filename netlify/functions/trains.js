@@ -116,14 +116,22 @@ function parseGtfsRt(buffer, fromId, toId) {
     if (!stops.length) continue;
 
     const fromGCT = fromId === "1";
+    const toGCT   = toId   === "1";
 
     if (fromGCT) {
-      // Outbound: train must start at GCT AND pass through destination
+      // Outbound from GCT: train must start at GCT AND pass through destination
       if (stops[0].stopId !== "1") continue;
       if (!stops.some(s => s.stopId === toId)) continue;
+    } else if (toGCT) {
+      // Inbound to GCT: train must terminate at GCT
+      if (stops[stops.length - 1].stopId !== "1") continue;
     } else {
-      // Inbound: train must terminate at destination (GCT)
-      if (stops[stops.length - 1].stopId !== toId) continue;
+      // Neither end is GCT (e.g. Mamaroneck ↔ Port Chester)
+      // Train must pass through both stops in the right order
+      const fromIdx = stops.findIndex(s => s.stopId === fromId);
+      const toIdx   = stops.findIndex(s => s.stopId === toId);
+      if (fromIdx === -1 || toIdx === -1) continue;
+      if (fromIdx >= toIdx) continue; // must be in correct direction
     }
 
     // Find origin stop
@@ -134,10 +142,8 @@ function parseGtfsRt(buffer, fromId, toId) {
     const depTs = pc.depTs || pc.arrTs;
     if (!depTs || depTs < now - 60) continue;
 
-    // For inbound: last stop is GCT. For outbound: find destination stop.
-    const destStop = fromGCT
-      ? stops.find(s => s.stopId === toId)
-      : stops[stops.length - 1];
+    // Find destination stop for arrival time (works for all route combos)
+    const destStop = stops.find(s => s.stopId === toId);
     const gctArr = destStop ? (destStop.arrTs || destStop.depTs || null) : null;
     const lvTs   = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;
 
@@ -151,7 +157,7 @@ function parseGtfsRt(buffer, fromId, toId) {
       leave_in_seconds: lvTs - now,
       arr_ts:           gctArr,
       arr_time:         gctArr ? fmtTime(gctArr) : null,
-      stops_remaining:  fromGCT ? (stops.findIndex(s => s.stopId === toId) - pcIdx) : (stops.length - pcIdx),
+      stops_remaining:  stops.findIndex(s => s.stopId === toId) - pcIdx,
     });
   }
 

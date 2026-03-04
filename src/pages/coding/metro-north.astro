@@ -35,7 +35,7 @@ import "../../styles/global.css";
       font-family: unset;
     }
 
-    body { margin: 0; background: #0a0c0f; }
+    body { margin: 0; background: var(--bg, #0a0c0f); }
 
     #mn-root {
       --accent:  #00d4aa;
@@ -50,28 +50,22 @@ import "../../styles/global.css";
 
       background: var(--bg);
       color: var(--text);
-      min-height: calc(100vh - 60px);
+      min-height: calc(100vh - 120px);
       position: relative;
+      width: min(95%, 1100px);
+      margin: 0 auto;
+      padding-bottom: 80px;
     }
 
-    /* scanline */
-    #mn-root::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
-      pointer-events: none;
-      z-index: 1;
-    }
+
 
     /* ── HEADER ── */
     .mn-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 32px;
+      padding: 20px 0;
       border-bottom: 1px solid var(--border);
-      background: var(--surface);
     }
 
     .mn-badge {
@@ -128,8 +122,7 @@ import "../../styles/global.css";
 
     /* ── HERO ── */
     .mn-hero {
-      padding: 24px 32px;
-      background: var(--surface);
+      padding: 24px 0;
       border-bottom: 1px solid var(--border);
     }
 
@@ -262,7 +255,7 @@ import "../../styles/global.css";
     .next-catchable strong { color: var(--text) !important; }
 
     /* ── TRAINS TABLE ── */
-    .mn-trains-section { padding: 24px 32px 80px; }
+    .mn-trains-section { padding: 24px 0 80px; }
 
     .mn-section-label {
       font-family: 'DM Mono', monospace !important;
@@ -375,7 +368,7 @@ import "../../styles/global.css";
       bottom: 0; left: 0; right: 0;
       background: var(--surface);
       border-top: 1px solid var(--border);
-      padding: 10px 32px;
+      padding: 10px clamp(12px, 5vw, calc((100vw - min(95%, 1100px)) / 2));
       display: flex;
       align-items: center;
       justify-content: space-between;

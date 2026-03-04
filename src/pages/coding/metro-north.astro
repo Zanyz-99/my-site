@@ -94,8 +94,53 @@ import "../../styles/global.css";
       font-size: 10px !important;
       color: var(--mn-muted) !important;
       letter-spacing: 0.1em;
-      margin-top: 2px;
+      margin-top: 6px;
       line-height: 1.4 !important;
+    }
+
+    .mn-station-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .mn-select {
+      font-family: 'DM Mono', monospace !important;
+      font-size: 16px !important;
+      font-weight: 600;
+      color: var(--text) !important;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px solid var(--mn-border) !important;
+      padding: 2px 4px !important;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      letter-spacing: -0.01em;
+    }
+
+    .mn-select:focus {
+      border-bottom-color: var(--accent) !important;
+    }
+
+    .mn-swap {
+      background: var(--mn-surface) !important;
+      border: 1px solid var(--mn-border) !important;
+      color: var(--mn-muted) !important;
+      font-size: 14px !important;
+      padding: 2px 8px !important;
+      border-radius: 4px;
+      cursor: pointer;
+      line-height: 1.4 !important;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .mn-swap:hover {
+      color: var(--accent) !important;
+      border-color: var(--accent) !important;
     }
 
     .mn-clock {
@@ -448,8 +493,20 @@ import "../../styles/global.css";
     <div class="mn-header">
       <div>
         <div class="mn-badge">Metro-North</div>
-        <div class="mn-station">Port Chester → Grand Central</div>
-        <div class="mn-sub">New Haven Line · Live Departures</div>
+        <div class="mn-station-row">
+          <select class="mn-select" id="mn-from">
+            <option value="115">Port Chester</option>
+            <option value="111">Mamaroneck</option>
+            <option value="1">Grand Central</option>
+          </select>
+          <button class="mn-swap" id="mn-swap" title="Swap stations">⇄</button>
+          <select class="mn-select" id="mn-to">
+            <option value="1">Grand Central</option>
+            <option value="115">Port Chester</option>
+            <option value="111">Mamaroneck</option>
+          </select>
+        </div>
+        <div class="mn-sub">Live Departures</div>
       </div>
       <div>
         <div class="mn-clock" id="mn-clock">--:--:--</div>
@@ -477,9 +534,39 @@ import "../../styles/global.css";
   </div>
 
   <script>
-    const API        = "/api/trains";
     const REFRESH_MS = 30_000;
     let progressTimer = null;
+
+    const fromEl = document.getElementById("mn-from");
+    const toEl   = document.getElementById("mn-to");
+    const swapEl = document.getElementById("mn-swap");
+
+    const STATION_NAMES = {
+      "115": "Port Chester",
+      "111": "Mamaroneck",
+      "1":   "Grand Central"
+    };
+
+    function getAPI() {
+      return `/api/trains?from=${fromEl.value}&to=${toEl.value}`;
+    }
+
+    function updateStationDisplay() {
+      const from = STATION_NAMES[fromEl.value] || fromEl.value;
+      const to   = STATION_NAMES[toEl.value]   || toEl.value;
+      document.title = `${from} → ${to} — Zach Scholz`;
+    }
+
+    swapEl.addEventListener("click", () => {
+      const tmp = fromEl.value;
+      fromEl.value = toEl.value;
+      toEl.value = tmp;
+      updateStationDisplay();
+      fetchAndRender();
+    });
+
+    fromEl.addEventListener("change", () => { updateStationDisplay(); fetchAndRender(); });
+    toEl.addEventListener("change",   () => { updateStationDisplay(); fetchAndRender(); });
 
     function tickClock() {
       const now = new Date();
@@ -556,9 +643,9 @@ import "../../styles/global.css";
           </div>
           <div class="divider-v"></div>
           <div class="train-detail">
-            <div class="train-dest">→ Grand Central Terminal</div>
+            <div class="train-dest">→ ${STATION_NAMES[toEl.value] || "Grand Central"}</div>
             <div class="train-dep-time">${t.dep_time}</div>
-            <div class="train-meta">Trip ${t.trip_id}${t.gct_arr_time ? " · arr GCT " + t.gct_arr_time : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}</div>
+            <div class="train-meta">${t.gct_arr_time ? t.gct_arr_time + " arr GCT" : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}</div>
           </div>
           <div class="walk-pill">🚶 ${data.walk_minutes + data.buffer_minutes} min to platform</div>
         </div>`;
@@ -583,8 +670,8 @@ import "../../styles/global.css";
           <div class="train-row ${isNext ? "is-next" : ""} ${isMissed ? "is-missed" : ""}">
             <div class="t-depart">${t.dep_time}</div>
             <div>
-              <div class="t-tripid">TRIP ${t.trip_id}</div>
-              <div class="t-stops">${t.stops_remaining ? t.stops_remaining + " stops" : ""}${t.route_id ? " · " + t.route_id : ""}</div>
+              <div class="t-tripid">${t.gct_arr_time ? t.gct_arr_time + " ARR GCT" : ""}</div>
+              <div class="t-stops">${t.stops_remaining ? t.stops_remaining + " stops" : ""}</div>
             </div>
             <div class="t-gct">
               <div class="t-gct-time">${t.gct_arr_time || "—"}</div>
@@ -602,7 +689,7 @@ import "../../styles/global.css";
       dot.className = "mn-dot loading";
 
       try {
-        const res  = await fetch(API);
+        const res  = await fetch(getAPI());
         if (!res.ok) throw new Error(`Server error ${res.status}`);
         const data = await res.json();
         if (data.status === "error") throw new Error(data.message);
@@ -613,7 +700,7 @@ import "../../styles/global.css";
         dot.className = "mn-dot";
         const t = new Date(data.updated).toLocaleTimeString("en-US", { hour12: false });
         document.getElementById("mn-updated").textContent = `Updated ${t}`;
-        status.textContent = `Live · ${data.trains.length} upcoming from ${data.station}`;
+        status.textContent = `Live · ${data.trains.length} upcoming from ${STATION_NAMES[fromEl.value] || data.station}`;
       } catch (err) {
         dot.className = "mn-dot error";
         status.textContent = `Error: ${err.message}`;

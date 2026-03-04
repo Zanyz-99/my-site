@@ -41,13 +41,12 @@ import "../../styles/global.css";
       --warn:    #f5c842;
       --danger:  #ff4444;
       --dim:     #374151;
-      --border:  var(--border);
-      --surface: var(--card);
-      --bg:      #0a0c0f;
-      --muted:   #6b7280;
-      --text:    #e8eaed;
+      --mn-border:  var(--border, #e8e8ee);
+      --mn-surface: var(--card, #f6f7f8);
+      --mn-muted:   var(--muted, #6b6b6b);
+      --mn-text:    var(--text, #0b0b0b);
 
-      background: var(--bg);
+      background: transparent;
       color: var(--text);
       min-height: calc(100vh - 120px);
       position: relative;
@@ -64,7 +63,7 @@ import "../../styles/global.css";
       align-items: center;
       justify-content: space-between;
       padding: 20px 0;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--mn-border);
     }
 
     .mn-badge {
@@ -86,14 +85,14 @@ import "../../styles/global.css";
       font-size: 22px !important;
       font-weight: 600;
       letter-spacing: -0.02em;
-      color: var(--text) !important;
+      color: var(--mn-text) !important;
       line-height: 1.2 !important;
     }
 
     .mn-sub {
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       letter-spacing: 0.1em;
       margin-top: 2px;
       line-height: 1.4 !important;
@@ -112,7 +111,7 @@ import "../../styles/global.css";
     .mn-date {
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       margin-top: 5px;
       letter-spacing: 0.08em;
       text-align: right;
@@ -122,7 +121,7 @@ import "../../styles/global.css";
     /* ── HERO ── */
     .mn-hero {
       padding: 24px 0;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--mn-border);
     }
 
     .mn-eyebrow {
@@ -130,7 +129,7 @@ import "../../styles/global.css";
       font-size: 10px !important;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       margin-bottom: 12px;
       line-height: 1.4 !important;
     }
@@ -139,8 +138,8 @@ import "../../styles/global.css";
       display: flex;
       align-items: center;
       gap: 28px;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: transparent;
+      border: 1px solid var(--mn-border);
       border-radius: 8px;
       padding: 20px 24px;
       position: relative;
@@ -180,7 +179,7 @@ import "../../styles/global.css";
     .leave-sublabel {
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       margin-bottom: 6px;
@@ -189,17 +188,17 @@ import "../../styles/global.css";
 
     .leave-countdown {
       font-size: 13px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       margin-top: 7px;
       font-weight: 300;
       line-height: 1.4 !important;
     }
-    .leave-countdown strong { color: var(--text) !important; font-weight: 500; }
+    .leave-countdown strong { color: var(--mn-text) !important; font-weight: 500; }
 
     .divider-v {
       width: 1px;
       height: 64px;
-      background: var(--border);
+      background: var(--mn-border);
       flex-shrink: 0;
     }
 
@@ -208,7 +207,7 @@ import "../../styles/global.css";
     .train-dest {
       font-size: 15px !important;
       font-weight: 500;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       margin-bottom: 4px;
       line-height: 1.4 !important;
     }
@@ -218,40 +217,40 @@ import "../../styles/global.css";
       font-size: 26px !important;
       font-weight: 300;
       letter-spacing: 0.02em;
-      color: var(--text) !important;
+      color: var(--mn-text) !important;
       line-height: 1.2 !important;
     }
 
     .train-meta {
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       margin-top: 4px;
       line-height: 1.4 !important;
     }
 
     .walk-pill {
       flex-shrink: 0;
-      background: var(--border);
+      background: var(--mn-border);
       border-radius: 20px;
       padding: 8px 16px;
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       line-height: 1.4 !important;
     }
 
     .next-catchable {
       margin-top: 12px;
       padding: 10px 14px;
-      background: var(--border);
+      background: var(--mn-border);
       border-radius: 5px;
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       line-height: 1.6 !important;
     }
-    .next-catchable strong { color: var(--text) !important; }
+    .next-catchable strong { color: var(--mn-text) !important; }
 
     /* ── TRAINS TABLE ── */
     .mn-trains-section { padding: 24px 0 80px; }
@@ -261,7 +260,7 @@ import "../../styles/global.css";
       font-size: 10px !important;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       margin-bottom: 14px;
       display: flex;
       align-items: center;
@@ -272,7 +271,7 @@ import "../../styles/global.css";
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: var(--mn-border);
     }
 
     .trains-grid { display: flex; flex-direction: column; gap: 6px; }
@@ -283,8 +282,8 @@ import "../../styles/global.css";
       align-items: center;
       gap: 16px;
       padding: 13px 18px;
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: var(--mn-surface);
+      border: 1px solid var(--mn-border);
       border-radius: 6px;
       transition: border-color 0.2s;
     }
@@ -295,7 +294,7 @@ import "../../styles/global.css";
       font-family: 'DM Mono', monospace !important;
       font-size: 20px !important;
       font-weight: 400;
-      color: var(--text) !important;
+      color: var(--mn-text) !important;
       line-height: 1.2 !important;
     }
     .train-row.is-next .t-depart { color: var(--accent) !important; }
@@ -303,12 +302,12 @@ import "../../styles/global.css";
     .t-tripid {
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       line-height: 1.4 !important;
     }
     .t-stops {
       font-size: 12px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       margin-top: 2px;
       line-height: 1.4 !important;
     }
@@ -317,7 +316,7 @@ import "../../styles/global.css";
     .t-gct-time {
       font-family: 'DM Mono', monospace !important;
       font-size: 13px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       line-height: 1.4 !important;
     }
     .t-gct-label {
@@ -334,11 +333,11 @@ import "../../styles/global.css";
       text-align: right;
       font-family: 'DM Mono', monospace !important;
       font-size: 12px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       line-height: 1.4 !important;
     }
     .t-leaveby strong {
-      color: var(--text) !important;
+      color: var(--mn-text) !important;
       display: block;
       font-size: 14px !important;
     }
@@ -358,22 +357,22 @@ import "../../styles/global.css";
     .badge-ok     { background: rgba(0,212,170,0.12); color: var(--accent) !important; }
     .badge-soon   { background: rgba(245,200,66,0.12); color: var(--warn) !important; }
     .badge-urgent { background: rgba(255,68,68,0.12);  color: var(--danger) !important; }
-    .badge-later  { background: var(--border); color: var(--muted) !important; }
-    .badge-missed { border: 1px solid var(--border); color: var(--dim) !important; }
+    .badge-later  { background: var(--mn-border); color: var(--mn-muted) !important; }
+    .badge-missed { border: 1px solid var(--mn-border); color: var(--dim) !important; }
 
     /* ── STATUS BAR ── */
     .mn-status-bar {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
+      background: var(--mn-surface);
+      border-top: 1px solid var(--mn-border);
       padding: 10px clamp(12px, 5vw, calc((100vw - min(95%, 1100px)) / 2));
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       letter-spacing: 0.06em;
       z-index: 50;
     }
@@ -394,7 +393,7 @@ import "../../styles/global.css";
       position: fixed;
       bottom: 37px; left: 0; right: 0;
       height: 2px;
-      background: var(--border);
+      background: var(--mn-border);
       z-index: 49;
     }
     .mn-refresh-progress {
@@ -406,14 +405,14 @@ import "../../styles/global.css";
 
     .mn-loading {
       display: flex; align-items: center; gap: 12px;
-      color: var(--muted) !important;
+      color: var(--mn-muted) !important;
       font-family: 'DM Mono', monospace !important;
       font-size: 12px !important;
       padding: 24px 0;
     }
     .mn-spinner {
       width: 20px; height: 20px;
-      border: 2px solid var(--border);
+      border: 2px solid var(--mn-border);
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: mn-spin 0.8s linear infinite;
@@ -517,7 +516,7 @@ import "../../styles/global.css";
     function renderHero(trains, data) {
       const el  = document.getElementById("mn-hero");
       if (!trains.length) {
-        el.innerHTML = `<div class="mn-loading" style="color:var(--muted)">No upcoming trains found.</div>`;
+        el.innerHTML = `<div class="mn-loading" style="color:var(--mn-muted)">No upcoming trains found.</div>`;
         return;
       }
 
@@ -568,7 +567,7 @@ import "../../styles/global.css";
     function renderTable(trains) {
       const el  = document.getElementById("mn-trains");
       if (!trains.length) {
-        el.innerHTML = `<div class="mn-loading" style="color:var(--muted)">No upcoming trains.</div>`;
+        el.innerHTML = `<div class="mn-loading" style="color:var(--mn-muted)">No upcoming trains.</div>`;
         return;
       }
 

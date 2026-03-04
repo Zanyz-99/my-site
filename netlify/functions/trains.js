@@ -1,4 +1,4 @@
-// netlify/functions/trains.js — DEBUG VERSION
+// netlify/functions/trains.js
 
 const FEED_URL       = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/mnr%2Fgtfs-mnr";
 const STATION_NAME   = "Port Chester";
@@ -28,15 +28,18 @@ class PBReader {
     else if (wt === 2) this.pos += this.varint();
     else if (wt === 5) this.pos += 4;
   }
-  str(len) { const s = new TextDecoder().decode(this.b.slice(this.pos, this.pos + len)); this.pos += len; return s; }
+  str(len) {
+    const s = new TextDecoder().decode(this.b.slice(this.pos, this.pos + len));
+    this.pos += len;
+    return s;
+  }
   msg(len, cb) {
     const end = this.pos + len;
     const saved = this.end;
     this.end = end;
     while (this.pos < end) {
       const tag = this.varint();
-      const f = tag >>> 3, wt = tag & 7;
-      cb(f, wt);
+      cb(tag >>> 3, tag & 7);
     }
     this.pos = end;
     this.end = saved;
@@ -47,82 +50,72 @@ function parseGtfsRt(buffer) {
   const r = new PBReader(buffer);
   const now = Math.floor(Date.now() / 1000);
   const trains = [];
-  const debugStops = new Set();
-  const debugLastStops = new Set();
-  let entityCount = 0;
 
   r.msg(r.b.length, (f, wt) => {
     if (f !== 2 || wt !== 2) { r.skip(wt); return; }
-    entityCount++;
-    const eLen = r.varint();
-    r.msg(eLen, (f2, wt2) => {
+
+    r.msg(r.varint(), (f2, wt2) => {
       if (f2 !== 3 || wt2 !== 2) { r.skip(wt2); return; }
-      // TripUpdate
+
       let tripId = "", routeId = "";
       const stops = [];
+
       r.msg(r.varint(), (f3, wt3) => {
         if (f3 === 1 && wt3 === 2) {
-          // TripDescriptor
           r.msg(r.varint(), (f4, wt4) => {
-            if (f4 === 1 && wt4 === 2) { const n = r.varint(); tripId  = r.str(n); }
+            if (f4 === 1 && wt4 === 2)      { const n = r.varint(); tripId  = r.str(n); }
             else if (f4 === 5 && wt4 === 2) { const n = r.varint(); routeId = r.str(n); }
             else r.skip(wt4);
           });
         } else if (f3 === 2 && wt3 === 2) {
-          // StopTimeUpdate
           let stopId = "", arrTs = 0, depTs = 0;
           r.msg(r.varint(), (f4, wt4) => {
-            if (f4 === 4 && wt4 === 2) { const n = r.varint(); stopId = r.str(n); }      // stop_id
-            else if (f4 === 2 && wt4 === 2) {                                             // arrival
+            if (f4 === 4 && wt4 === 2) {
+              const n = r.varint(); stopId = r.str(n);
+            } else if (f4 === 2 && wt4 === 2) {
               r.msg(r.varint(), (f5, wt5) => {
                 if (f5 === 2 && wt5 === 0) arrTs = r.varint(); else r.skip(wt5);
               });
-            } else if (f4 === 3 && wt4 === 2) {                                           // departure
+            } else if (f4 === 3 && wt4 === 2) {
               r.msg(r.varint(), (f5, wt5) => {
                 if (f5 === 2 && wt5 === 0) depTs = r.varint(); else r.skip(wt5);
               });
             } else r.skip(wt4);
           });
           stops.push({ stopId, arrTs, depTs });
-          debugStops.add(stopId);
         } else r.skip(wt3);
       });
 
-      if (stops.length) {
-        debugLastStops.add(stops[stops.length - 1].stopId);
-        if (stops[stops.length - 1].stopId === GCT_STOP_ID) {
-          const pcIdx = stops.findIndex(s => s.stopId === STOP_ID);
-          if (pcIdx >= 0) {
-            const pc = stops[pcIdx];
-            const depTs = pc.depTs || pc.arrTs;
-            if (depTs && depTs >= now - 300) {
-              const gctArr = stops[stops.length - 1].arrTs || null;
-              const lvTs = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;
-              trains.push({
-                trip_id: tripId, route_id: routeId,
-                dep_ts: depTs, dep_time: fmtTime(depTs),
-                leave_ts: lvTs, leave_time: fmtTime(lvTs),
-                leave_in_seconds: lvTs - now,
-                gct_arr_ts: gctArr, gct_arr_time: gctArr ? fmtTime(gctArr) : null,
-                stops_remaining: stops.length - pcIdx,
-              });
-            }
-          }
-        }
-      }
+      if (!stops.length) return;
+      if (stops[stops.length - 1].stopId !== GCT_STOP_ID) return;
+
+      const pcIdx = stops.findIndex(s => s.stopId === STOP_ID);
+      if (pcIdx < 0) return;
+
+      const pc = stops[pcIdx];
+      const depTs = pc.depTs || pc.arrTs;
+      if (!depTs || depTs < now - 300) return;
+
+      const gctArr = stops[stops.length - 1].arrTs || null;
+      const lvTs = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;
+
+      trains.push({
+        trip_id:          tripId,
+        route_id:         routeId,
+        dep_ts:           depTs,
+        dep_time:         fmtTime(depTs),
+        leave_ts:         lvTs,
+        leave_time:       fmtTime(lvTs),
+        leave_in_seconds: lvTs - now,
+        gct_arr_ts:       gctArr,
+        gct_arr_time:     gctArr ? fmtTime(gctArr) : null,
+        stops_remaining:  stops.length - pcIdx,
+      });
     });
   });
 
   trains.sort((a, b) => a.dep_ts - b.dep_ts);
-
-  return {
-    trains,
-    debug: {
-      entityCount,
-      uniqueStopIds: [...debugStops].sort((a,b) => Number(a)-Number(b)),
-      lastStopIds: [...debugLastStops].sort((a,b) => Number(a)-Number(b)),
-    }
-  };
+  return trains;
 }
 
 function fmtTime(ts) {
@@ -138,18 +131,27 @@ export default async () => {
   try {
     const resp = await fetch(FEED_URL);
     if (!resp.ok) throw new Error(`MTA feed returned ${resp.status}`);
-    const { trains, debug } = parseGtfsRt(await resp.arrayBuffer());
+    const trains = parseGtfsRt(await resp.arrayBuffer());
     return new Response(JSON.stringify({
-      status: "ok", station: STATION_NAME, stop_id: STOP_ID,
-      walk_minutes: WALK_MINUTES, buffer_minutes: BUFFER_MINUTES,
-      trains, debug, updated: new Date().toISOString(),
+      status:         "ok",
+      station:        STATION_NAME,
+      stop_id:        STOP_ID,
+      walk_minutes:   WALK_MINUTES,
+      buffer_minutes: BUFFER_MINUTES,
+      trains,
+      updated:        new Date().toISOString(),
     }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store" },
+      headers: {
+        "Content-Type":                "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control":               "no-store",
+      },
     });
   } catch (err) {
     return new Response(JSON.stringify({ status: "error", message: err.message }), {
-      status: 500, headers: { "Content-Type": "application/json" },
+      status: 500,
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

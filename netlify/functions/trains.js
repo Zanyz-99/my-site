@@ -118,8 +118,9 @@ function parseGtfsRt(buffer, fromId, toId) {
     const fromGCT = fromId === "1";
 
     if (fromGCT) {
-      // Outbound: train starts at GCT, we find our destination anywhere in trip
+      // Outbound: train must start at GCT AND pass through destination
       if (stops[0].stopId !== "1") continue;
+      if (!stops.some(s => s.stopId === toId)) continue;
     } else {
       // Inbound: train must terminate at destination (GCT)
       if (stops[stops.length - 1].stopId !== toId) continue;

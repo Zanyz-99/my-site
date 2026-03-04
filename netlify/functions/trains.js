@@ -1,5 +1,4 @@
-// netlify/functions/trains.js
-// Uses protobufjs/minimal via CDN-fetched descriptor — zero npm deps
+// netlify/functions/trains.js — DEBUG VERSION
 
 const FEED_URL       = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/mnr%2Fgtfs-mnr";
 const STATION_NAME   = "Port Chester";
@@ -8,191 +7,122 @@ const GCT_STOP_ID    = "1";
 const WALK_MINUTES   = 10;
 const BUFFER_MINUTES = 2;
 
-// ── Minimal correct protobuf varint + length-delimited parser ─────────────────
-// GTFS-RT field map (we only need these):
-// FeedMessage: 2 = entity[]
-// FeedEntity:  3 = trip_update
-// TripUpdate:  1 = trip, 2 = stop_time_update[]
-// TripDescriptor: 1 = trip_id, 5 = route_id
-// StopTimeUpdate: 1 = stop_sequence, 3 = stop_id, 2 = arrival, 3 = departure
-// StopTimeEvent:  2 = time (int64)
-
 class PBReader {
   constructor(buf) {
     this.b = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
     this.pos = 0;
     this.end = this.b.length;
   }
-
-  setRange(start, end) {
-    this.pos = start;
-    this.end = end;
-    return this;
-  }
-
   varint() {
-    let lo = 0, hi = 0, shift = 0, b;
-    while (shift < 28) {
+    let lo = 0, shift = 0, b;
+    do {
       b = this.b[this.pos++];
       lo |= (b & 0x7f) << shift;
-      if (!(b & 0x80)) return lo >>> 0;
       shift += 7;
-    }
-    b = this.b[this.pos++];
-    lo |= (b & 0x7f) << 28;
-    hi  = (b & 0x7f) >> 4;
-    while (this.pos < this.end) {
-      b = this.b[this.pos++];
-      hi |= (b & 0x7f) << (shift - 25);
-      if (!(b & 0x80)) break;
-      shift += 7;
-    }
-    // For timestamps (int64) return as number (safe up to 2^53)
-    return (hi * 0x100000000 + (lo >>> 0));
+    } while (b & 0x80 && shift < 49);
+    return lo >>> 0;
   }
-
-  skip(wireType) {
-    if (wireType === 0) { this.varint(); }
-    else if (wireType === 1) { this.pos += 8; }
-    else if (wireType === 2) { this.pos += this.varint(); }
-    else if (wireType === 5) { this.pos += 4; }
+  skip(wt) {
+    if (wt === 0) this.varint();
+    else if (wt === 1) this.pos += 8;
+    else if (wt === 2) this.pos += this.varint();
+    else if (wt === 5) this.pos += 4;
   }
-
-  string(start, len) {
-    return new TextDecoder().decode(this.b.slice(start, start + len));
-  }
-
-  // Parse a message in range [start, end), calling cb(fieldNum, wireType, reader)
-  eachField(start, end, cb) {
-    this.pos = start;
+  str(len) { const s = new TextDecoder().decode(this.b.slice(this.pos, this.pos + len)); this.pos += len; return s; }
+  msg(len, cb) {
+    const end = this.pos + len;
+    const saved = this.end;
     this.end = end;
     while (this.pos < end) {
-      const tag      = this.varint();
-      const fieldNum = tag >>> 3;
-      const wireType = tag & 0x7;
-      cb(fieldNum, wireType, this);
+      const tag = this.varint();
+      const f = tag >>> 3, wt = tag & 7;
+      cb(f, wt);
     }
+    this.pos = end;
+    this.end = saved;
   }
 }
 
 function parseGtfsRt(buffer) {
-  const r    = new PBReader(buffer);
-  const now  = Math.floor(Date.now() / 1000);
+  const r = new PBReader(buffer);
+  const now = Math.floor(Date.now() / 1000);
   const trains = [];
-  const total  = r.b.length;
+  const debugStops = new Set();
+  const debugLastStops = new Set();
+  let entityCount = 0;
 
-  // FeedMessage field 2 = repeated FeedEntity
-  r.eachField(0, total, (f, wt) => {
+  r.msg(r.b.length, (f, wt) => {
     if (f !== 2 || wt !== 2) { r.skip(wt); return; }
-    const eLen   = r.varint();
-    const eStart = r.pos;
-    const eEnd   = eStart + eLen;
-    r.pos = eEnd; // advance outer reader past this entity
+    entityCount++;
+    const eLen = r.varint();
+    r.msg(eLen, (f2, wt2) => {
+      if (f2 !== 3 || wt2 !== 2) { r.skip(wt2); return; }
+      // TripUpdate
+      let tripId = "", routeId = "";
+      const stops = [];
+      r.msg(r.varint(), (f3, wt3) => {
+        if (f3 === 1 && wt3 === 2) {
+          // TripDescriptor
+          r.msg(r.varint(), (f4, wt4) => {
+            if (f4 === 1 && wt4 === 2) { const n = r.varint(); tripId  = r.str(n); }
+            else if (f4 === 5 && wt4 === 2) { const n = r.varint(); routeId = r.str(n); }
+            else r.skip(wt4);
+          });
+        } else if (f3 === 2 && wt3 === 2) {
+          // StopTimeUpdate
+          let stopId = "", arrTs = 0, depTs = 0;
+          r.msg(r.varint(), (f4, wt4) => {
+            if (f4 === 4 && wt4 === 2) { const n = r.varint(); stopId = r.str(n); }      // stop_id
+            else if (f4 === 2 && wt4 === 2) {                                             // arrival
+              r.msg(r.varint(), (f5, wt5) => {
+                if (f5 === 2 && wt5 === 0) arrTs = r.varint(); else r.skip(wt5);
+              });
+            } else if (f4 === 3 && wt4 === 2) {                                           // departure
+              r.msg(r.varint(), (f5, wt5) => {
+                if (f5 === 2 && wt5 === 0) depTs = r.varint(); else r.skip(wt5);
+              });
+            } else r.skip(wt4);
+          });
+          stops.push({ stopId, arrTs, depTs });
+          debugStops.add(stopId);
+        } else r.skip(wt3);
+      });
 
-    // Parse FeedEntity — field 3 = TripUpdate
-    let tuStart = -1, tuLen = 0;
-    r.eachField(eStart, eEnd, (f2, wt2) => {
-      if (f2 === 3 && wt2 === 2) {
-        tuLen   = r.varint();
-        tuStart = r.pos;
-        r.pos   = tuStart + tuLen;
-      } else {
-        r.skip(wt2);
+      if (stops.length) {
+        debugLastStops.add(stops[stops.length - 1].stopId);
+        if (stops[stops.length - 1].stopId === GCT_STOP_ID) {
+          const pcIdx = stops.findIndex(s => s.stopId === STOP_ID);
+          if (pcIdx >= 0) {
+            const pc = stops[pcIdx];
+            const depTs = pc.depTs || pc.arrTs;
+            if (depTs && depTs >= now - 300) {
+              const gctArr = stops[stops.length - 1].arrTs || null;
+              const lvTs = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;
+              trains.push({
+                trip_id: tripId, route_id: routeId,
+                dep_ts: depTs, dep_time: fmtTime(depTs),
+                leave_ts: lvTs, leave_time: fmtTime(lvTs),
+                leave_in_seconds: lvTs - now,
+                gct_arr_ts: gctArr, gct_arr_time: gctArr ? fmtTime(gctArr) : null,
+                stops_remaining: stops.length - pcIdx,
+              });
+            }
+          }
+        }
       }
-    });
-    if (tuStart < 0) return;
-
-    // Parse TripUpdate
-    // field 1 = TripDescriptor, field 2 = repeated StopTimeUpdate
-    let tripId = "", routeId = "";
-    const stops = []; // {stopId, depTs, arrTs}
-
-    r.eachField(tuStart, tuStart + tuLen, (f2, wt2) => {
-      if (f2 === 1 && wt2 === 2) {
-        // TripDescriptor
-        const tdLen   = r.varint();
-        const tdStart = r.pos;
-        r.pos = tdStart + tdLen;
-        r.eachField(tdStart, tdStart + tdLen, (f3, wt3) => {
-          if (f3 === 3 && wt3 === 2) { // trip_id
-            const sLen = r.varint(); tripId = r.string(r.pos, sLen); r.pos += sLen;
-          } else if (f3 === 5 && wt3 === 2) { // route_id
-            const sLen = r.varint(); routeId = r.string(r.pos, sLen); r.pos += sLen;
-          } else { r.skip(wt3); }
-        });
-      } else if (f2 === 2 && wt2 === 2) {
-        // StopTimeUpdate
-        const stuLen   = r.varint();
-        const stuStart = r.pos;
-        r.pos = stuStart + stuLen;
-
-        let stopId = "", arrTs = 0, depTs = 0;
-        r.eachField(stuStart, stuStart + stuLen, (f3, wt3) => {
-          if (f3 === 3 && wt3 === 2) { // stop_id
-            const sLen = r.varint(); stopId = r.string(r.pos, sLen); r.pos += sLen;
-          } else if (f3 === 2 && wt3 === 2) { // arrival StopTimeEvent
-            const evLen   = r.varint();
-            const evStart = r.pos;
-            r.pos = evStart + evLen;
-            r.eachField(evStart, evStart + evLen, (f4, wt4) => {
-              if (f4 === 2 && wt4 === 0) arrTs = r.varint();
-              else r.skip(wt4);
-            });
-          } else if (f3 === 3 && wt3 === 2) { // departure StopTimeEvent
-            // Note: field 3 is also stop_id (string) vs departure (message)
-            // wire type disambiguates: stop_id=string(wt2), departure=message(wt2)
-            // Both are wt=2 so we need to check if we already have stopId
-            // Actually in protobuf stop_id is field 4 in some versions — handle below
-            const evLen   = r.varint();
-            const evStart = r.pos;
-            r.pos = evStart + evLen;
-            r.eachField(evStart, evStart + evLen, (f4, wt4) => {
-              if (f4 === 2 && wt4 === 0) depTs = r.varint();
-              else r.skip(wt4);
-            });
-          } else if (f3 === 4 && wt3 === 2) { // stop_id is field 4 in GTFS-RT v2
-            const sLen = r.varint(); stopId = r.string(r.pos, sLen); r.pos += sLen;
-          } else { r.skip(wt3); }
-        });
-        stops.push({ stopId, arrTs, depTs });
-      } else {
-        r.skip(wt2);
-      }
-    });
-
-    if (!stops.length) return;
-
-    // Only inbound: last stop = GCT
-    if (stops[stops.length - 1].stopId !== GCT_STOP_ID) return;
-
-    // Find Port Chester
-    const pcIdx = stops.findIndex(s => s.stopId === STOP_ID);
-    if (pcIdx < 0) return;
-
-    const pc    = stops[pcIdx];
-    const depTs = pc.depTs || pc.arrTs;
-    if (!depTs || depTs < now - 300) return;
-
-    const gct   = stops[stops.length - 1];
-    const gctArr = gct.arrTs || gct.depTs || null;
-    const lvTs  = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;
-
-    trains.push({
-      trip_id:          tripId,
-      route_id:         routeId,
-      dep_ts:           depTs,
-      dep_time:         fmtTime(depTs),
-      leave_ts:         lvTs,
-      leave_time:       fmtTime(lvTs),
-      leave_in_seconds: lvTs - now,
-      gct_arr_ts:       gctArr,
-      gct_arr_time:     gctArr ? fmtTime(gctArr) : null,
-      stops_remaining:  stops.length - pcIdx,
     });
   });
 
   trains.sort((a, b) => a.dep_ts - b.dep_ts);
-  return trains;
+
+  return {
+    trains,
+    debug: {
+      entityCount,
+      uniqueStopIds: [...debugStops].sort((a,b) => Number(a)-Number(b)),
+      lastStopIds: [...debugLastStops].sort((a,b) => Number(a)-Number(b)),
+    }
+  };
 }
 
 function fmtTime(ts) {
@@ -208,29 +138,18 @@ export default async () => {
   try {
     const resp = await fetch(FEED_URL);
     if (!resp.ok) throw new Error(`MTA feed returned ${resp.status}`);
-    const buffer = await resp.arrayBuffer();
-    const trains = parseGtfsRt(buffer);
-
+    const { trains, debug } = parseGtfsRt(await resp.arrayBuffer());
     return new Response(JSON.stringify({
-      status:         "ok",
-      station:        STATION_NAME,
-      stop_id:        STOP_ID,
-      walk_minutes:   WALK_MINUTES,
-      buffer_minutes: BUFFER_MINUTES,
-      trains,
-      updated:        new Date().toISOString(),
+      status: "ok", station: STATION_NAME, stop_id: STOP_ID,
+      walk_minutes: WALK_MINUTES, buffer_minutes: BUFFER_MINUTES,
+      trains, debug, updated: new Date().toISOString(),
     }), {
       status: 200,
-      headers: {
-        "Content-Type":                "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control":               "no-store",
-      },
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store" },
     });
   } catch (err) {
     return new Response(JSON.stringify({ status: "error", message: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
+      status: 500, headers: { "Content-Type": "application/json" },
     });
   }
 };

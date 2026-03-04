@@ -1,71 +1,3 @@
-Skip to content
-Zanyz-99
-my-site
-Repository navigation
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-my-site/src/pages/coding
-/
-metro-north.astro
-in
-main
-
-Edit
-
-Preview
-Indent mode
-
-Spaces
-Indent size
-
-2
-Line wrap mode
-
-No wrap
-Editing metro-north.astro file contents
-  1
-  2
-  3
-  4
-  5
-  6
-  7
-  8
-  9
- 10
- 11
- 12
- 13
- 14
- 15
- 16
- 17
- 18
- 19
- 20
- 21
- 22
- 23
- 24
- 25
- 26
- 27
- 28
- 29
- 30
- 31
- 32
- 33
- 34
- 35
- 36
 ---
 // src/pages/coding/metro-north.astro
 import Layout from "../../layouts/Layout.astro";
@@ -73,34 +5,584 @@ import Layout from "../../layouts/Layout.astro";
 
 <Layout title="Metro North — Zach Scholz" description="Live Metro-North departures from Port Chester to Grand Central.">
   <style>
-    .mn-wrap {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-      margin-inline: auto;
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+    :root {
+      --mn-accent: #00d4aa;
+      --mn-warn:   #f5c842;
+      --mn-danger: #ff4444;
+      --mn-dim:    #374151;
+      --mn-border: #1e2329;
+      --mn-surface:#111418;
+      --mn-bg:     #0a0c0f;
+      --mn-muted:  #6b7280;
+      --mn-text:   #e8eaed;
     }
 
-    /* ── Header row ── */
+    .mn-wrap {
+      background: var(--mn-bg);
+      color: var(--mn-text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 80vh;
+      margin: 0 calc(-1 * var(--content-pad, 1.5rem));
+      position: relative;
+    }
+
+    /* scanline */
+    .mn-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── HEADER ── */
     .mn-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--mn-border);
+      background: var(--mn-surface);
     }
 
-    .mn-title {
-      margin: 0;
-      font-size: var(--h1-size);
-      font-weight: 1000;
-      letter-spacing: -0.01em;
-      line-height: calc(var(--line) - .15);
-      color: var(--text);
+    .mn-badge {
+      background: var(--mn-accent);
+      color: #000;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      padding: 3px 9px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .mn-station {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--mn-text);
     }
 
     .mn-sub {
-      margin: .2rem 0 0;
-      font-size: var(--body-size);
-      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--mn-muted);
+      letter-spacing: 0.1em;
+      margin-top: 2px;
     }
-Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
- 
+
+    .mn-clock {
+      font-family: 'DM Mono', monospace;
+      font-size: 30px;
+      font-weight: 300;
+      color: var(--mn-accent);
+      letter-spacing: 0.04em;
+      text-align: right;
+      line-height: 1;
+    }
+
+    .mn-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--mn-muted);
+      margin-top: 5px;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    /* ── HERO ── */
+    .mn-hero {
+      padding: 24px 32px;
+      background: var(--mn-surface);
+      border-bottom: 1px solid var(--mn-border);
+    }
+
+    .mn-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mn-muted);
+      margin-bottom: 12px;
+    }
+
+    .leave-card {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      background: var(--mn-bg);
+      border: 1px solid var(--mn-border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .leave-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      border-radius: 3px 0 0 3px;
+      transition: background 0.3s;
+    }
+
+    .leave-card.ok::before     { background: var(--mn-accent); }
+    .leave-card.soon::before   { background: var(--mn-warn); }
+    .leave-card.urgent::before { background: var(--mn-danger); }
+    .leave-card.missed::before { background: var(--mn-dim); }
+    .leave-card.urgent { border-color: rgba(255,68,68,0.3); }
+    .leave-card.soon   { border-color: rgba(245,200,66,0.2); }
+
+    .leave-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 48px;
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      transition: color 0.3s;
+    }
+    .leave-time.ok     { color: var(--mn-accent); }
+    .leave-time.soon   { color: var(--mn-warn); }
+    .leave-time.urgent { color: var(--mn-danger); }
+    .leave-time.missed { color: var(--mn-dim); }
+
+    .leave-sublabel {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--mn-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .leave-countdown {
+      font-size: 13px;
+      color: var(--mn-muted);
+      margin-top: 7px;
+      font-weight: 300;
+    }
+    .leave-countdown strong { color: var(--mn-text); font-weight: 500; }
+
+    .divider-v {
+      width: 1px;
+      height: 64px;
+      background: var(--mn-border);
+      flex-shrink: 0;
+    }
+
+    .train-detail { flex: 1; }
+
+    .train-dest {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--mn-muted);
+      margin-bottom: 4px;
+    }
+
+    .train-dep-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 26px;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      color: var(--mn-text);
+    }
+
+    .train-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--mn-muted);
+      margin-top: 4px;
+    }
+
+    .walk-pill {
+      flex-shrink: 0;
+      background: var(--mn-border);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--mn-muted);
+    }
+
+    .next-catchable {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: var(--mn-border);
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--mn-muted);
+    }
+    .next-catchable strong { color: var(--mn-text); }
+
+    /* ── TRAINS TABLE ── */
+    .mn-trains-section { padding: 24px 32px 80px; }
+
+    .mn-section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mn-muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mn-section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--mn-border);
+    }
+
+    .trains-grid { display: flex; flex-direction: column; gap: 6px; }
+
+    .train-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 110px 100px 70px;
+      align-items: center;
+      gap: 16px;
+      padding: 13px 18px;
+      background: var(--mn-surface);
+      border: 1px solid var(--mn-border);
+      border-radius: 6px;
+      transition: border-color 0.2s;
+    }
+    .train-row.is-next   { border-color: var(--mn-accent); background: rgba(0,212,170,0.04); }
+    .train-row.is-missed { opacity: 0.4; }
+
+    .t-depart {
+      font-family: 'DM Mono', monospace;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--mn-text);
+    }
+    .train-row.is-next .t-depart { color: var(--mn-accent); }
+
+    .t-tripid { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--mn-muted); }
+    .t-stops  { font-size: 12px; color: var(--mn-muted); margin-top: 2px; }
+
+    .t-gct { text-align: center; }
+    .t-gct-time  { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--mn-muted); }
+    .t-gct-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--mn-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+
+    .t-leaveby { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--mn-muted); }
+    .t-leaveby strong { color: var(--mn-text); display: block; font-size: 14px; }
+
+    .t-badge { text-align: right; }
+
+    .badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    .badge-ok     { background: rgba(0,212,170,0.12); color: var(--mn-accent); }
+    .badge-soon   { background: rgba(245,200,66,0.12); color: var(--mn-warn); }
+    .badge-urgent { background: rgba(255,68,68,0.12);  color: var(--mn-danger); }
+    .badge-later  { background: var(--mn-border); color: var(--mn-muted); }
+    .badge-missed { border: 1px solid var(--mn-border); color: var(--mn-dim); }
+
+    /* ── STATUS BAR ── */
+    .mn-status-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--mn-surface);
+      border-top: 1px solid var(--mn-border);
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--mn-muted);
+      letter-spacing: 0.06em;
+      z-index: 50;
+    }
+
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 7px;
+      background: var(--mn-accent);
+      animation: mn-pulse 2s infinite;
+    }
+    .dot.error   { background: var(--mn-danger); animation: none; }
+    .dot.loading { background: var(--mn-warn); }
+
+    @keyframes mn-pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    .mn-refresh-bar {
+      position: fixed;
+      bottom: 37px; left: 0; right: 0;
+      height: 2px;
+      background: var(--mn-border);
+      z-index: 49;
+    }
+    .mn-refresh-progress {
+      height: 100%;
+      background: var(--mn-accent);
+      opacity: 0.35;
+      transition: width 1s linear;
+    }
+
+    /* ── LOADING / ERROR ── */
+    .loading-state {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 24px 0;
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--mn-border);
+      border-top-color: var(--mn-accent);
+      border-radius: 50%;
+      animation: mn-spin 0.8s linear infinite;
+    }
+    @keyframes mn-spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      background: rgba(255,68,68,0.06);
+      border: 1px solid rgba(255,68,68,0.2);
+      border-radius: 8px;
+      padding: 20px 24px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--mn-danger);
+      line-height: 1.8;
+    }
+    .error-box .err-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+    .error-box code { background: var(--mn-border); padding: 1px 5px; border-radius: 3px; color: var(--mn-text); }
+
+    @media (max-width: 600px) {
+      .mn-header { padding: 16px 20px; }
+      .mn-hero, .mn-trains-section { padding-left: 20px; padding-right: 20px; }
+      .mn-clock { font-size: 22px; }
+      .leave-time { font-size: 36px; }
+      .leave-card { gap: 16px; flex-wrap: wrap; }
+      .train-row { grid-template-columns: 80px 1fr 80px; }
+      .t-leaveby, .t-badge { display: none; }
+    }
+  </style>
+
+  <div class="mn-wrap">
+
+    <!-- HEADER -->
+    <div class="mn-header">
+      <div>
+        <div class="mn-badge">Metro-North</div>
+        <div class="mn-station">Port Chester → Grand Central</div>
+        <div class="mn-sub">New Haven Line · Live Departures</div>
+      </div>
+      <div>
+        <div class="mn-clock" id="mn-clock">--:--:--</div>
+        <div class="mn-date"  id="mn-date">---</div>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="mn-hero">
+      <div class="mn-eyebrow">Next train — leave by</div>
+      <div id="mn-hero"><div class="loading-state"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="mn-trains-section">
+      <div class="mn-section-label">Upcoming Departures</div>
+      <div class="trains-grid" id="mn-trains"></div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="mn-refresh-bar"><div class="mn-refresh-progress" id="mn-progress" style="width:100%"></div></div>
+    <div class="mn-status-bar">
+      <div><span class="dot" id="mn-dot"></span><span id="mn-status">Connecting...</span></div>
+      <div id="mn-updated">—</div>
+      <div>Auto-refresh 30s</div>
+    </div>
+
+  </div>
+
+  <script>
+    const API        = "/api/trains";
+    const REFRESH_MS = 30_000;
+    let progressTimer = null;
+
+    // ── Clock ──────────────────────────────────────────────
+    function tickClock() {
+      const now = new Date();
+      document.getElementById("mn-clock").textContent =
+        now.toLocaleTimeString("en-US", { hour12: false });
+      document.getElementById("mn-date").textContent =
+        now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
+    }
+    setInterval(tickClock, 1000);
+    tickClock();
+
+    // ── Utils ──────────────────────────────────────────────
+    function fmtDur(sec) {
+      sec = Math.floor(sec);
+      if (sec < 0)  return `${Math.floor(-sec / 60)}m ago`;
+      if (sec < 60) return `${sec}s`;
+      const m = Math.floor(sec / 60);
+      return m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
+    }
+
+    function urgency(leaveInSec) {
+      if (leaveInSec < 0)   return "missed";
+      if (leaveInSec < 120) return "urgent";
+      if (leaveInSec < 480) return "soon";
+      return "ok";
+    }
+
+    function badgeFor(urg, leaveInSec) {
+      if (urg === "missed") return ["badge-missed", "missed"];
+      if (urg === "urgent") return ["badge-urgent", "go now"];
+      if (urg === "soon")   return ["badge-soon",   "soon"];
+      return ["badge-later", `in ${fmtDur(leaveInSec)}`];
+    }
+
+    // ── Hero ───────────────────────────────────────────────
+    function renderHero(trains, data) {
+      const el = document.getElementById("mn-hero");
+      if (!trains.length) {
+        el.innerHTML = `<div class="loading-state" style="color:var(--mn-muted)">No upcoming trains found.</div>`;
+        return;
+      }
+
+      const now         = Date.now() / 1000;
+      const catchable   = trains.find(t => t.dep_ts > now);
+      const comfortable = trains.find(t => t.leave_ts > now);
+      const t    = catchable || trains[0];
+      const next = (catchable && comfortable && comfortable.trip_id !== catchable.trip_id) ? comfortable : null;
+
+      const leaveInSec = t.leave_ts - now;
+      const depInSec   = t.dep_ts   - now;
+      const urg = (leaveInSec < 0 && depInSec > 0) ? "urgent" : urgency(leaveInSec);
+
+      let countdownHTML;
+      if (depInSec <= 0) {
+        countdownHTML = `Train departed <strong>${fmtDur(depInSec)}</strong>`;
+      } else if (leaveInSec < 60) {
+        countdownHTML = `<strong style="color:var(--mn-danger)">LEAVE NOW</strong> — train departs in ${fmtDur(depInSec)}`;
+      } else {
+        countdownHTML = `Leave in <strong>${fmtDur(leaveInSec)}</strong> — train departs ${t.dep_time}`;
+      }
+
+      const nextHTML = next ? `
+        <div class="next-catchable">
+          NEXT CATCHABLE &nbsp;·&nbsp; departs <strong>${next.dep_time}</strong>
+          &nbsp;·&nbsp; leave by <strong style="color:var(--mn-warn)">${next.leave_time}</strong>
+          &nbsp;·&nbsp; in ${fmtDur(next.leave_ts - now)}
+        </div>` : "";
+
+      el.innerHTML = `
+        <div class="leave-card ${urg}">
+          <div>
+            <div class="leave-sublabel">Leave apartment by</div>
+            <div class="leave-time ${urg}">${t.leave_time}</div>
+            <div class="leave-countdown">${countdownHTML}</div>
+            ${nextHTML}
+          </div>
+          <div class="divider-v"></div>
+          <div class="train-detail">
+            <div class="train-dest">→ Grand Central Terminal</div>
+            <div class="train-dep-time">${t.dep_time}</div>
+            <div class="train-meta">Trip ${t.trip_id}${t.gct_arr_time ? " · arr GCT " + t.gct_arr_time : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}</div>
+          </div>
+          <div class="walk-pill">🚶 ${data.walk_minutes + data.buffer_minutes} min to platform</div>
+        </div>`;
+    }
+
+    // ── Table ──────────────────────────────────────────────
+    function renderTable(trains) {
+      const el  = document.getElementById("mn-trains");
+      if (!trains.length) {
+        el.innerHTML = `<div class="loading-state" style="color:var(--mn-muted)">No upcoming trains.</div>`;
+        return;
+      }
+
+      const now = Date.now() / 1000;
+      el.innerHTML = trains.slice(0, 8).map((t, i) => {
+        const leaveInSec = t.leave_ts - now;
+        const urg        = urgency(leaveInSec);
+        const [bClass, bText] = badgeFor(urg, leaveInSec);
+        const isNext   = i === 0 && urg !== "missed";
+        const isMissed = urg === "missed";
+
+        return `
+          <div class="train-row ${isNext ? "is-next" : ""} ${isMissed ? "is-missed" : ""}">
+            <div class="t-depart">${t.dep_time}</div>
+            <div>
+              <div class="t-tripid">TRIP ${t.trip_id}</div>
+              <div class="t-stops">${t.stops_remaining ? t.stops_remaining + " stops" : ""}${t.route_id ? " · " + t.route_id : ""}</div>
+            </div>
+            <div class="t-gct">
+              <div class="t-gct-time">${t.gct_arr_time || "—"}</div>
+              <div class="t-gct-label">arr GCT</div>
+            </div>
+            <div class="t-leaveby">leave by<strong>${t.leave_time}</strong></div>
+            <div class="t-badge"><span class="badge ${bClass}">${bText}</span></div>
+          </div>`;
+      }).join("");
+    }
+
+    // ── Fetch ──────────────────────────────────────────────
+    async function fetchAndRender() {
+      const dot    = document.getElementById("mn-dot");
+      const status = document.getElementById("mn-status");
+      dot.className = "dot loading";
+
+      try {
+        const res  = await fetch(API);
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data = await res.json();
+        if (data.status === "error") throw new Error(data.message);
+
+        renderHero(data.trains, data);
+        renderTable(data.trains);
+
+        dot.className = "dot";
+        const t = new Date(data.updated).toLocaleTimeString("en-US", { hour12: false });
+        document.getElementById("mn-updated").textContent = `Updated ${t}`;
+        status.textContent = `Live · ${data.trains.length} upcoming from ${data.station}`;
+      } catch (err) {
+        dot.className = "dot error";
+        status.textContent = `Error: ${err.message}`;
+        document.getElementById("mn-hero").innerHTML =
+          `<div class="error-box"><div class="err-title">⚠ Could not load feed</div><code>${err.message}</code></div>`;
+      }
+
+      startProgress();
+    }
+
+    // ── Progress bar ───────────────────────────────────────
+    function startProgress() {
+      clearInterval(progressTimer);
+      let pct = 100;
+      document.getElementById("mn-progress").style.width = "100%";
+      progressTimer = setInterval(() => {
+        pct -= 100 / (REFRESH_MS / 1000);
+        if (pct < 0) pct = 0;
+        document.getElementById("mn-progress").style.width = pct + "%";
+      }, 1000);
+    }
+
+    fetchAndRender();
+    setInterval(fetchAndRender, REFRESH_MS);
+  </script>
+</Layout>

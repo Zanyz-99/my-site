@@ -149,9 +149,11 @@ function parseGtfsRt(buffer, fromId, toId) {
       leave_ts:         lvTs,
       leave_time:       fmtTime(lvTs),
       leave_in_seconds: lvTs - now,
-      gct_arr_ts:       gctArr,
-      gct_arr_time:     gctArr ? fmtTime(gctArr) : null,
-      stops_remaining:  stops.length - pcIdx,
+      arr_ts:           gctArr,
+      arr_time:         gctArr ? fmtTime(gctArr) : null,
+      stops_remaining:  fromGCT ? (stops.findIndex(s => s.stopId === toId) - pcIdx) : (stops.length - pcIdx),
+      _dest_arr:        destStop ? destStop.arrTs : null,
+      _dest_dep:        destStop ? destStop.depTs : null,
     });
   }
 

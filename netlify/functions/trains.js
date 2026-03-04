@@ -152,8 +152,6 @@ function parseGtfsRt(buffer, fromId, toId) {
       arr_ts:           gctArr,
       arr_time:         gctArr ? fmtTime(gctArr) : null,
       stops_remaining:  fromGCT ? (stops.findIndex(s => s.stopId === toId) - pcIdx) : (stops.length - pcIdx),
-      _dest_arr:        destStop ? destStop.arrTs : null,
-      _dest_dep:        destStop ? destStop.depTs : null,
     });
   }
 

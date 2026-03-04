@@ -121,7 +121,7 @@ function parseGtfsRt(buffer) {
 
     const pc    = stops[pcIdx];
     const depTs = pc.depTs || pc.arrTs;
-    if (!depTs) continue;
+    if (!depTs || depTs < now - 60) continue;
 
     const gct    = stops[stops.length - 1];
     const gctArr = gct.arrTs || gct.depTs || null;
@@ -147,11 +147,10 @@ function parseGtfsRt(buffer) {
 
 function fmtTime(ts) {
   if (!ts) return null;
-  const d = new Date(ts * 1000);
-  let h = d.getHours(), m = d.getMinutes();
-  const ampm = h >= 12 ? "PM" : "AM";
-  h = h % 12 || 12;
-  return `${h}:${String(m).padStart(2, "0")} ${ampm}`;
+  return new Date(ts * 1000).toLocaleTimeString("en-US", {
+    hour: "numeric", minute: "2-digit", hour12: true,
+    timeZone: "America/New_York"
+  });
 }
 
 export default async () => {

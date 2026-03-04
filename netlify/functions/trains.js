@@ -1,4 +1,11 @@
 // netlify/functions/trains.js
+// GTFS-RT field layout (confirmed from protobuf descriptor):
+// StopTimeUpdate: field 1=stop_sequence, field 2=arrival, field 3=departure, field 4=stop_id
+// StopTimeEvent:  field 1=delay, field 2=time, field 3=uncertainty
+// TripUpdate:     field 1=trip, field 2=stop_time_update (repeated)
+// TripDescriptor: field 1=trip_id, field 3=route_id (wait - check)
+// FeedMessage:    field 1=header, field 2=entity (repeated)
+// FeedEntity:     field 1=id, field 2=is_deleted, field 3=trip_update
 
 const FEED_URL       = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/mnr%2Fgtfs-mnr";
 const STATION_NAME   = "Port Chester";
@@ -9,53 +16,58 @@ const BUFFER_MINUTES = 2;
 
 const td = new TextDecoder();
 
-// ── Low-level protobuf primitives ─────────────────────────────────────────────
 function varint(u8, pos) {
   let val = 0, shift = 0, b;
   do { b = u8[pos++]; val |= (b & 0x7f) << shift; shift += 7; } while (b & 0x80);
   return [val >>> 0, pos];
 }
 
-function skipField(u8, pos, wt) {
-  if (wt === 0) { let b; do { b = u8[pos++]; } while (b & 0x80); }
-  else if (wt === 1) pos += 8;
-  else if (wt === 2) { const [len, p] = varint(u8, pos); pos = p + len; }
-  else if (wt === 5) pos += 4;
-  return pos;
-}
-
-// Parse a flat message, returning a map of fieldNum -> array of {wt, pos, len}
+// Scan a protobuf message from start to end.
+// Returns { fieldNum: [{pos, len}] } for length-delimited fields only.
+// Scalar fields are stored as { fieldNum: [value] }.
 function scanMsg(u8, start, end) {
   const fields = {};
   let pos = start;
   while (pos < end) {
+    if (pos >= u8.length) break;
     const [tag, p1] = varint(u8, pos);
-    const f = tag >>> 3, wt = tag & 7;
     pos = p1;
-    if (wt === 2) {
+    const f = tag >>> 3;
+    const wt = tag & 7;
+    if (wt === 0) {
+      const [val, p2] = varint(u8, pos);
+      pos = p2;
+      if (!fields[f]) fields[f] = [];
+      fields[f].push(val);
+    } else if (wt === 1) {
+      pos += 8;
+    } else if (wt === 2) {
       const [len, p2] = varint(u8, pos);
+      pos = p2;
       if (!fields[f]) fields[f] = [];
       fields[f].push({ pos: p2, len });
       pos = p2 + len;
+    } else if (wt === 5) {
+      pos += 4;
     } else {
-      pos = skipField(u8, pos, wt);
+      break; // unknown wire type, bail
     }
   }
   return fields;
 }
 
-function getString(u8, ref) {
+function str(u8, ref) {
   return td.decode(u8.slice(ref.pos, ref.pos + ref.len));
 }
 
-function getVarintField(u8, ref, fieldNum) {
-  const msg = scanMsg(u8, ref.pos, ref.pos + ref.len);
-  if (!msg[fieldNum]) return 0;
-  const [val] = varint(u8, msg[fieldNum][0].pos);
-  return val;
+// Get a scalar varint field from inside a length-delimited message ref
+function scalarIn(u8, ref, fieldNum) {
+  const inner = scanMsg(u8, ref.pos, ref.pos + ref.len);
+  if (!inner[fieldNum] || !inner[fieldNum].length) return 0;
+  const v = inner[fieldNum][0];
+  return typeof v === 'number' ? v : 0;
 }
 
-// ── GTFS-RT parser ────────────────────────────────────────────────────────────
 function parseGtfsRt(buffer) {
   const u8   = new Uint8Array(buffer);
   const now  = Math.floor(Date.now() / 1000);
@@ -63,64 +75,47 @@ function parseGtfsRt(buffer) {
   const trains = [];
 
   for (const entityRef of (root[2] || [])) {
+    if (typeof entityRef !== 'object') continue;
     const entity = scanMsg(u8, entityRef.pos, entityRef.pos + entityRef.len);
-    if (!entity[3]) continue;                          // no trip_update
 
-    const tu = scanMsg(u8, entity[3][0].pos, entity[3][0].pos + entity[3][0].len);
+    // field 3 = trip_update
+    if (!entity[3] || !entity[3][0] || typeof entity[3][0] !== 'object') continue;
+    const tuRef = entity[3][0];
+    const tu    = scanMsg(u8, tuRef.pos, tuRef.pos + tuRef.len);
 
-    // Trip descriptor (field 1): trip_id=field 1, route_id=field 5
+    // field 1 = trip descriptor
     let tripId = "", routeId = "";
-    if (tu[1]) {
+    if (tu[1] && typeof tu[1][0] === 'object') {
       const trip = scanMsg(u8, tu[1][0].pos, tu[1][0].pos + tu[1][0].len);
-      if (trip[1]) tripId  = getString(u8, trip[1][0]);
-      if (trip[5]) routeId = getString(u8, trip[5][0]);
+      if (trip[1] && typeof trip[1][0] === 'object') tripId  = str(u8, trip[1][0]);
+      if (trip[5] && typeof trip[5][0] === 'object') routeId = str(u8, trip[5][0]);
     }
 
-    // StopTimeUpdates (field 2, repeated)
-    const stuRefs = tu[2] || [];
+    // field 2 = stop_time_update (repeated)
     const stops = [];
-
-    for (const stuRef of stuRefs) {
+    for (const stuRef of (tu[2] || [])) {
+      if (typeof stuRef !== 'object') continue;
       const stu = scanMsg(u8, stuRef.pos, stuRef.pos + stuRef.len);
 
-      // stop_id: field 4 (primary) or field 3 if it's a string
+      // field 4 = stop_id (string) — confirmed always field 4
       let stopId = "";
-      if (stu[4]) {
-        stopId = getString(u8, stu[4][0]);
-      } else if (stu[3]) {
-        // field 3 could be stop_id (string) or departure (message)
-        // Check: if first byte parses as a valid tag with field 1-3 and wt 0, it's a message
-        const ref = stu[3][0];
-        const firstByte = u8[ref.pos];
-        const innerField = firstByte >>> 3;
-        const innerWt    = firstByte & 7;
-        if (innerField >= 1 && innerField <= 4 && innerWt === 0) {
-          // looks like a StopTimeEvent message — skip as departure, stopId stays ""
-        } else {
-          stopId = getString(u8, ref);
-        }
-      }
+      if (stu[4] && typeof stu[4][0] === 'object') stopId = str(u8, stu[4][0]);
 
-      // arrival (field 2) -> time (field 2 inside)
-      const arrTs = stu[2] ? getVarintField(u8, stu[2][0], 2) : 0;
-      // departure (field 3) -> time (field 2 inside) — only if it's a message
-      let depTs = 0;
-      if (stu[3]) {
-        const ref = stu[3][0];
-        const firstByte = u8[ref.pos];
-        const innerField = firstByte >>> 3;
-        const innerWt    = firstByte & 7;
-        if (innerField >= 1 && innerField <= 4 && innerWt === 0) {
-          depTs = getVarintField(u8, ref, 2);
-        }
-      }
+      // field 2 = arrival (StopTimeEvent), field 2 inside = time
+      const arrTs = (stu[2] && typeof stu[2][0] === 'object') ? scalarIn(u8, stu[2][0], 2) : 0;
+
+      // field 3 = departure (StopTimeEvent), field 2 inside = time
+      const depTs = (stu[3] && typeof stu[3][0] === 'object') ? scalarIn(u8, stu[3][0], 2) : 0;
 
       stops.push({ stopId, arrTs, depTs });
     }
 
     if (!stops.length) continue;
+
+    // Only inbound: last stop must be GCT
     if (stops[stops.length - 1].stopId !== GCT_STOP_ID) continue;
 
+    // Find Port Chester
     const pcIdx = stops.findIndex(s => s.stopId === STOP_ID);
     if (pcIdx < 0) continue;
 
@@ -128,7 +123,8 @@ function parseGtfsRt(buffer) {
     const depTs = pc.depTs || pc.arrTs;
     if (!depTs) continue;
 
-    const gctArr = stops[stops.length - 1].arrTs || stops[stops.length - 1].depTs || null;
+    const gct    = stops[stops.length - 1];
+    const gctArr = gct.arrTs || gct.depTs || null;
     const lvTs   = depTs - (WALK_MINUTES + BUFFER_MINUTES) * 60;
 
     trains.push({

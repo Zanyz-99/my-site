@@ -9,7 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.12.9"
+    "astro": "^5.12.9",
+    "gtfs-realtime-bindings": "^1.0.0"
   },
   "devDependencies": {
     "tweetsodium": "^0.0.4"

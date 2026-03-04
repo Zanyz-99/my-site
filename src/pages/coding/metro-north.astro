@@ -111,7 +111,7 @@ import "../../styles/global.css";
       font-size: 16px !important;
       font-weight: 600;
       color: var(--text) !important;
-      background: transparent !important;
+      background: var(--bg) !important;
       border: none !important;
       border-bottom: 1px solid var(--mn-border) !important;
       padding: 2px 4px !important;
@@ -124,6 +124,12 @@ import "../../styles/global.css";
 
     .mn-select:focus {
       border-bottom-color: var(--accent) !important;
+    }
+
+    /* Force dropdown option colors to match theme */
+    .mn-select option {
+      background: var(--bg, #131313) !important;
+      color: var(--text, #e7e7e7) !important;
     }
 
     .mn-swap {
@@ -645,7 +651,7 @@ import "../../styles/global.css";
           <div class="train-detail">
             <div class="train-dest">→ ${STATION_NAMES[toEl.value] || "Grand Central"}</div>
             <div class="train-dep-time">${t.dep_time}</div>
-            <div class="train-meta">${t.gct_arr_time ? t.gct_arr_time + " arr GCT" : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}</div>
+            <div class="train-meta">${t.arr_time ? t.arr_time + " arr " + (STATION_NAMES[toEl.value] || "GCT") : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}</div>
           </div>
           <div class="walk-pill">🚶 ${data.walk_minutes + data.buffer_minutes} min to platform</div>
         </div>`;
@@ -670,12 +676,12 @@ import "../../styles/global.css";
           <div class="train-row ${isNext ? "is-next" : ""} ${isMissed ? "is-missed" : ""}">
             <div class="t-depart">${t.dep_time}</div>
             <div>
-              <div class="t-tripid">${t.gct_arr_time ? t.gct_arr_time + " ARR GCT" : ""}</div>
+              <div class="t-tripid">${t.arr_time ? t.arr_time + " ARR " + (STATION_NAMES[toEl.value] || "GCT") : ""}</div>
               <div class="t-stops">${t.stops_remaining ? t.stops_remaining + " stops" : ""}</div>
             </div>
             <div class="t-gct">
-              <div class="t-gct-time">${t.gct_arr_time || "—"}</div>
-              <div class="t-gct-label">arr GCT</div>
+              <div class="t-gct-time">${t.arr_time || "—"}</div>
+              <div class="t-gct-label">arr ${STATION_NAMES[toEl.value] || "GCT"}</div>
             </div>
             <div class="t-leaveby">leave by<strong>${t.leave_time}</strong></div>
             <div class="t-badge"><span class="mn-badge-pill ${bClass}">${bText}</span></div>

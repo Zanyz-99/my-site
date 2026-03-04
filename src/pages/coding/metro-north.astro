@@ -1,37 +1,63 @@
 ---
 // src/pages/coding/metro-north.astro
-import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import "../../styles/global.css";
 ---
-
-<Layout title="Metro North — Zach Scholz" description="Live Metro-North departures from Port Chester to Grand Central.">
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Metro North — Zach Scholz</title>
+  <meta name="description" content="Live Metro-North departures from Port Chester to Grand Central." />
+  <link rel="icon" type="image/png" href="/icons/logo dark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
-
-    :root {
-      --mn-accent: #00d4aa;
-      --mn-warn:   #f5c842;
-      --mn-danger: #ff4444;
-      --mn-dim:    #374151;
-      --mn-border: #1e2329;
-      --mn-surface:#111418;
-      --mn-bg:     #0a0c0f;
-      --mn-muted:  #6b7280;
-      --mn-text:   #e8eaed;
+    /* ── Reset for this page only ── */
+    #mn-root, #mn-root * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'DM Sans', sans-serif;
     }
 
-    .mn-wrap {
-      background: var(--mn-bg);
-      color: var(--mn-text);
-      font-family: 'DM Sans', sans-serif;
-      min-height: 80vh;
-      margin: 0 calc(-1 * var(--content-pad, 1.5rem));
+    /* Override global styles that bleed in */
+    #mn-root p,
+    #mn-root li,
+    #mn-root a,
+    #mn-root div,
+    #mn-root span {
+      font-size: unset;
+      line-height: unset;
+      color: unset;
+      font-family: unset;
+    }
+
+    body { margin: 0; background: #0a0c0f; }
+
+    #mn-root {
+      --accent:  #00d4aa;
+      --warn:    #f5c842;
+      --danger:  #ff4444;
+      --dim:     #374151;
+      --border:  #1e2329;
+      --surface: #111418;
+      --bg:      #0a0c0f;
+      --muted:   #6b7280;
+      --text:    #e8eaed;
+
+      background: var(--bg);
+      color: var(--text);
+      min-height: calc(100vh - 60px);
       position: relative;
     }
 
     /* scanline */
-    .mn-wrap::before {
+    #mn-root::before {
       content: '';
-      position: absolute;
+      position: fixed;
       inset: 0;
       background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
       pointer-events: none;
@@ -44,80 +70,85 @@ import Layout from "../../layouts/Layout.astro";
       align-items: center;
       justify-content: space-between;
       padding: 20px 32px;
-      border-bottom: 1px solid var(--mn-border);
-      background: var(--mn-surface);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
     }
 
     .mn-badge {
-      background: var(--mn-accent);
-      color: #000;
-      font-family: 'DM Mono', monospace;
+      background: var(--accent);
+      color: #000 !important;
+      font-family: 'DM Mono', monospace !important;
       font-weight: 500;
-      font-size: 10px;
+      font-size: 10px !important;
       letter-spacing: 0.14em;
       padding: 3px 9px;
       border-radius: 3px;
       text-transform: uppercase;
       margin-bottom: 6px;
       display: inline-block;
+      line-height: 1.4 !important;
     }
 
     .mn-station {
-      font-size: 22px;
+      font-size: 22px !important;
       font-weight: 600;
       letter-spacing: -0.02em;
-      color: var(--mn-text);
+      color: var(--text) !important;
+      line-height: 1.2 !important;
     }
 
     .mn-sub {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
+      color: var(--muted) !important;
       letter-spacing: 0.1em;
       margin-top: 2px;
+      line-height: 1.4 !important;
     }
 
     .mn-clock {
-      font-family: 'DM Mono', monospace;
-      font-size: 30px;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 30px !important;
       font-weight: 300;
-      color: var(--mn-accent);
+      color: var(--accent) !important;
       letter-spacing: 0.04em;
       text-align: right;
-      line-height: 1;
+      line-height: 1 !important;
     }
 
     .mn-date {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
+      color: var(--muted) !important;
       margin-top: 5px;
       letter-spacing: 0.08em;
       text-align: right;
+      line-height: 1.4 !important;
     }
 
     /* ── HERO ── */
     .mn-hero {
       padding: 24px 32px;
-      background: var(--mn-surface);
-      border-bottom: 1px solid var(--mn-border);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
     }
 
     .mn-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--mn-muted);
+      color: var(--muted) !important;
       margin-bottom: 12px;
+      line-height: 1.4 !important;
     }
 
     .leave-card {
       display: flex;
       align-items: center;
       gap: 28px;
-      background: var(--mn-bg);
-      border: 1px solid var(--mn-border);
+      background: var(--bg);
+      border: 1px solid var(--border);
       border-radius: 8px;
       padding: 20px 24px;
       position: relative;
@@ -134,114 +165,122 @@ import Layout from "../../layouts/Layout.astro";
       transition: background 0.3s;
     }
 
-    .leave-card.ok::before     { background: var(--mn-accent); }
-    .leave-card.soon::before   { background: var(--mn-warn); }
-    .leave-card.urgent::before { background: var(--mn-danger); }
-    .leave-card.missed::before { background: var(--mn-dim); }
+    .leave-card.ok::before     { background: var(--accent); }
+    .leave-card.soon::before   { background: var(--warn); }
+    .leave-card.urgent::before { background: var(--danger); }
+    .leave-card.missed::before { background: var(--dim); }
     .leave-card.urgent { border-color: rgba(255,68,68,0.3); }
     .leave-card.soon   { border-color: rgba(245,200,66,0.2); }
 
     .leave-time {
-      font-family: 'DM Mono', monospace;
-      font-size: 48px;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 48px !important;
       font-weight: 300;
-      line-height: 1;
+      line-height: 1 !important;
       letter-spacing: -0.01em;
       transition: color 0.3s;
     }
-    .leave-time.ok     { color: var(--mn-accent); }
-    .leave-time.soon   { color: var(--mn-warn); }
-    .leave-time.urgent { color: var(--mn-danger); }
-    .leave-time.missed { color: var(--mn-dim); }
+    .leave-time.ok     { color: var(--accent) !important; }
+    .leave-time.soon   { color: var(--warn) !important; }
+    .leave-time.urgent { color: var(--danger) !important; }
+    .leave-time.missed { color: var(--dim) !important; }
 
     .leave-sublabel {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
+      color: var(--muted) !important;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       margin-bottom: 6px;
+      line-height: 1.4 !important;
     }
 
     .leave-countdown {
-      font-size: 13px;
-      color: var(--mn-muted);
+      font-size: 13px !important;
+      color: var(--muted) !important;
       margin-top: 7px;
       font-weight: 300;
+      line-height: 1.4 !important;
     }
-    .leave-countdown strong { color: var(--mn-text); font-weight: 500; }
+    .leave-countdown strong { color: var(--text) !important; font-weight: 500; }
 
     .divider-v {
       width: 1px;
       height: 64px;
-      background: var(--mn-border);
+      background: var(--border);
       flex-shrink: 0;
     }
 
     .train-detail { flex: 1; }
 
     .train-dest {
-      font-size: 15px;
+      font-size: 15px !important;
       font-weight: 500;
-      color: var(--mn-muted);
+      color: var(--muted) !important;
       margin-bottom: 4px;
+      line-height: 1.4 !important;
     }
 
     .train-dep-time {
-      font-family: 'DM Mono', monospace;
-      font-size: 26px;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 26px !important;
       font-weight: 300;
       letter-spacing: 0.02em;
-      color: var(--mn-text);
+      color: var(--text) !important;
+      line-height: 1.2 !important;
     }
 
     .train-meta {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace !important;
+      font-size: 11px !important;
+      color: var(--muted) !important;
       margin-top: 4px;
+      line-height: 1.4 !important;
     }
 
     .walk-pill {
       flex-shrink: 0;
-      background: var(--mn-border);
+      background: var(--border);
       border-radius: 20px;
       padding: 8px 16px;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace !important;
+      font-size: 11px !important;
+      color: var(--muted) !important;
+      line-height: 1.4 !important;
     }
 
     .next-catchable {
       margin-top: 12px;
       padding: 10px 14px;
-      background: var(--mn-border);
+      background: var(--border);
       border-radius: 5px;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace !important;
+      font-size: 11px !important;
+      color: var(--muted) !important;
+      line-height: 1.6 !important;
     }
-    .next-catchable strong { color: var(--mn-text); }
+    .next-catchable strong { color: var(--text) !important; }
 
     /* ── TRAINS TABLE ── */
     .mn-trains-section { padding: 24px 32px 80px; }
 
     .mn-section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--mn-muted);
+      color: var(--muted) !important;
       margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 10px;
+      line-height: 1.4 !important;
     }
     .mn-section-label::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--mn-border);
+      background: var(--border);
     }
 
     .trains-grid { display: flex; flex-direction: column; gap: 6px; }
@@ -252,137 +291,169 @@ import Layout from "../../layouts/Layout.astro";
       align-items: center;
       gap: 16px;
       padding: 13px 18px;
-      background: var(--mn-surface);
-      border: 1px solid var(--mn-border);
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 6px;
       transition: border-color 0.2s;
     }
-    .train-row.is-next   { border-color: var(--mn-accent); background: rgba(0,212,170,0.04); }
+    .train-row.is-next   { border-color: var(--accent); background: rgba(0,212,170,0.04); }
     .train-row.is-missed { opacity: 0.4; }
 
     .t-depart {
-      font-family: 'DM Mono', monospace;
-      font-size: 20px;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 20px !important;
       font-weight: 400;
-      color: var(--mn-text);
+      color: var(--text) !important;
+      line-height: 1.2 !important;
     }
-    .train-row.is-next .t-depart { color: var(--mn-accent); }
+    .train-row.is-next .t-depart { color: var(--accent) !important; }
 
-    .t-tripid { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--mn-muted); }
-    .t-stops  { font-size: 12px; color: var(--mn-muted); margin-top: 2px; }
+    .t-tripid {
+      font-family: 'DM Mono', monospace !important;
+      font-size: 11px !important;
+      color: var(--muted) !important;
+      line-height: 1.4 !important;
+    }
+    .t-stops {
+      font-size: 12px !important;
+      color: var(--muted) !important;
+      margin-top: 2px;
+      line-height: 1.4 !important;
+    }
 
     .t-gct { text-align: center; }
-    .t-gct-time  { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--mn-muted); }
-    .t-gct-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--mn-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+    .t-gct-time {
+      font-family: 'DM Mono', monospace !important;
+      font-size: 13px !important;
+      color: var(--muted) !important;
+      line-height: 1.4 !important;
+    }
+    .t-gct-label {
+      font-family: 'DM Mono', monospace !important;
+      font-size: 9px !important;
+      color: var(--dim) !important;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+      line-height: 1.4 !important;
+    }
 
-    .t-leaveby { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--mn-muted); }
-    .t-leaveby strong { color: var(--mn-text); display: block; font-size: 14px; }
+    .t-leaveby {
+      text-align: right;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 12px !important;
+      color: var(--muted) !important;
+      line-height: 1.4 !important;
+    }
+    .t-leaveby strong {
+      color: var(--text) !important;
+      display: block;
+      font-size: 14px !important;
+    }
 
     .t-badge { text-align: right; }
 
-    .badge {
+    .mn-badge-pill {
       display: inline-block;
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
       letter-spacing: 0.08em;
       padding: 3px 8px;
       border-radius: 3px;
       text-transform: uppercase;
+      line-height: 1.4 !important;
     }
-    .badge-ok     { background: rgba(0,212,170,0.12); color: var(--mn-accent); }
-    .badge-soon   { background: rgba(245,200,66,0.12); color: var(--mn-warn); }
-    .badge-urgent { background: rgba(255,68,68,0.12);  color: var(--mn-danger); }
-    .badge-later  { background: var(--mn-border); color: var(--mn-muted); }
-    .badge-missed { border: 1px solid var(--mn-border); color: var(--mn-dim); }
+    .badge-ok     { background: rgba(0,212,170,0.12); color: var(--accent) !important; }
+    .badge-soon   { background: rgba(245,200,66,0.12); color: var(--warn) !important; }
+    .badge-urgent { background: rgba(255,68,68,0.12);  color: var(--danger) !important; }
+    .badge-later  { background: var(--border); color: var(--muted) !important; }
+    .badge-missed { border: 1px solid var(--border); color: var(--dim) !important; }
 
     /* ── STATUS BAR ── */
     .mn-status-bar {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      background: var(--mn-surface);
-      border-top: 1px solid var(--mn-border);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
       padding: 10px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--mn-muted);
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
+      color: var(--muted) !important;
       letter-spacing: 0.06em;
       z-index: 50;
     }
 
-    .dot {
+    .mn-dot {
       width: 6px; height: 6px;
       border-radius: 50%;
       display: inline-block;
       margin-right: 7px;
-      background: var(--mn-accent);
+      background: var(--accent);
       animation: mn-pulse 2s infinite;
     }
-    .dot.error   { background: var(--mn-danger); animation: none; }
-    .dot.loading { background: var(--mn-warn); }
-
+    .mn-dot.error   { background: var(--danger); animation: none; }
+    .mn-dot.loading { background: var(--warn); }
     @keyframes mn-pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
     .mn-refresh-bar {
       position: fixed;
       bottom: 37px; left: 0; right: 0;
       height: 2px;
-      background: var(--mn-border);
+      background: var(--border);
       z-index: 49;
     }
     .mn-refresh-progress {
       height: 100%;
-      background: var(--mn-accent);
+      background: var(--accent);
       opacity: 0.35;
       transition: width 1s linear;
     }
 
-    /* ── LOADING / ERROR ── */
-    .loading-state {
+    .mn-loading {
       display: flex; align-items: center; gap: 12px;
-      color: var(--mn-muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
+      color: var(--muted) !important;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 12px !important;
       padding: 24px 0;
     }
-    .spinner {
+    .mn-spinner {
       width: 20px; height: 20px;
-      border: 2px solid var(--mn-border);
-      border-top-color: var(--mn-accent);
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
       border-radius: 50%;
       animation: mn-spin 0.8s linear infinite;
+      flex-shrink: 0;
     }
     @keyframes mn-spin { to { transform: rotate(360deg); } }
 
-    .error-box {
+    .mn-error {
       background: rgba(255,68,68,0.06);
       border: 1px solid rgba(255,68,68,0.2);
       border-radius: 8px;
       padding: 20px 24px;
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      color: var(--mn-danger);
-      line-height: 1.8;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 12px !important;
+      color: var(--danger) !important;
+      line-height: 1.8 !important;
     }
-    .error-box .err-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
-    .error-box code { background: var(--mn-border); padding: 1px 5px; border-radius: 3px; color: var(--mn-text); }
 
     @media (max-width: 600px) {
-      .mn-header { padding: 16px 20px; }
-      .mn-hero, .mn-trains-section { padding-left: 20px; padding-right: 20px; }
-      .mn-clock { font-size: 22px; }
-      .leave-time { font-size: 36px; }
+      .mn-header, .mn-hero, .mn-trains-section { padding-left: 16px; padding-right: 16px; }
+      .mn-clock { font-size: 20px !important; }
+      .leave-time { font-size: 36px !important; }
       .leave-card { gap: 16px; flex-wrap: wrap; }
-      .train-row { grid-template-columns: 80px 1fr 80px; }
+      .train-row { grid-template-columns: 90px 1fr 90px; }
       .t-leaveby, .t-badge { display: none; }
     }
   </style>
+</head>
+<body>
+  <Navbar />
+  <div id="mn-root">
 
-  <div class="mn-wrap">
-
-    <!-- HEADER -->
     <div class="mn-header">
       <div>
         <div class="mn-badge">Metro-North</div>
@@ -395,22 +466,19 @@ import Layout from "../../layouts/Layout.astro";
       </div>
     </div>
 
-    <!-- HERO -->
     <div class="mn-hero">
       <div class="mn-eyebrow">Next train — leave by</div>
-      <div id="mn-hero"><div class="loading-state"><div class="spinner"></div>Loading...</div></div>
+      <div id="mn-hero"><div class="mn-loading"><div class="mn-spinner"></div>Loading...</div></div>
     </div>
 
-    <!-- TABLE -->
     <div class="mn-trains-section">
       <div class="mn-section-label">Upcoming Departures</div>
       <div class="trains-grid" id="mn-trains"></div>
     </div>
 
-    <!-- STATUS -->
     <div class="mn-refresh-bar"><div class="mn-refresh-progress" id="mn-progress" style="width:100%"></div></div>
     <div class="mn-status-bar">
-      <div><span class="dot" id="mn-dot"></span><span id="mn-status">Connecting...</span></div>
+      <div><span class="mn-dot" id="mn-dot"></span><span id="mn-status">Connecting...</span></div>
       <div id="mn-updated">—</div>
       <div>Auto-refresh 30s</div>
     </div>
@@ -422,7 +490,6 @@ import Layout from "../../layouts/Layout.astro";
     const REFRESH_MS = 30_000;
     let progressTimer = null;
 
-    // ── Clock ──────────────────────────────────────────────
     function tickClock() {
       const now = new Date();
       document.getElementById("mn-clock").textContent =
@@ -433,7 +500,6 @@ import Layout from "../../layouts/Layout.astro";
     setInterval(tickClock, 1000);
     tickClock();
 
-    // ── Utils ──────────────────────────────────────────────
     function fmtDur(sec) {
       sec = Math.floor(sec);
       if (sec < 0)  return `${Math.floor(-sec / 60)}m ago`;
@@ -442,25 +508,24 @@ import Layout from "../../layouts/Layout.astro";
       return m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
     }
 
-    function urgency(leaveInSec) {
-      if (leaveInSec < 0)   return "missed";
-      if (leaveInSec < 120) return "urgent";
-      if (leaveInSec < 480) return "soon";
+    function urgency(s) {
+      if (s < 0)   return "missed";
+      if (s < 120) return "urgent";
+      if (s < 480) return "soon";
       return "ok";
     }
 
-    function badgeFor(urg, leaveInSec) {
+    function badgeFor(urg, s) {
       if (urg === "missed") return ["badge-missed", "missed"];
       if (urg === "urgent") return ["badge-urgent", "go now"];
       if (urg === "soon")   return ["badge-soon",   "soon"];
-      return ["badge-later", `in ${fmtDur(leaveInSec)}`];
+      return ["badge-later", `in ${fmtDur(s)}`];
     }
 
-    // ── Hero ───────────────────────────────────────────────
     function renderHero(trains, data) {
-      const el = document.getElementById("mn-hero");
+      const el  = document.getElementById("mn-hero");
       if (!trains.length) {
-        el.innerHTML = `<div class="loading-state" style="color:var(--mn-muted)">No upcoming trains found.</div>`;
+        el.innerHTML = `<div class="mn-loading" style="color:var(--muted)">No upcoming trains found.</div>`;
         return;
       }
 
@@ -478,7 +543,7 @@ import Layout from "../../layouts/Layout.astro";
       if (depInSec <= 0) {
         countdownHTML = `Train departed <strong>${fmtDur(depInSec)}</strong>`;
       } else if (leaveInSec < 60) {
-        countdownHTML = `<strong style="color:var(--mn-danger)">LEAVE NOW</strong> — train departs in ${fmtDur(depInSec)}`;
+        countdownHTML = `<strong style="color:var(--danger)">LEAVE NOW</strong> — train departs in ${fmtDur(depInSec)}`;
       } else {
         countdownHTML = `Leave in <strong>${fmtDur(leaveInSec)}</strong> — train departs ${t.dep_time}`;
       }
@@ -486,7 +551,7 @@ import Layout from "../../layouts/Layout.astro";
       const nextHTML = next ? `
         <div class="next-catchable">
           NEXT CATCHABLE &nbsp;·&nbsp; departs <strong>${next.dep_time}</strong>
-          &nbsp;·&nbsp; leave by <strong style="color:var(--mn-warn)">${next.leave_time}</strong>
+          &nbsp;·&nbsp; leave by <strong style="color:var(--warn)">${next.leave_time}</strong>
           &nbsp;·&nbsp; in ${fmtDur(next.leave_ts - now)}
         </div>` : "";
 
@@ -508,11 +573,10 @@ import Layout from "../../layouts/Layout.astro";
         </div>`;
     }
 
-    // ── Table ──────────────────────────────────────────────
     function renderTable(trains) {
       const el  = document.getElementById("mn-trains");
       if (!trains.length) {
-        el.innerHTML = `<div class="loading-state" style="color:var(--mn-muted)">No upcoming trains.</div>`;
+        el.innerHTML = `<div class="mn-loading" style="color:var(--muted)">No upcoming trains.</div>`;
         return;
       }
 
@@ -536,16 +600,15 @@ import Layout from "../../layouts/Layout.astro";
               <div class="t-gct-label">arr GCT</div>
             </div>
             <div class="t-leaveby">leave by<strong>${t.leave_time}</strong></div>
-            <div class="t-badge"><span class="badge ${bClass}">${bText}</span></div>
+            <div class="t-badge"><span class="mn-badge-pill ${bClass}">${bText}</span></div>
           </div>`;
       }).join("");
     }
 
-    // ── Fetch ──────────────────────────────────────────────
     async function fetchAndRender() {
       const dot    = document.getElementById("mn-dot");
       const status = document.getElementById("mn-status");
-      dot.className = "dot loading";
+      dot.className = "mn-dot loading";
 
       try {
         const res  = await fetch(API);
@@ -556,21 +619,20 @@ import Layout from "../../layouts/Layout.astro";
         renderHero(data.trains, data);
         renderTable(data.trains);
 
-        dot.className = "dot";
+        dot.className = "mn-dot";
         const t = new Date(data.updated).toLocaleTimeString("en-US", { hour12: false });
         document.getElementById("mn-updated").textContent = `Updated ${t}`;
         status.textContent = `Live · ${data.trains.length} upcoming from ${data.station}`;
       } catch (err) {
-        dot.className = "dot error";
+        dot.className = "mn-dot error";
         status.textContent = `Error: ${err.message}`;
         document.getElementById("mn-hero").innerHTML =
-          `<div class="error-box"><div class="err-title">⚠ Could not load feed</div><code>${err.message}</code></div>`;
+          `<div class="mn-error">⚠ Could not load feed — ${err.message}</div>`;
       }
 
       startProgress();
     }
 
-    // ── Progress bar ───────────────────────────────────────
     function startProgress() {
       clearInterval(progressTimer);
       let pct = 100;
@@ -585,4 +647,5 @@ import Layout from "../../layouts/Layout.astro";
     fetchAndRender();
     setInterval(fetchAndRender, REFRESH_MS);
   </script>
-</Layout>
+</body>
+</html>

@@ -9,31 +9,17 @@ import "../../styles/global.css";
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Metro North — Zach Scholz</title>
-  <meta name="description" content="Live Metro-North departures from Port Chester to Grand Central." />
+  <meta name="description" content="Live Metro-North departures from any station to any station." />
   <link rel="icon" type="image/png" href="/icons/logo dark.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style is:global>
-    /* ── Reset for this page only ── */
-    #mn-root, #mn-root * {
-      box-sizing: border-box;
-      font-family: 'DM Sans', sans-serif;
-    }
+    #mn-root, #mn-root * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
     #mn-root { margin: 0; }
-
-    /* Override global styles that bleed in */
-    #mn-root p,
-    #mn-root li,
-    #mn-root a,
-    #mn-root div,
-    #mn-root span {
-      font-size: unset;
-      line-height: unset;
-      color: unset;
-      font-family: unset;
+    #mn-root p, #mn-root li, #mn-root a, #mn-root div, #mn-root span {
+      font-size: unset; line-height: unset; color: unset; font-family: unset;
     }
-
     body { margin: 0; background: var(--bg, #0a0c0f); }
 
     #mn-root {
@@ -45,7 +31,6 @@ import "../../styles/global.css";
       --mn-surface: var(--card, #f6f7f8);
       --mn-muted:   var(--muted, #6b6b6b);
       --mn-text:    var(--text, #0b0b0b);
-
       background: transparent;
       color: var(--text);
       min-height: calc(100vh - 120px);
@@ -55,8 +40,6 @@ import "../../styles/global.css";
       padding-bottom: 80px;
     }
 
-
-
     /* ── HEADER ── */
     .mn-header {
       display: flex;
@@ -64,8 +47,9 @@ import "../../styles/global.css";
       justify-content: space-between;
       padding: 20px 0;
       border-bottom: 1px solid var(--mn-border);
+      flex-wrap: wrap;
+      gap: 12px;
     }
-
     .mn-badge {
       background: var(--accent);
       color: #000 !important;
@@ -80,24 +64,6 @@ import "../../styles/global.css";
       display: inline-block;
       line-height: 1.4 !important;
     }
-
-    .mn-station {
-      font-size: 22px !important;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--mn-text) !important;
-      line-height: 1.2 !important;
-    }
-
-    .mn-sub {
-      font-family: 'DM Mono', monospace !important;
-      font-size: 10px !important;
-      color: var(--mn-muted) !important;
-      letter-spacing: 0.1em;
-      margin-top: 6px;
-      line-height: 1.4 !important;
-    }
-
     .mn-station-row {
       display: flex;
       align-items: center;
@@ -105,7 +71,6 @@ import "../../styles/global.css";
       margin-top: 4px;
       flex-wrap: wrap;
     }
-
     .mn-select {
       font-family: 'DM Mono', monospace !important;
       font-size: 16px !important;
@@ -120,18 +85,15 @@ import "../../styles/global.css";
       -webkit-appearance: none;
       outline: none;
       letter-spacing: -0.01em;
+      max-width: 200px;
     }
-
-    .mn-select:focus {
-      border-bottom-color: var(--accent) !important;
-    }
-
-    /* Force dropdown option colors to match theme */
-    .mn-select option {
+    .mn-select:focus { border-bottom-color: var(--accent) !important; }
+    .mn-select option { background: var(--bg, #131313) !important; color: var(--text, #e7e7e7) !important; }
+    .mn-select optgroup {
       background: var(--bg, #131313) !important;
-      color: var(--text, #e7e7e7) !important;
+      color: var(--accent) !important;
+      font-size: 11px !important;
     }
-
     .mn-swap {
       background: var(--mn-surface) !important;
       border: 1px solid var(--mn-border) !important;
@@ -143,12 +105,15 @@ import "../../styles/global.css";
       line-height: 1.4 !important;
       transition: color 0.15s, border-color 0.15s;
     }
-
-    .mn-swap:hover {
-      color: var(--accent) !important;
-      border-color: var(--accent) !important;
+    .mn-swap:hover { color: var(--accent) !important; border-color: var(--accent) !important; }
+    .mn-sub {
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
+      color: var(--mn-muted) !important;
+      letter-spacing: 0.1em;
+      margin-top: 6px;
+      line-height: 1.4 !important;
     }
-
     .mn-clock {
       font-family: 'DM Mono', monospace !important;
       font-size: 30px !important;
@@ -158,7 +123,6 @@ import "../../styles/global.css";
       text-align: right;
       line-height: 1 !important;
     }
-
     .mn-date {
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
@@ -170,11 +134,7 @@ import "../../styles/global.css";
     }
 
     /* ── HERO ── */
-    .mn-hero {
-      padding: 24px 0;
-      border-bottom: 1px solid var(--mn-border);
-    }
-
+    .mn-hero { padding: 24px 0; border-bottom: 1px solid var(--mn-border); }
     .mn-eyebrow {
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
@@ -184,7 +144,6 @@ import "../../styles/global.css";
       margin-bottom: 12px;
       line-height: 1.4 !important;
     }
-
     .leave-card {
       display: flex;
       align-items: center;
@@ -197,7 +156,6 @@ import "../../styles/global.css";
       overflow: hidden;
       transition: border-color 0.3s;
     }
-
     .leave-card::before {
       content: '';
       position: absolute;
@@ -206,14 +164,12 @@ import "../../styles/global.css";
       border-radius: 3px 0 0 3px;
       transition: background 0.3s;
     }
-
     .leave-card.ok::before     { background: var(--accent); }
     .leave-card.soon::before   { background: var(--warn); }
     .leave-card.urgent::before { background: var(--danger); }
     .leave-card.missed::before { background: var(--dim); }
     .leave-card.urgent { border-color: rgba(255,68,68,0.3); }
     .leave-card.soon   { border-color: rgba(245,200,66,0.2); }
-
     .leave-time {
       font-family: 'DM Mono', monospace !important;
       font-size: 48px !important;
@@ -226,7 +182,6 @@ import "../../styles/global.css";
     .leave-time.soon   { color: var(--warn) !important; }
     .leave-time.urgent { color: var(--danger) !important; }
     .leave-time.missed { color: var(--dim) !important; }
-
     .leave-sublabel {
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
@@ -236,7 +191,6 @@ import "../../styles/global.css";
       margin-bottom: 6px;
       line-height: 1.4 !important;
     }
-
     .leave-countdown {
       font-size: 13px !important;
       color: var(--mn-muted) !important;
@@ -245,16 +199,8 @@ import "../../styles/global.css";
       line-height: 1.4 !important;
     }
     .leave-countdown strong { color: var(--mn-text) !important; font-weight: 500; }
-
-    .divider-v {
-      width: 1px;
-      height: 64px;
-      background: var(--mn-border);
-      flex-shrink: 0;
-    }
-
+    .divider-v { width: 1px; height: 64px; background: var(--mn-border); flex-shrink: 0; }
     .train-detail { flex: 1; }
-
     .train-dest {
       font-size: 15px !important;
       font-weight: 500;
@@ -262,7 +208,6 @@ import "../../styles/global.css";
       margin-bottom: 4px;
       line-height: 1.4 !important;
     }
-
     .train-dep-time {
       font-family: 'DM Mono', monospace !important;
       font-size: 26px !important;
@@ -271,7 +216,6 @@ import "../../styles/global.css";
       color: var(--mn-text) !important;
       line-height: 1.2 !important;
     }
-
     .train-meta {
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
@@ -279,7 +223,6 @@ import "../../styles/global.css";
       margin-top: 4px;
       line-height: 1.4 !important;
     }
-
     .walk-pill {
       flex-shrink: 0;
       background: var(--mn-border);
@@ -290,7 +233,6 @@ import "../../styles/global.css";
       color: var(--mn-muted) !important;
       line-height: 1.4 !important;
     }
-
     .next-catchable {
       margin-top: 12px;
       padding: 10px 14px;
@@ -303,9 +245,8 @@ import "../../styles/global.css";
     }
     .next-catchable strong { color: var(--mn-text) !important; }
 
-    /* ── TRAINS TABLE ── */
+    /* ── TABLE ── */
     .mn-trains-section { padding: 24px 0 80px; }
-
     .mn-section-label {
       font-family: 'DM Mono', monospace !important;
       font-size: 10px !important;
@@ -318,15 +259,8 @@ import "../../styles/global.css";
       gap: 10px;
       line-height: 1.4 !important;
     }
-    .mn-section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--mn-border);
-    }
-
+    .mn-section-label::after { content: ''; flex: 1; height: 1px; background: var(--mn-border); }
     .trains-grid { display: flex; flex-direction: column; gap: 6px; }
-
     .train-row {
       display: grid;
       grid-template-columns: 100px 1fr 110px 100px 70px;
@@ -340,7 +274,6 @@ import "../../styles/global.css";
     }
     .train-row.is-next   { border-color: var(--accent); background: rgba(0,212,170,0.04); }
     .train-row.is-missed { opacity: 0.4; }
-
     .t-depart {
       font-family: 'DM Mono', monospace !important;
       font-size: 20px !important;
@@ -349,52 +282,26 @@ import "../../styles/global.css";
       line-height: 1.2 !important;
     }
     .train-row.is-next .t-depart { color: var(--accent) !important; }
-
     .t-tripid {
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
       color: var(--mn-muted) !important;
       line-height: 1.4 !important;
     }
-    .t-stops {
-      font-size: 12px !important;
-      color: var(--mn-muted) !important;
+    .t-stops { font-size: 12px !important; color: var(--mn-muted) !important; margin-top: 2px; line-height: 1.4 !important; }
+    .t-delay {
+      font-family: 'DM Mono', monospace !important;
+      font-size: 10px !important;
+      color: var(--warn) !important;
       margin-top: 2px;
       line-height: 1.4 !important;
     }
-
     .t-gct { text-align: center; }
-    .t-gct-time {
-      font-family: 'DM Mono', monospace !important;
-      font-size: 13px !important;
-      color: var(--mn-muted) !important;
-      line-height: 1.4 !important;
-    }
-    .t-gct-label {
-      font-family: 'DM Mono', monospace !important;
-      font-size: 9px !important;
-      color: var(--dim) !important;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-top: 2px;
-      line-height: 1.4 !important;
-    }
-
-    .t-leaveby {
-      text-align: right;
-      font-family: 'DM Mono', monospace !important;
-      font-size: 12px !important;
-      color: var(--mn-muted) !important;
-      line-height: 1.4 !important;
-    }
-    .t-leaveby strong {
-      color: var(--mn-text) !important;
-      display: block;
-      font-size: 14px !important;
-    }
-
+    .t-gct-time { font-family: 'DM Mono', monospace !important; font-size: 13px !important; color: var(--mn-muted) !important; line-height: 1.4 !important; }
+    .t-gct-label { font-family: 'DM Mono', monospace !important; font-size: 9px !important; color: var(--dim) !important; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; line-height: 1.4 !important; }
+    .t-leaveby { text-align: right; font-family: 'DM Mono', monospace !important; font-size: 12px !important; color: var(--mn-muted) !important; line-height: 1.4 !important; }
+    .t-leaveby strong { color: var(--mn-text) !important; display: block; font-size: 14px !important; }
     .t-badge { text-align: right; }
-
     .mn-badge-pill {
       display: inline-block;
       font-family: 'DM Mono', monospace !important;
@@ -427,60 +334,16 @@ import "../../styles/global.css";
       letter-spacing: 0.06em;
       z-index: 50;
     }
-
-    .mn-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 7px;
-      background: var(--accent);
-      animation: mn-pulse 2s infinite;
-    }
+    .mn-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 7px; background: var(--accent); animation: mn-pulse 2s infinite; }
     .mn-dot.error   { background: var(--danger); animation: none; }
     .mn-dot.loading { background: var(--warn); }
     @keyframes mn-pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
-
-    .mn-refresh-bar {
-      position: fixed;
-      bottom: 37px; left: 0; right: 0;
-      height: 2px;
-      background: var(--mn-border);
-      z-index: 49;
-    }
-    .mn-refresh-progress {
-      height: 100%;
-      background: var(--accent);
-      opacity: 0.35;
-      transition: width 1s linear;
-    }
-
-    .mn-loading {
-      display: flex; align-items: center; gap: 12px;
-      color: var(--mn-muted) !important;
-      font-family: 'DM Mono', monospace !important;
-      font-size: 12px !important;
-      padding: 24px 0;
-    }
-    .mn-spinner {
-      width: 20px; height: 20px;
-      border: 2px solid var(--mn-border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: mn-spin 0.8s linear infinite;
-      flex-shrink: 0;
-    }
+    .mn-refresh-bar { position: fixed; bottom: 37px; left: 0; right: 0; height: 2px; background: var(--mn-border); z-index: 49; }
+    .mn-refresh-progress { height: 100%; background: var(--accent); opacity: 0.35; transition: width 1s linear; }
+    .mn-loading { display: flex; align-items: center; gap: 12px; color: var(--mn-muted) !important; font-family: 'DM Mono', monospace !important; font-size: 12px !important; padding: 24px 0; }
+    .mn-spinner { width: 20px; height: 20px; border: 2px solid var(--mn-border); border-top-color: var(--accent); border-radius: 50%; animation: mn-spin 0.8s linear infinite; flex-shrink: 0; }
     @keyframes mn-spin { to { transform: rotate(360deg); } }
-
-    .mn-error {
-      background: rgba(255,68,68,0.06);
-      border: 1px solid rgba(255,68,68,0.2);
-      border-radius: 8px;
-      padding: 20px 24px;
-      font-family: 'DM Mono', monospace !important;
-      font-size: 12px !important;
-      color: var(--danger) !important;
-      line-height: 1.8 !important;
-    }
+    .mn-error { background: rgba(255,68,68,0.06); border: 1px solid rgba(255,68,68,0.2); border-radius: 8px; padding: 20px 24px; font-family: 'DM Mono', monospace !important; font-size: 12px !important; color: var(--danger) !important; line-height: 1.8 !important; }
 
     @media (max-width: 600px) {
       .mn-header, .mn-hero, .mn-trains-section { padding-left: 16px; padding-right: 16px; }
@@ -501,15 +364,261 @@ import "../../styles/global.css";
         <div class="mn-badge">Metro-North</div>
         <div class="mn-station-row">
           <select class="mn-select" id="mn-from">
-            <option value="115">Port Chester</option>
-            <option value="111">Mamaroneck</option>
-            <option value="1">Grand Central</option>
+            <optgroup label="── New Haven Line ──">
+              <option value="105">Mt Vernon East</option>
+              <option value="106">Pelham</option>
+              <option value="108">New Rochelle</option>
+              <option value="110">Larchmont</option>
+              <option value="111">Mamaroneck</option>
+              <option value="112">Harrison</option>
+              <option value="114">Rye</option>
+              <option value="115" selected>Port Chester</option>
+              <option value="116">Greenwich</option>
+              <option value="118">Cos Cob</option>
+              <option value="120">Riverside</option>
+              <option value="121">Old Greenwich</option>
+              <option value="124">Stamford</option>
+              <option value="127">Noroton Heights</option>
+              <option value="128">Darien</option>
+              <option value="129">Rowayton</option>
+              <option value="131">South Norwalk</option>
+              <option value="133">East Norwalk</option>
+              <option value="134">Westport</option>
+              <option value="136">Green's Farms</option>
+              <option value="137">Southport</option>
+              <option value="138">Fairfield</option>
+              <option value="188">Fairfield-Black Rock</option>
+              <option value="140">Bridgeport</option>
+              <option value="143">Stratford</option>
+              <option value="145">Milford</option>
+              <option value="190">West Haven</option>
+              <option value="149">New Haven</option>
+              <option value="151">New Haven-State St</option>
+            </optgroup>
+            <optgroup label="── New Canaan Branch ──">
+              <option value="153">Glenbrook</option>
+              <option value="154">Springdale</option>
+              <option value="155">Talmadge Hill</option>
+              <option value="157">New Canaan</option>
+            </optgroup>
+            <optgroup label="── Danbury Branch ──">
+              <option value="158">Merritt 7</option>
+              <option value="160">Wilton</option>
+              <option value="161">Cannondale</option>
+              <option value="162">Branchville</option>
+              <option value="163">Redding</option>
+              <option value="164">Bethel</option>
+              <option value="165">Danbury</option>
+            </optgroup>
+            <optgroup label="── Waterbury Branch ──">
+              <option value="167">Derby-Shelton</option>
+              <option value="168">Ansonia</option>
+              <option value="169">Seymour</option>
+              <option value="170">Beacon Falls</option>
+              <option value="171">Naugatuck</option>
+              <option value="172">Waterbury</option>
+            </optgroup>
+            <optgroup label="── Harlem Line ──">
+              <option value="54">Melrose</option>
+              <option value="55">Tremont</option>
+              <option value="56">Fordham</option>
+              <option value="57">Botanical Garden</option>
+              <option value="58">Williams Bridge</option>
+              <option value="59">Woodlawn</option>
+              <option value="61">Wakefield</option>
+              <option value="62">Mt Vernon West</option>
+              <option value="64">Fleetwood</option>
+              <option value="65">Bronxville</option>
+              <option value="66">Tuckahoe</option>
+              <option value="68">Crestwood</option>
+              <option value="71">Scarsdale</option>
+              <option value="72">Hartsdale</option>
+              <option value="74">White Plains</option>
+              <option value="76">North White Plains</option>
+              <option value="78">Valhalla</option>
+              <option value="79">Mt Pleasant</option>
+              <option value="80">Hawthorne</option>
+              <option value="81">Pleasantville</option>
+              <option value="83">Chappaqua</option>
+              <option value="84">Mt Kisco</option>
+              <option value="85">Bedford Hills</option>
+              <option value="86">Katonah</option>
+              <option value="88">Goldens Bridge</option>
+              <option value="89">Purdy's</option>
+              <option value="90">Croton Falls</option>
+              <option value="91">Brewster</option>
+              <option value="94">Southeast</option>
+              <option value="97">Patterson</option>
+              <option value="98">Pawling</option>
+              <option value="99">Appalachian Trail</option>
+              <option value="100">Harlem Valley-Wingdale</option>
+              <option value="101">Dover Plains</option>
+              <option value="176">Tenmile River</option>
+              <option value="177">Wassaic</option>
+            </optgroup>
+            <optgroup label="── Hudson Line ──">
+              <option value="4">Harlem-125 St</option>
+              <option value="9">Morris Heights</option>
+              <option value="10">University Heights</option>
+              <option value="11">Marble Hill</option>
+              <option value="14">Spuyten Duyvil</option>
+              <option value="16">Riverdale</option>
+              <option value="17">Ludlow</option>
+              <option value="18">Yonkers</option>
+              <option value="19">Glenwood</option>
+              <option value="20">Greystone</option>
+              <option value="22">Hastings-on-Hudson</option>
+              <option value="23">Dobbs Ferry</option>
+              <option value="24">Ardsley-on-Hudson</option>
+              <option value="25">Irvington</option>
+              <option value="27">Tarrytown</option>
+              <option value="29">Philipse Manor</option>
+              <option value="30">Scarborough</option>
+              <option value="31">Ossining</option>
+              <option value="33">Croton-Harmon</option>
+              <option value="37">Cortlandt</option>
+              <option value="39">Peekskill</option>
+              <option value="40">Manitou</option>
+              <option value="42">Garrison</option>
+              <option value="43">Cold Spring</option>
+              <option value="44">Breakneck Ridge</option>
+              <option value="46">Beacon</option>
+              <option value="49">New Hamburg</option>
+              <option value="51">Poughkeepsie</option>
+            </optgroup>
+            <optgroup label="── Terminal ──">
+              <option value="1">Grand Central</option>
+            </optgroup>
           </select>
+
           <button class="mn-swap" id="mn-swap" title="Swap stations">⇄</button>
+
           <select class="mn-select" id="mn-to">
-            <option value="1">Grand Central</option>
-            <option value="115">Port Chester</option>
-            <option value="111">Mamaroneck</option>
+            <optgroup label="── Terminal ──">
+              <option value="1" selected>Grand Central</option>
+            </optgroup>
+            <optgroup label="── New Haven Line ──">
+              <option value="105">Mt Vernon East</option>
+              <option value="106">Pelham</option>
+              <option value="108">New Rochelle</option>
+              <option value="110">Larchmont</option>
+              <option value="111">Mamaroneck</option>
+              <option value="112">Harrison</option>
+              <option value="114">Rye</option>
+              <option value="115">Port Chester</option>
+              <option value="116">Greenwich</option>
+              <option value="118">Cos Cob</option>
+              <option value="120">Riverside</option>
+              <option value="121">Old Greenwich</option>
+              <option value="124">Stamford</option>
+              <option value="127">Noroton Heights</option>
+              <option value="128">Darien</option>
+              <option value="129">Rowayton</option>
+              <option value="131">South Norwalk</option>
+              <option value="133">East Norwalk</option>
+              <option value="134">Westport</option>
+              <option value="136">Green's Farms</option>
+              <option value="137">Southport</option>
+              <option value="138">Fairfield</option>
+              <option value="188">Fairfield-Black Rock</option>
+              <option value="140">Bridgeport</option>
+              <option value="143">Stratford</option>
+              <option value="145">Milford</option>
+              <option value="190">West Haven</option>
+              <option value="149">New Haven</option>
+              <option value="151">New Haven-State St</option>
+            </optgroup>
+            <optgroup label="── New Canaan Branch ──">
+              <option value="153">Glenbrook</option>
+              <option value="154">Springdale</option>
+              <option value="155">Talmadge Hill</option>
+              <option value="157">New Canaan</option>
+            </optgroup>
+            <optgroup label="── Danbury Branch ──">
+              <option value="158">Merritt 7</option>
+              <option value="160">Wilton</option>
+              <option value="161">Cannondale</option>
+              <option value="162">Branchville</option>
+              <option value="163">Redding</option>
+              <option value="164">Bethel</option>
+              <option value="165">Danbury</option>
+            </optgroup>
+            <optgroup label="── Waterbury Branch ──">
+              <option value="167">Derby-Shelton</option>
+              <option value="168">Ansonia</option>
+              <option value="169">Seymour</option>
+              <option value="170">Beacon Falls</option>
+              <option value="171">Naugatuck</option>
+              <option value="172">Waterbury</option>
+            </optgroup>
+            <optgroup label="── Harlem Line ──">
+              <option value="54">Melrose</option>
+              <option value="55">Tremont</option>
+              <option value="56">Fordham</option>
+              <option value="57">Botanical Garden</option>
+              <option value="58">Williams Bridge</option>
+              <option value="59">Woodlawn</option>
+              <option value="61">Wakefield</option>
+              <option value="62">Mt Vernon West</option>
+              <option value="64">Fleetwood</option>
+              <option value="65">Bronxville</option>
+              <option value="66">Tuckahoe</option>
+              <option value="68">Crestwood</option>
+              <option value="71">Scarsdale</option>
+              <option value="72">Hartsdale</option>
+              <option value="74">White Plains</option>
+              <option value="76">North White Plains</option>
+              <option value="78">Valhalla</option>
+              <option value="79">Mt Pleasant</option>
+              <option value="80">Hawthorne</option>
+              <option value="81">Pleasantville</option>
+              <option value="83">Chappaqua</option>
+              <option value="84">Mt Kisco</option>
+              <option value="85">Bedford Hills</option>
+              <option value="86">Katonah</option>
+              <option value="88">Goldens Bridge</option>
+              <option value="89">Purdy's</option>
+              <option value="90">Croton Falls</option>
+              <option value="91">Brewster</option>
+              <option value="94">Southeast</option>
+              <option value="97">Patterson</option>
+              <option value="98">Pawling</option>
+              <option value="99">Appalachian Trail</option>
+              <option value="100">Harlem Valley-Wingdale</option>
+              <option value="101">Dover Plains</option>
+              <option value="176">Tenmile River</option>
+              <option value="177">Wassaic</option>
+            </optgroup>
+            <optgroup label="── Hudson Line ──">
+              <option value="4">Harlem-125 St</option>
+              <option value="9">Morris Heights</option>
+              <option value="10">University Heights</option>
+              <option value="11">Marble Hill</option>
+              <option value="14">Spuyten Duyvil</option>
+              <option value="16">Riverdale</option>
+              <option value="17">Ludlow</option>
+              <option value="18">Yonkers</option>
+              <option value="19">Glenwood</option>
+              <option value="20">Greystone</option>
+              <option value="22">Hastings-on-Hudson</option>
+              <option value="23">Dobbs Ferry</option>
+              <option value="24">Ardsley-on-Hudson</option>
+              <option value="25">Irvington</option>
+              <option value="27">Tarrytown</option>
+              <option value="29">Philipse Manor</option>
+              <option value="30">Scarborough</option>
+              <option value="31">Ossining</option>
+              <option value="33">Croton-Harmon</option>
+              <option value="37">Cortlandt</option>
+              <option value="39">Peekskill</option>
+              <option value="40">Manitou</option>
+              <option value="42">Garrison</option>
+              <option value="43">Cold Spring</option>
+              <option value="44">Breakneck Ridge</option>
+              <option value="46">Beacon</option>
+              <option value="49">New Hamburg</option>
+              <option value="51">Poughkeepsie</option>
+            </optgroup>
           </select>
         </div>
         <div class="mn-sub">Live Departures</div>
@@ -536,7 +645,6 @@ import "../../styles/global.css";
       <div id="mn-updated">—</div>
       <div>Auto-refresh 30s</div>
     </div>
-
   </div>
 
   <script>
@@ -547,32 +655,31 @@ import "../../styles/global.css";
     const toEl   = document.getElementById("mn-to");
     const swapEl = document.getElementById("mn-swap");
 
-    const STATION_NAMES = {
-      "115": "Port Chester",
-      "111": "Mamaroneck",
-      "1":   "Grand Central"
-    };
+    // Build name lookup from select options
+    function getStationName(id) {
+      const opt = fromEl.querySelector(`option[value="${id}"]`) ||
+                  toEl.querySelector(`option[value="${id}"]`);
+      return opt ? opt.textContent.trim() : id;
+    }
 
     function getAPI() {
       return `/api/trains?from=${fromEl.value}&to=${toEl.value}`;
     }
 
-    function updateStationDisplay() {
-      const from = STATION_NAMES[fromEl.value] || fromEl.value;
-      const to   = STATION_NAMES[toEl.value]   || toEl.value;
-      document.title = `${from} → ${to} — Zach Scholz`;
+    function updateTitle() {
+      document.title = `${getStationName(fromEl.value)} → ${getStationName(toEl.value)} — Zach Scholz`;
     }
 
     swapEl.addEventListener("click", () => {
       const tmp = fromEl.value;
       fromEl.value = toEl.value;
       toEl.value = tmp;
-      updateStationDisplay();
+      updateTitle();
       fetchAndRender();
     });
 
-    fromEl.addEventListener("change", () => { updateStationDisplay(); fetchAndRender(); });
-    toEl.addEventListener("change",   () => { updateStationDisplay(); fetchAndRender(); });
+    fromEl.addEventListener("change", () => { updateTitle(); fetchAndRender(); });
+    toEl.addEventListener("change",   () => { updateTitle(); fetchAndRender(); });
 
     function tickClock() {
       const now = new Date();
@@ -607,7 +714,7 @@ import "../../styles/global.css";
     }
 
     function renderHero(trains, data) {
-      const el  = document.getElementById("mn-hero");
+      const el = document.getElementById("mn-hero");
       if (!trains.length) {
         el.innerHTML = `<div class="mn-loading" style="color:var(--mn-muted)">No upcoming trains found.</div>`;
         return;
@@ -632,6 +739,7 @@ import "../../styles/global.css";
         countdownHTML = `Leave in <strong>${fmtDur(leaveInSec)}</strong> — train departs ${t.dep_time}`;
       }
 
+      const toName  = getStationName(toEl.value);
       const nextHTML = next ? `
         <div class="next-catchable">
           NEXT CATCHABLE &nbsp;·&nbsp; departs <strong>${next.dep_time}</strong>
@@ -642,23 +750,24 @@ import "../../styles/global.css";
       el.innerHTML = `
         <div class="leave-card ${urg}">
           <div>
-            <div class="leave-sublabel">${fromEl.value === "1" ? "Leave work by" : "Leave apartment by"}</div>
+            <div class="leave-sublabel">Leave by</div>
             <div class="leave-time ${urg}">${t.leave_time}</div>
             <div class="leave-countdown">${countdownHTML}</div>
             ${nextHTML}
           </div>
           <div class="divider-v"></div>
           <div class="train-detail">
-            <div class="train-dest">→ ${STATION_NAMES[toEl.value] || "Grand Central"}</div>
+            <div class="train-dest">→ ${toName}</div>
             <div class="train-dep-time">${t.dep_time}</div>
-            <div class="train-meta">${t.arr_time ? t.arr_time + " arr " + (STATION_NAMES[toEl.value] || "GCT") : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}</div>
+            <div class="train-meta">${t.arr_time ? t.arr_time + " arr " + toName : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}${t.delay_minutes > 0 ? " · <span style='color:var(--warn)'>" + t.delay_minutes + " min late</span>" : ""}</div>
           </div>
           <div class="walk-pill">🚶 ${data.walk_minutes + data.buffer_minutes} min to platform</div>
         </div>`;
     }
 
     function renderTable(trains) {
-      const el  = document.getElementById("mn-trains");
+      const el    = document.getElementById("mn-trains");
+      const toName = getStationName(toEl.value);
       if (!trains.length) {
         el.innerHTML = `<div class="mn-loading" style="color:var(--mn-muted)">No upcoming trains.</div>`;
         return;
@@ -671,17 +780,20 @@ import "../../styles/global.css";
         const [bClass, bText] = badgeFor(urg, leaveInSec);
         const isNext   = i === 0 && urg !== "missed";
         const isMissed = urg === "missed";
+        const delayHTML = t.delay_minutes > 0
+          ? `<div class="t-delay">+${t.delay_minutes} MIN LATE</div>` : "";
 
         return `
           <div class="train-row ${isNext ? "is-next" : ""} ${isMissed ? "is-missed" : ""}">
             <div class="t-depart">${t.dep_time}</div>
             <div>
-              <div class="t-tripid">${t.arr_time ? t.arr_time + " ARR " + (STATION_NAMES[toEl.value] || "GCT") : ""}</div>
+              <div class="t-tripid">Train ${t.trip_id || "—"}</div>
               <div class="t-stops">${t.stops_remaining ? t.stops_remaining + " stops" : ""}</div>
+              ${delayHTML}
             </div>
             <div class="t-gct">
               <div class="t-gct-time">${t.arr_time || "—"}</div>
-              <div class="t-gct-label">arr ${STATION_NAMES[toEl.value] || "GCT"}</div>
+              <div class="t-gct-label">arr ${toName}</div>
             </div>
             <div class="t-leaveby">leave by<strong>${t.leave_time}</strong></div>
             <div class="t-badge"><span class="mn-badge-pill ${bClass}">${bText}</span></div>
@@ -706,7 +818,7 @@ import "../../styles/global.css";
         dot.className = "mn-dot";
         const t = new Date(data.updated).toLocaleTimeString("en-US", { hour12: false });
         document.getElementById("mn-updated").textContent = `Updated ${t}`;
-        status.textContent = `Live · ${data.trains.length} upcoming from ${STATION_NAMES[fromEl.value] || data.station}`;
+        status.textContent = `Live · ${data.trains.length} upcoming · ${getStationName(fromEl.value)}`;
       } catch (err) {
         dot.className = "mn-dot error";
         status.textContent = `Error: ${err.message}`;

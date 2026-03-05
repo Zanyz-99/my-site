@@ -210,17 +210,17 @@ import "../../styles/global.css";
     }
     .train-dep-time {
       font-family: 'DM Mono', monospace !important;
-      font-size: 26px !important;
+      font-size: 48px !important;
       font-weight: 300;
-      letter-spacing: 0.02em;
+      letter-spacing: -0.01em;
       color: var(--mn-text) !important;
-      line-height: 1.2 !important;
+      line-height: 1 !important;
     }
     .train-meta {
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
       color: var(--mn-muted) !important;
-      margin-top: 4px;
+      margin-top: 6px;
       line-height: 1.4 !important;
     }
     .walk-pill {
@@ -263,7 +263,7 @@ import "../../styles/global.css";
     .trains-grid { display: flex; flex-direction: column; gap: 6px; }
     .train-row {
       display: grid;
-      grid-template-columns: 100px 1fr 110px 100px 70px;
+      grid-template-columns: 100px 1fr 110px 70px;
       align-items: center;
       gap: 16px;
       padding: 13px 18px;
@@ -282,12 +282,13 @@ import "../../styles/global.css";
       line-height: 1.2 !important;
     }
     .train-row.is-next .t-depart { color: var(--accent) !important; }
-    .t-tripid {
+    .t-leaveby-inline {
       font-family: 'DM Mono', monospace !important;
       font-size: 11px !important;
       color: var(--mn-muted) !important;
       line-height: 1.4 !important;
     }
+    .t-leaveby-inline strong { color: var(--mn-text) !important; display: block; font-size: 14px !important; }
     .t-stops { font-size: 12px !important; color: var(--mn-muted) !important; margin-top: 2px; line-height: 1.4 !important; }
     .t-delay {
       font-family: 'DM Mono', monospace !important;
@@ -299,8 +300,6 @@ import "../../styles/global.css";
     .t-gct { text-align: center; }
     .t-gct-time { font-family: 'DM Mono', monospace !important; font-size: 13px !important; color: var(--mn-muted) !important; line-height: 1.4 !important; }
     .t-gct-label { font-family: 'DM Mono', monospace !important; font-size: 9px !important; color: var(--dim) !important; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; line-height: 1.4 !important; }
-    .t-leaveby { text-align: right; font-family: 'DM Mono', monospace !important; font-size: 12px !important; color: var(--mn-muted) !important; line-height: 1.4 !important; }
-    .t-leaveby strong { color: var(--mn-text) !important; display: block; font-size: 14px !important; }
     .t-badge { text-align: right; }
     .mn-badge-pill {
       display: inline-block;
@@ -349,9 +348,10 @@ import "../../styles/global.css";
       .mn-header, .mn-hero, .mn-trains-section { padding-left: 16px; padding-right: 16px; }
       .mn-clock { font-size: 20px !important; }
       .leave-time { font-size: 36px !important; }
+      .train-dep-time { font-size: 36px !important; }
       .leave-card { gap: 16px; flex-wrap: wrap; }
       .train-row { grid-template-columns: 90px 1fr 90px; }
-      .t-leaveby, .t-badge { display: none; }
+      .t-badge { display: none; }
     }
   </style>
 </head>
@@ -696,7 +696,33 @@ import "../../styles/global.css";
       if (sec < 0)  return `${Math.floor(-sec / 60)}m ago`;
       if (sec < 60) return `${sec}s`;
       const m = Math.floor(sec / 60);
-      return m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
+      return m < 60 ? `${m} min` : `${Math.floor(m/60)}h ${m%60}m`;
+    }
+
+    function fmtTravelTime(depTime, arrTime) {
+      // Parse "H:MM PM" style times and compute difference in minutes
+      if (!depTime || !arrTime) return null;
+      function parseTime(t) {
+        const m = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!m) return null;
+        let h = parseInt(m[1]);
+        const min = parseInt(m[2]);
+        const ap = m[3].toUpperCase();
+        if (ap === "PM" && h !== 12) h += 12;
+        if (ap === "AM" && h === 12) h = 0;
+        return h * 60 + min;
+      }
+      const dep = parseTime(depTime);
+      const arr = parseTime(arrTime);
+      if (dep === null || arr === null) return null;
+      let diff = arr - dep;
+      if (diff < 0) diff += 24 * 60; // handle midnight crossover
+      if (diff >= 60) {
+        const h = Math.floor(diff / 60);
+        const m = diff % 60;
+        return m > 0 ? `${h}h ${m} min` : `${h}h`;
+      }
+      return `${diff} min`;
     }
 
     function urgency(s) {
@@ -730,16 +756,21 @@ import "../../styles/global.css";
       const depInSec   = t.dep_ts   - now;
       const urg = (leaveInSec < 0 && depInSec > 0) ? "urgent" : urgency(leaveInSec);
 
-      let countdownHTML;
+      // "Leave in X min" — simple countdown only
+      let leaveCountdown;
       if (depInSec <= 0) {
-        countdownHTML = `Train departed <strong>${fmtDur(depInSec)}</strong>`;
+        leaveCountdown = `Train departed ${fmtDur(depInSec)}`;
       } else if (leaveInSec < 60) {
-        countdownHTML = `<strong style="color:var(--danger)">LEAVE NOW</strong> — train departs in ${fmtDur(depInSec)}`;
+        leaveCountdown = `<strong style="color:var(--danger)">LEAVE NOW</strong>`;
       } else {
-        countdownHTML = `Leave in <strong>${fmtDur(leaveInSec)}</strong> — train departs ${t.dep_time}`;
+        leaveCountdown = `Leave in <strong>${fmtDur(leaveInSec)}</strong>`;
       }
 
       const toName  = getStationName(toEl.value);
+      const travelTime = fmtTravelTime(t.dep_time, t.arr_time);
+      const travelMeta = [travelTime, t.stops_remaining ? `${t.stops_remaining} stops` : null]
+        .filter(Boolean).join(" · ");
+
       const nextHTML = next ? `
         <div class="next-catchable">
           NEXT CATCHABLE &nbsp;·&nbsp; departs <strong>${next.dep_time}</strong>
@@ -752,14 +783,19 @@ import "../../styles/global.css";
           <div>
             <div class="leave-sublabel">Leave by</div>
             <div class="leave-time ${urg}">${t.leave_time}</div>
-            <div class="leave-countdown">${countdownHTML}</div>
+            <div class="leave-countdown">${leaveCountdown}</div>
+            <div style="margin-top:16px;">
+              <div class="leave-sublabel">Train Departs</div>
+              <div class="leave-time ${urg}" style="margin-top:4px;">${t.dep_time}</div>
+              <div class="leave-countdown" style="margin-top:6px;">Train leaves in <strong>${fmtDur(depInSec)}</strong></div>
+            </div>
             ${nextHTML}
           </div>
-          <div class="divider-v"></div>
+          <div class="divider-v" style="height:140px;"></div>
           <div class="train-detail">
             <div class="train-dest">→ ${toName}</div>
-            <div class="train-dep-time">${t.dep_time}</div>
-            <div class="train-meta">${t.arr_time ? t.arr_time + " arr " + toName : ""}${t.stops_remaining ? " · " + t.stops_remaining + " stops" : ""}${t.delay_minutes > 0 ? " · <span style='color:var(--warn)'>" + t.delay_minutes + " min late</span>" : ""}</div>
+            <div class="train-dep-time">${t.arr_time || "—"}</div>
+            <div class="train-meta">${travelMeta}${t.delay_minutes > 0 ? ` · <span style='color:var(--warn)'>${t.delay_minutes} min late</span>` : ""}</div>
           </div>
           <div class="walk-pill">🚶 ${data.walk_minutes + data.buffer_minutes} min to platform</div>
         </div>`;
@@ -787,7 +823,7 @@ import "../../styles/global.css";
           <div class="train-row ${isNext ? "is-next" : ""} ${isMissed ? "is-missed" : ""}">
             <div class="t-depart">${t.dep_time}</div>
             <div>
-              <div class="t-tripid">Train ${t.trip_id || "—"}</div>
+              <div class="t-leaveby-inline">leave by<strong>${t.leave_time}</strong></div>
               <div class="t-stops">${t.stops_remaining ? t.stops_remaining + " stops" : ""}</div>
               ${delayHTML}
             </div>
@@ -795,7 +831,6 @@ import "../../styles/global.css";
               <div class="t-gct-time">${t.arr_time || "—"}</div>
               <div class="t-gct-label">arr ${toName}</div>
             </div>
-            <div class="t-leaveby">leave by<strong>${t.leave_time}</strong></div>
             <div class="t-badge"><span class="mn-badge-pill ${bClass}">${bText}</span></div>
           </div>`;
       }).join("");
